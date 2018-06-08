@@ -1,0 +1,16 @@
+version: 2
+
+jobs:
+  noop:
+    docker:
+    - image: python:3.6
+    working_directory: /workspace
+    steps:
+      - checkout
+      - run: /bin/true
+
+workflows:
+  version: 2
+  pipeline:
+    jobs:
+    - noop
