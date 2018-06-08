@@ -22,6 +22,7 @@ jobs:
             git diff --check $(git merge-base origin/master $CIRCLE_SHA1)..$CIRCLE_SHA1
             flake8 .
             pytest tests/
+            tests/datatests.sh
             codecov
       - save_cache:
           key: pgtoolkit-{{ .Branch }}
