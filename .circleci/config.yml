@@ -1,16 +1,36 @@
 version: 2
 
 jobs:
-  noop:
+  unit-py36:
     docker:
     - image: python:3.6
+      environment:
+        TERM: linux
+        TERMINFO: /etc/terminfo
     working_directory: /workspace
     steps:
       - checkout
-      - run: /bin/true
+      - restore_cache:
+          keys:
+            - pgtoolkit-{{ .Branch }}
+            - pgtoolkit-master
+      - run:
+          name: Python lint and tests
+          command: |
+            set -x
+            pip install --upgrade --requirement requirements-ci.txt --editable .
+            git diff --check $(git merge-base origin/master $CIRCLE_SHA1)..$CIRCLE_SHA1
+            flake8 .
+            pytest tests/
+            tests/datatests.sh
+            codecov
+      - save_cache:
+          key: pgtoolkit-{{ .Branch }}
+          paths:
+            - "~/.cache/pip/"
 
 workflows:
   version: 2
   pipeline:
     jobs:
-    - noop
+    - unit-py36
