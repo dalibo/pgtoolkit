@@ -1,7 +1,11 @@
 # Postgres Cluster Support in Python
 
 `pgtoolkit` provides implementations to manage various file formats in Postgres
-cluster.
+cluster. Currently:
+
+- `pg_hba.conf` : render, validate and align columns.
+- `.pgpass` : render, validate and sort lines.
+
 
 The API in this toolkit must:
 
