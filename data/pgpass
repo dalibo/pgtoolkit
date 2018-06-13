@@ -1,0 +1,11 @@
+*:*:*:postgres:c0nfident\:el
+# Comment accentué
+
+more:5432:precise:entry:0revea\\ed
+
+# Multi
+# Line
+# Ordered
+# Comment.
+other:5432:*:username:0unveiled
+#disabled:5432:*:entry:0secret

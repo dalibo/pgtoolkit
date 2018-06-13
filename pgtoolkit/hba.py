@@ -6,18 +6,7 @@ import os
 import shlex
 import sys
 
-
-class ParseError(Exception):
-    def __init__(self, lineno, message):
-        super(ParseError, self).__init__(message)
-        self.lineno = lineno
-
-    def __repr__(self):
-        return '<%s at line %d: %.32s>' % (
-            self.__class__.__name__, self.lineno, self.args[0])
-
-    def __str__(self):
-        return "Bad line #%s: %s" % (self.lineno, self.args[0])
+from .errors import ParseError
 
 
 class HBAComment(str):
@@ -133,7 +122,7 @@ class HBA(object):
                 try:
                     entry = HBAEntry.parse(line)
                 except Exception as e:
-                    raise ParseError(1 + i, str(e))
+                    raise ParseError(1 + i, line, str(e))
             self.lines.append(entry)
 
     def save(self, fo):
