@@ -29,5 +29,5 @@ The API in this toolkit must:
    :alt: Continuous Integration report
 
 .. |RTD| image:: https://readthedocs.org/projects/pgtoolkit/badge/?version=latest
-   :target: https://pgtoolkit.readthedocs.io/en/latest/?badge=latest
+   :target: https://pgtoolkit.readthedocs.io/en/latest/
    :alt: Documentation
