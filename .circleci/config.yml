@@ -31,7 +31,7 @@ jobs:
           name: Unit tests
           command: |
             pytest tests/
-            codecov
+            codecov -F ${CIRCLE_JOB/unit-/}
       - run:
           name: Check documentation
           command: |
