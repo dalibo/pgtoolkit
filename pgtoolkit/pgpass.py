@@ -6,6 +6,7 @@
 # - Sort entry by precision (even if commented).
 # - Preserve comment order when sorting.
 
+from __future__ import print_function
 
 import os
 import sys
@@ -132,7 +133,7 @@ class PassFile(object):
         self.lines = []
 
     def __iter__(self):
-        return filter(lambda l: isinstance(l, PassEntry), self.lines)
+        return iter(filter(lambda l: isinstance(l, PassEntry), self.lines))
 
     def parse(self, fo):
         for i, line in enumerate(fo):
