@@ -33,6 +33,10 @@ jobs:
             pytest tests/
             codecov
       - run:
+          name: mkdocs
+          command: |
+            mkdocs build --clean --strict
+      - run:
           name: Script tests
           command: |
             tests/datatests.sh
