@@ -5,11 +5,11 @@
 | |CircleCI| |Codecov| |RTD|
 
 
-`pgtoolkit` provides implementations to manage various file formats in Postgres
+``pgtoolkit`` provides implementations to manage various file formats in Postgres
 cluster. Currently:
 
-- `pg_hba.conf` : render, validate and align columns.
-- `.pgpass` : render, validate and sort lines.
+- ``pg_hba.conf``: render, validate and align columns.
+- ``.pgpass``: render, validate and sort lines.
 
 
 .. code::
