@@ -12,6 +12,19 @@ cluster. Currently:
 - `.pgpass` : render, validate and sort lines.
 
 
+.. code::
+
+   import sys
+
+   from pgtoolkit.hba import parse
+
+
+   with open('pg_hba.conf') as fo:
+       hba = parse(fo)
+
+   hba.write(sys.stdout)
+
+
 The API in this toolkit must:
 
 - Use only Python stdlib.
