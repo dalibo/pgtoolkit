@@ -111,7 +111,7 @@ class HBA(object):
         self.lines = []
 
     def __iter__(self):
-        return filter(lambda l: isinstance(l, HBAEntry), self.lines)
+        return iter(filter(lambda l: isinstance(l, HBAEntry), self.lines))
 
     def parse(self, fo):
         for i, line in enumerate(fo):

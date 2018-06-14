@@ -10,15 +10,15 @@ jobs:
     working_directory: /workspace
     steps:
       - checkout
-      - restore_cache:
+      - restore_cache: &restore_cache
           keys:
             - pgtoolkit-{{ .Branch }}
             - pgtoolkit-master
-      - run:
+      - run: &deps
           name: Install dependencies
           command: |
             pip install --upgrade --requirement requirements-ci.txt --editable .
-      - save_cache:
+      - save_cache: &save_cache
           key: pgtoolkit-{{ .Branch }}
           paths:
             - "~/.cache/pip/"
@@ -27,7 +27,7 @@ jobs:
           command: |
             git diff --check $(git merge-base origin/master $CIRCLE_SHA1)..$CIRCLE_SHA1
             flake8 .
-      - run:
+      - run: &unit_tests
           name: Unit tests
           command: |
             pytest tests/
@@ -37,13 +37,29 @@ jobs:
           command: |
             python setup.py --long-description | rst2html.py --strict >/dev/null
             mkdocs build --clean --strict
-      - run:
+      - run: &script_tests
           name: Script tests
           command: |
             tests/datatests.sh
+
+  unit-py26:
+    docker:
+    - image: dalibo/python26:slim
+      environment:
+        TERM: linux
+        TERMINFO: /etc/terminfo
+    working_directory: /workspace
+    steps:
+      - checkout
+      - restore_cache: *restore_cache
+      - run: *deps
+      - save_cache: *save_cache
+      - run: *unit_tests
+      - run: *script_tests
 
 workflows:
   version: 2
   pipeline:
     jobs:
     - unit-py36
+    - unit-py26
