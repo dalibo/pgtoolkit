@@ -65,6 +65,24 @@ file.
 `servicefile['servicename']` syntax.
 
 
+## `pgtoolkit.service.find(environ=os.environ)`
+
+`find()` search for the first candidate of `pg_service.conf` file from either
+environment and regular locations. `find` raises an exception if it fails to
+find a Connection service file.
+
+``` python
+from pgtoolkit.service import find
+
+try:
+    servicefile = find()
+except Exception as e:
+    "Deal with exception."
+else:
+    "Manage servicefile."
+```
+
+
 ## Examples
 
 How to edit a service file:

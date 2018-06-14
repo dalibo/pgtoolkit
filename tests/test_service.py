@@ -53,3 +53,53 @@ def test_render():
 
     # Ensure no space around =
     assert 'host=myhost' in raw
+
+
+def test_sysconfdir(mocker):
+    isdir = mocker.patch('pgtoolkit.service.os.path.isdir', autospec=True)
+
+    from pgtoolkit.service import guess_sysconfdir
+
+    isdir.return_value = False
+    with pytest.raises(Exception):
+        guess_sysconfdir(environ=dict(PGSYSCONFDIR='/toto'))
+
+    isdir.return_value = True
+    sysconfdir = guess_sysconfdir(environ=dict(PGSYSCONFDIR='/toto'))
+    assert '/toto' == sysconfdir
+
+    isdir.return_value = False
+    with pytest.raises(Exception):
+        guess_sysconfdir(environ=dict())
+
+    isdir.return_value = True
+    sysconfdir = guess_sysconfdir(environ=dict())
+    assert sysconfdir.startswith('/etc')
+
+
+def test_find(mocker):
+    g_scd = mocker.patch('pgtoolkit.service.guess_sysconfdir', autospec=True)
+    exists = mocker.patch('pgtoolkit.service.os.path.exists', autospec=True)
+
+    from pgtoolkit.service import find
+
+    exists.return_value = False
+    with pytest.raises(Exception):
+        find(environ=dict(PGSERVICEFILE='my-services.conf'))
+
+    g_scd.return_value = '/etc/postgresql-common'
+    with pytest.raises(Exception):
+        find(environ=dict())
+
+    exists.return_value = True
+    servicefile = find(environ=dict(PGSERVICEFILE='toto.conf'))
+    assert 'toto.conf' == servicefile
+
+    exists.side_effect = [False, True]
+    servicefile = find(environ=dict())
+    assert servicefile.endswith('/pg_service.conf')
+    exists.side_effect = None
+
+    g_scd.side_effect = Exception('Pouet')
+    servicefile = find(environ=dict())
+    assert servicefile.endswith('/.pg_service.conf')

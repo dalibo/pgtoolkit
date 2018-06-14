@@ -7,6 +7,7 @@ try:
 except ImportError:  # pragma: nocover_py3
     from ConfigParser import ConfigParser
 
+import os
 import sys
 
 
@@ -62,6 +63,43 @@ class ServiceFile(object):
 
     def save(self, fo):
         self.config.write(fo, space_around_delimiters=False)
+
+
+def guess_sysconfdir(environ=os.environ):
+    fromenv = environ.get('PGSYSCONFDIR')
+    if fromenv:
+        candidates = [fromenv]
+    else:
+        candidates = [
+            # From PGDG APT packages.
+            '/etc/postgresql-common',
+            # From PGDG RPM packages.
+            '/etc/sysconfig/pgsql',
+        ]
+
+    for candidate in candidates:
+        if candidate and os.path.isdir(candidate):
+            return candidate
+    raise Exception("Can't find sysconfdir")
+
+
+def find(environ=os.environ):
+    fromenv = environ.get('PGSERVICEFILE')
+    if fromenv:
+        candidates = [fromenv]
+    else:
+        candidates = [os.path.expanduser("~/.pg_service.conf")]
+        try:
+            sysconfdir = guess_sysconfdir(environ)
+        except Exception:
+            pass
+        else:
+            candidates.append(os.path.join(sysconfdir, 'pg_service.conf'))
+
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return candidate
+    raise Exception("Can't find pg_service file.")
 
 
 def parse(fo, source=None):
