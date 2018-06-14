@@ -15,19 +15,31 @@ jobs:
             - pgtoolkit-{{ .Branch }}
             - pgtoolkit-master
       - run:
-          name: Python lint and tests
+          name: Install dependencies
           command: |
-            set -x
             pip install --upgrade --requirement requirements-ci.txt --editable .
-            git diff --check $(git merge-base origin/master $CIRCLE_SHA1)..$CIRCLE_SHA1
-            flake8 .
-            pytest tests/
-            tests/datatests.sh
-            codecov
       - save_cache:
           key: pgtoolkit-{{ .Branch }}
           paths:
             - "~/.cache/pip/"
+      - run:
+          name: Lint check
+          command: |
+            git diff --check $(git merge-base origin/master $CIRCLE_SHA1)..$CIRCLE_SHA1
+            flake8 .
+      - run:
+          name: Unit tests
+          command: |
+            pytest tests/
+            codecov
+      - run:
+          name: mkdocs
+          command: |
+            mkdocs build --clean --strict
+      - run:
+          name: Script tests
+          command: |
+            tests/datatests.sh
 
 workflows:
   version: 2
