@@ -5,6 +5,7 @@ file formats. Namely:
 
 - `pg_hba.conf`
 - `.pgpass`
+- `pg_service.conf`
 
 
 ## Quick installation

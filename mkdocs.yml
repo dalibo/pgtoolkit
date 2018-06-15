@@ -8,6 +8,8 @@ repo_url: https://github.com/dalibo/pgtoolkit
 
 pages:
 - Home: index.md
+- Python API:
+  - pgtoolkit.service: service.md
 
 theme: readthedocs
 site_dir: build/docs/
