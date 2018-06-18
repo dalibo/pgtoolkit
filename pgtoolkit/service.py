@@ -10,6 +10,8 @@ except ImportError:  # pragma: nocover_py3
 import os
 import sys
 
+from ._helpers import open_or_stdin
+
 
 class Service(dict):
     def __init__(self, name, parameters=None, **extra):
@@ -111,11 +113,7 @@ def parse(fo, source=None):
 if __name__ == '__main__':  # pragma: nocover
     argv = sys.argv[1:] + ['-']
     try:
-        if argv[0] == '-':
-            fo = sys.stdin
-        else:
-            fo = open(argv[0])
-        with fo:
+        with open_or_stdin(argv[0]) as fo:
             services = parse(fo)
         services.save(sys.stdout)
     except Exception as e:
