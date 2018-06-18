@@ -11,6 +11,7 @@ cluster. Currently:
 - ``pg_hba.conf``: render, validate and align columns.
 - ``.pgpass``: render, validate and sort lines.
 - ``pg_service.conf``: find, read, edit, render.
+- Cluster logs.
 
 
 .. code::
