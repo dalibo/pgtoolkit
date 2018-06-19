@@ -85,11 +85,17 @@ def group_lines(lines, cont='\t'):
 
 
 def parse_datetime(raw):
-    return datetime.strptime(raw, '%Y-%m-%d %H:%M:%S %Z')
-
-
-def parse_datetime_ms(raw):
-    return datetime.strptime(raw, '%Y-%m-%d %H:%M:%S.%f %Z')
+    match = PrefixParser._datetime_re.match(raw)
+    if not match:
+        raise ValueError("%s is not a known date" % raw)
+    infos = []
+    for v in match.groups()[:-1]:
+        infos.append(0 if v is None else int(v))
+    tz = match.group('timezone')
+    if tz != 'UTC':
+        # We need tzdata for that.
+        raise ValueError("Timezone %s is not managed" % tz)
+    return datetime(*infos)
 
 
 def parse_epoch(raw):
@@ -134,6 +140,15 @@ class PrefixParser(object):
     #
     # cf.
     # https://www.postgresql.org/docs/10/static/runtime-config-logging.html#GUC-LOG-LINE-PREFIX
+
+    _datetime_re = re.compile(
+        r'(?P<year>\d{4})-(?P<month>[01]\d)-(?P<day>[0-3]\d)'
+        r' '
+        r'(?P<hour>[012]\d):(?P<minute>[0-6]\d):(?P<second>[0-6]\d)'
+        r'(?:\.(?P<microsecond>\d+))?'
+        r' '
+        r'(?P<timezone>\w+)'
+    )
 
     _datetime_pat = r'\d{4}-[01]\d-[0-3]\d [012]\d:[0-6]\d:[0-6]\d'
     # Pattern map of Status informations.
@@ -183,7 +198,7 @@ class PrefixParser(object):
         'remote_port': int,
         'start': parse_datetime,
         'timestamp': parse_datetime,
-        'timestamp_ms': parse_datetime_ms,
+        'timestamp_ms': parse_datetime,
         'xid': int,
     }
 
