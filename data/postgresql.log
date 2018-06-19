@@ -1,0 +1,316 @@
+2018-06-15 10:01:19.310 UTC [7883]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 1.643 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:01:19.310 UTC [7883]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.007 user=postgres database=postgres host=[local]
+2018-06-15 10:01:19.829 UTC [7886]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:01:19.832 UTC [7886]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:01:19.836 UTC [7886]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 1.807 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:01:19.836 UTC [7886]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.007 user=postgres database=postgres host=[local]
+2018-06-15 10:01:20.355 UTC [7889]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:01:20.357 UTC [7889]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:01:20.361 UTC [7889]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 1.870 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:01:20.361 UTC [7889]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.007 user=postgres database=postgres host=[local]
+2018-06-15 10:03:53.487 UTC [7931]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:03:53.488 UTC [7931]: [2-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  incomplete startup packet
+2018-06-15 10:03:54.009 UTC [7934]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:03:54.012 UTC [7934]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:03:54.025 UTC [7934]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 2.217 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:03:54.025 UTC [7934]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.015 user=postgres database=postgres host=[local]
+2018-06-15 10:03:54.538 UTC [7937]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:03:54.540 UTC [7937]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:03:54.542 UTC [7937]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 0.863 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:03:54.542 UTC [7937]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.003 user=postgres database=postgres host=[local]
+2018-06-15 10:03:55.060 UTC [7940]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:03:55.063 UTC [7940]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:03:55.067 UTC [7940]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 1.938 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:03:55.067 UTC [7940]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.007 user=postgres database=postgres host=[local]
+2018-06-15 10:04:02.764 UTC [7950]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:04:02.765 UTC [7950]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:04:09.984 UTC [7950]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 0.711 ms  statement: select now();
+2018-06-15 10:08:52.981 UTC [7924]: [1-1] app=,db=LOG:  checkpoint starting: time
+2018-06-15 10:08:53.034 UTC [7924]: [2-1] app=,db=LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.000 s, total=0.053 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB
+2018-06-15 10:13:02.608 UTC [7950]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:08:59.844 user=postgres database=postgres host=[local]
+2018-06-15 10:13:39.914 UTC [8038]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:13:39.915 UTC [8038]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:13:45.844 UTC [8038]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 0.512 ms  statement: select 1
+2018-06-15 10:14:04.102 UTC [8038]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 0.200 ms  statement: select 1;
+2018-06-15 10:14:10.057 UTC [8038]: [5-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:30.142 user=postgres database=postgres host=[local]
+2018-06-15 10:14:11.809 UTC [8051]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:14:11.810 UTC [8051]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:14:15.167 UTC [8051]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 0.566 ms  statement: select
+	1
+	;
+2018-06-15 10:17:16.916 UTC [8051]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 14.038 ms  statement: SELECT pg_catalog.quote_ident(c.relname) FROM pg_catalog.pg_class c WHERE c.relkind IN ('r', 'm') AND substring(pg_catalog.quote_ident(c.relname),1,2)='an' AND pg_catalog.pg_table_is_visible(c.oid) AND c.relnamespace <> (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = 'pg_catalog')
+	UNION
+	SELECT pg_catalog.quote_ident(n.nspname) || '.' FROM pg_catalog.pg_namespace n WHERE substring(pg_catalog.quote_ident(n.nspname) || '.',1,2)='an' AND (SELECT pg_catalog.count(*) FROM pg_catalog.pg_namespace WHERE substring(pg_catalog.quote_ident(nspname) || '.',1,2) = substring('an',1,pg_catalog.length(pg_catalog.quote_ident(nspname))+1)) > 1
+	UNION
+	SELECT pg_catalog.quote_ident(n.nspname) || '.' || pg_catalog.quote_ident(c.relname) FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n WHERE c.relnamespace = n.oid AND c.relkind IN ('r', 'm') AND substring(pg_catalog.quote_ident(n.nspname) || '.' || pg_catalog.quote_ident(c.relname),1,2)='an' AND substring(pg_catalog.quote_ident(n.nspname) || '.',1,2) = substring('an',1,pg_catalog.length(pg_catalog.quote_ident(n.nspname))+1) AND (SELECT pg_catalog.count(*) FROM pg_catalog.pg_namespace WHERE substring(pg_catalog.quote_ident(nspname) || '.',1,2) = substring('an',1,pg_catalog.length(pg_catalog.quote_ident(nspname))+1)) = 1
+	 UNION SELECT 'FULL' UNION SELECT 'FREEZE' UNION SELECT 'ANALYZE' UNION SELECT 'VERBOSE'
+	LIMIT 1000
+2018-06-15 10:17:18.133 UTC [8051]: [5-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 288.324 ms  statement: vacuum ANALYZE ;
+2018-06-15 10:17:42.020 UTC [8088]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:17:42.022 UTC [8088]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:17:42.025 UTC [8088]: [3-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.200 ms  statement: drop table if exists pgbench_history
+2018-06-15 10:17:42.046 UTC [8088]: [4-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 20.300 ms  statement: create table pgbench_history(tid int,bid int,aid    int,delta int,mtime timestamp,filler char(22))
+2018-06-15 10:17:42.046 UTC [8088]: [5-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.110 ms  statement: drop table if exists pgbench_tellers
+2018-06-15 10:17:42.049 UTC [8088]: [6-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 3.178 ms  statement: create table pgbench_tellers(tid int not null,bid int,tbalance int,filler char(84)) with (fillfactor=100)
+2018-06-15 10:17:42.050 UTC [8088]: [7-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.209 ms  statement: drop table if exists pgbench_accounts
+2018-06-15 10:17:42.055 UTC [8088]: [8-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 4.291 ms  statement: create table pgbench_accounts(aid    int not null,bid int,abalance int,filler char(84)) with (fillfactor=100)
+2018-06-15 10:17:42.055 UTC [8088]: [9-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.197 ms  statement: drop table if exists pgbench_branches
+2018-06-15 10:17:42.058 UTC [8088]: [10-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 3.390 ms  statement: create table pgbench_branches(bid int not null,bbalance int,filler char(88)) with (fillfactor=100)
+2018-06-15 10:17:42.059 UTC [8088]: [11-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.619 ms  statement: begin
+2018-06-15 10:17:42.060 UTC [8088]: [12-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.687 ms  statement: insert into pgbench_branches(bid,bbalance) values(1,0)
+2018-06-15 10:17:42.061 UTC [8088]: [13-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.488 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (1,1,0)
+2018-06-15 10:17:42.061 UTC [8088]: [14-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.174 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (2,1,0)
+2018-06-15 10:17:42.062 UTC [8088]: [15-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.137 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (3,1,0)
+2018-06-15 10:17:42.062 UTC [8088]: [16-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.118 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (4,1,0)
+2018-06-15 10:17:42.062 UTC [8088]: [17-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.151 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (5,1,0)
+2018-06-15 10:17:42.064 UTC [8088]: [18-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.223 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (6,1,0)
+2018-06-15 10:17:42.065 UTC [8088]: [19-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.150 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (7,1,0)
+2018-06-15 10:17:42.065 UTC [8088]: [20-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.148 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (8,1,0)
+2018-06-15 10:17:42.066 UTC [8088]: [21-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.293 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (9,1,0)
+2018-06-15 10:17:42.067 UTC [8088]: [22-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.216 ms  statement: insert into pgbench_tellers(tid,bid,tbalance) values (10,1,0)
+2018-06-15 10:17:42.069 UTC [8088]: [23-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 2.320 ms  statement: commit
+2018-06-15 10:17:42.070 UTC [8088]: [24-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.071 ms  statement: begin
+2018-06-15 10:17:42.071 UTC [8088]: [25-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.885 ms  statement: truncate pgbench_accounts
+2018-06-15 10:17:42.179 UTC [8088]: [26-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 108.073 ms  statement: copy pgbench_accounts from stdin
+2018-06-15 10:17:42.240 UTC [8088]: [27-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 60.788 ms  statement: commit
+2018-06-15 10:17:42.254 UTC [8088]: [28-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 14.035 ms  statement: vacuum analyze pgbench_branches
+2018-06-15 10:17:42.257 UTC [8088]: [29-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 2.886 ms  statement: vacuum analyze pgbench_tellers
+2018-06-15 10:17:42.311 UTC [8088]: [30-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 53.344 ms  statement: vacuum analyze pgbench_accounts
+2018-06-15 10:17:42.311 UTC [8088]: [31-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 0.419 ms  statement: vacuum analyze pgbench_history
+2018-06-15 10:17:42.319 UTC [8088]: [32-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 7.501 ms  statement: alter table pgbench_branches add primary key (bid)
+2018-06-15 10:17:42.326 UTC [8088]: [33-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 6.932 ms  statement: alter table pgbench_tellers add primary key (tid)
+2018-06-15 10:17:42.383 UTC [8088]: [34-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  duration: 56.693 ms  statement: alter table pgbench_accounts add primary key (aid)
+2018-06-15 10:17:42.383 UTC [8088]: [35-1] app=pgbench,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.362 user=postgres database=postgres host=[local]
+2018-06-15 10:17:53.861 UTC [8090]: [1-1] app=,db=LOG:  automatic analyze of table "postgres.public.pgbench_accounts" system usage: CPU: user: 0.07 s, system: 0.01 s, elapsed: 0.25 s
+2018-06-15 10:17:53.876 UTC [8090]: [2-1] app=,db=LOG:  automatic vacuum of table "postgres.pg_catalog.pg_statistic": index scans: 1
+	pages: 0 removed, 25 remain, 0 skipped due to pins, 0 skipped frozen
+	tuples: 109 removed, 404 remain, 0 are dead but not yet removable, oldest xmin: 610
+	buffer usage: 81 hits, 0 misses, 1 dirtied
+	avg read rate: 0.000 MB/s, avg write rate: 14.051 MB/s
+	system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2018-06-15 10:18:52.154 UTC [7924]: [3-1] app=,db=LOG:  checkpoint starting: time
+2018-06-15 10:19:16.630 UTC [8051]: [6-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 7.955 ms  statement: load 'auto_explain';
+2018-06-15 10:21:22.180 UTC [7924]: [4-1] app=,db=LOG:  checkpoint complete: wrote 1775 buffers (10.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=149.891 s, sync=0.110 s, total=150.025 s; sync files=110, longest=0.004 s, average=0.000 s; distance=13275 kB, estimate=13275 kB
+2018-06-15 10:42:05.078 UTC [7922]: [5-1] app=,db=LOG:  received fast shutdown request
+2018-06-15 10:42:05.083 UTC [7922]: [6-1] app=,db=LOG:  aborting any active transactions
+2018-06-15 10:42:05.083 UTC [8051]: [7-1] app=psql,db=postgres,client=[local],user=postgres FATAL:  terminating connection due to administrator command
+2018-06-15 10:42:05.083 UTC [8051]: [8-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:27:53.274 user=postgres database=postgres host=[local]
+2018-06-15 10:42:05.086 UTC [7922]: [7-1] app=,db=LOG:  worker process: logical replication launcher (PID 7929) exited with exit code 1
+2018-06-15 10:42:05.088 UTC [7924]: [5-1] app=,db=LOG:  shutting down
+2018-06-15 10:42:05.092 UTC [7924]: [6-1] app=,db=LOG:  checkpoint starting: shutdown immediate
+2018-06-15 10:42:05.121 UTC [7924]: [7-1] app=,db=LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.000 s, sync=0.000 s, total=0.033 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=11947 kB
+2018-06-15 10:42:05.142 UTC [7922]: [8-1] app=,db=LOG:  database system is shut down
+2018-06-15 10:42:05.293 UTC [8278]: [1-1] app=,db=,client=,user= LOG:  listening on IPv6 address "::1", port 5432
+2018-06-15 10:42:05.293 UTC [8278]: [2-1] app=,db=,client=,user= LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2018-06-15 10:42:05.297 UTC [8278]: [3-1] app=,db=,client=,user= LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2018-06-15 10:42:05.327 UTC [8279]: [1-1] app=,db=,client=,user= LOG:  database system was shut down at 2018-06-15 10:42:05 UTC
+2018-06-15 10:42:05.340 UTC [8278]: [4-1] app=,db=,client=,user= LOG:  database system is ready to accept connections
+2018-06-15 10:42:05.866 UTC [8286]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:42:05.866 UTC [8286]: [2-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  incomplete startup packet
+2018-06-15 10:42:06.382 UTC [8289]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:42:06.385 UTC [8289]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:42:06.396 UTC [8289]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 3.022 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:42:06.397 UTC [8289]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.015 user=postgres database=postgres host=[local]
+2018-06-15 10:42:06.908 UTC [8292]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:42:06.909 UTC [8292]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:42:06.911 UTC [8292]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 0.673 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:42:06.911 UTC [8292]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.002 user=postgres database=postgres host=[local]
+2018-06-15 10:42:07.422 UTC [8295]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:42:07.423 UTC [8295]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:42:07.425 UTC [8295]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 1.098 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:42:07.426 UTC [8295]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.004 user=postgres database=postgres host=[local]
+2018-06-15 10:44:42.893 UTC [8278]: [5-1] app=,db=,client=,user= LOG:  received fast shutdown request
+2018-06-15 10:44:42.916 UTC [8278]: [6-1] app=,db=,client=,user= LOG:  aborting any active transactions
+2018-06-15 10:44:42.918 UTC [8278]: [7-1] app=,db=,client=,user= LOG:  worker process: logical replication launcher (PID 8285) exited with exit code 1
+2018-06-15 10:44:42.918 UTC [8280]: [1-1] app=,db=,client=,user= LOG:  shutting down
+2018-06-15 10:44:42.923 UTC [8280]: [2-1] app=,db=,client=,user= LOG:  checkpoint starting: shutdown immediate
+2018-06-15 10:44:42.951 UTC [8280]: [3-1] app=,db=,client=,user= LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.000 s, sync=0.000 s, total=0.032 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB
+2018-06-15 10:44:42.967 UTC [8278]: [8-1] app=,db=,client=,user= LOG:  database system is shut down
+2018-06-15 10:44:43.105 UTC [8327]: [1-1] app=,db=,client=,user= LOG:  listening on IPv6 address "::1", port 5432
+2018-06-15 10:44:43.105 UTC [8327]: [2-1] app=,db=,client=,user= LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2018-06-15 10:44:43.111 UTC [8327]: [3-1] app=,db=,client=,user= LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2018-06-15 10:44:43.137 UTC [8328]: [1-1] app=,db=,client=,user= LOG:  database system was shut down at 2018-06-15 10:44:42 UTC
+2018-06-15 10:44:43.147 UTC [8327]: [4-1] app=,db=,client=,user= LOG:  database system is ready to accept connections
+2018-06-15 10:44:43.680 UTC [8335]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:44:43.680 UTC [8335]: [2-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  incomplete startup packet
+2018-06-15 10:44:44.198 UTC [8338]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:44:44.201 UTC [8338]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:44:44.213 UTC [8338]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 2.687 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:44:44.213 UTC [8338]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.015 user=postgres database=postgres host=[local]
+2018-06-15 10:44:44.734 UTC [8341]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:44:44.738 UTC [8341]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:44:44.742 UTC [8341]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 2.207 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:44:44.743 UTC [8341]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.008 user=postgres database=postgres host=[local]
+2018-06-15 10:44:45.256 UTC [8344]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:44:45.257 UTC [8344]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:44:45.259 UTC [8344]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 0.813 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:44:45.259 UTC [8344]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.003 user=postgres database=postgres host=[local]
+2018-06-15 10:44:54.607 UTC [8347]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:44:54.610 UTC [8347]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:44:55.893 UTC [8347]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:01.285 user=postgres database=postgres host=[local]
+2018-06-15 10:44:56.338 UTC [8357]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:44:56.339 UTC [8357]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:44:58.206 UTC [8357]: [3-1] app=psql,db=postgres,client=[local],user=postgres ERROR:  function sleep(integer) does not exist at character 8
+2018-06-15 10:44:58.206 UTC [8357]: [4-1] app=psql,db=postgres,client=[local],user=postgres HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2018-06-15 10:44:58.206 UTC [8357]: [5-1] app=psql,db=postgres,client=[local],user=postgres STATEMENT:  select sleep(1);
+2018-06-15 10:45:03.175 UTC [8357]: [6-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 1001.173 ms  plan:
+	Query Text: select pg_sleep(1);
+	Result  (cost=0.00..0.01 rows=1 width=4) (actual time=1001.117..1001.118 rows=1 loops=1)
+	  Output: pg_sleep('1'::double precision)
+2018-06-15 10:45:03.175 UTC [8357]: [7-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 1002.209 ms  statement: select pg_sleep(1);
+2018-06-15 10:49:11.512 UTC [8357]: [8-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 0.223 ms  statement: show log_timezone;
+2018-06-15 10:49:23.741 UTC [8327]: [5-1] app=,db=,client=,user= LOG:  received fast shutdown request
+2018-06-15 10:49:23.747 UTC [8327]: [6-1] app=,db=,client=,user= LOG:  aborting any active transactions
+2018-06-15 10:49:23.747 UTC [8357]: [9-1] app=psql,db=postgres,client=[local],user=postgres FATAL:  terminating connection due to administrator command
+2018-06-15 10:49:23.747 UTC [8357]: [10-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:04:27.409 user=postgres database=postgres host=[local]
+2018-06-15 10:49:23.749 UTC [8327]: [7-1] app=,db=,client=,user= LOG:  worker process: logical replication launcher (PID 8334) exited with exit code 1
+2018-06-15 10:49:23.750 UTC [8329]: [1-1] app=,db=,client=,user= LOG:  shutting down
+2018-06-15 10:49:23.755 UTC [8329]: [2-1] app=,db=,client=,user= LOG:  checkpoint starting: shutdown immediate
+2018-06-15 10:49:23.783 UTC [8329]: [3-1] app=,db=,client=,user= LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.000 s, total=0.032 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB
+2018-06-15 10:49:23.799 UTC [8327]: [8-1] app=,db=,client=,user= LOG:  database system is shut down
+2018-06-15 10:49:23.962 UTC [8403]: [1-1] app=,db=,client=,user= LOG:  listening on IPv6 address "::1", port 5432
+2018-06-15 10:49:23.962 UTC [8403]: [2-1] app=,db=,client=,user= LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2018-06-15 10:49:23.968 UTC [8403]: [3-1] app=,db=,client=,user= LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2018-06-15 10:49:24.014 UTC [8404]: [1-1] app=,db=,client=,user= LOG:  database system was shut down at 2018-06-15 10:49:23 UTC
+2018-06-15 10:49:24.022 UTC [8403]: [4-1] app=,db=,client=,user= LOG:  database system is ready to accept connections
+2018-06-15 10:49:24.529 UTC [8411]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:49:24.529 UTC [8411]: [2-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  incomplete startup packet
+2018-06-15 10:49:25.039 UTC [8414]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:49:25.040 UTC [8414]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:49:25.044 UTC [8414]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 0.950 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:49:25.044 UTC [8414]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.004 user=postgres database=postgres host=[local]
+2018-06-15 10:49:25.561 UTC [8417]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:49:25.564 UTC [8417]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:49:25.568 UTC [8417]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 1.898 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:49:25.568 UTC [8417]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.007 user=postgres database=postgres host=[local]
+2018-06-15 10:49:26.082 UTC [8420]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:49:26.084 UTC [8420]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:49:26.088 UTC [8420]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 1.449 ms  statement: SELECT d.datname as "Name",
+	       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+	       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+	       d.datcollate as "Collate",
+	       d.datctype as "Ctype",
+	       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+	FROM pg_catalog.pg_database d
+	ORDER BY 1;
+2018-06-15 10:49:26.088 UTC [8420]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.006 user=postgres database=postgres host=[local]
+2018-06-15 10:49:31.140 UTC [8423]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:49:31.144 UTC [8423]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:49:34.172 UTC [8424]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:49:34.175 UTC [8424]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:49:34.176 UTC [8423]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:03.036 user=postgres database=postgres host=[local]
+2018-06-15 10:49:35.337 UTC [8424]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:01.165 user=postgres database=postgres host=[local]
+2018-06-15 10:49:36.743 UTC [8433]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
+2018-06-15 10:49:36.744 UTC [8433]: [2-1] app=[unknown],db=postgres,client=[local],user=postgres LOG:  connection authorized: user=postgres database=postgres
+2018-06-15 10:49:38.007 UTC [8433]: [3-1] app=psql,db=postgres,client=[local],user=postgres LOG:  duration: 5.475 ms  statement: SELECT n.nspname as "Schema",
+	  c.relname as "Name",
+	  CASE c.relkind WHEN 'r' THEN 'table' WHEN 'v' THEN 'view' WHEN 'm' THEN 'materialized view' WHEN 'i' THEN 'index' WHEN 'S' THEN 'sequence' WHEN 's' THEN 'special' WHEN 'f' THEN 'foreign table' WHEN 'p' THEN 'table' END as "Type",
+	  pg_catalog.pg_get_userbyid(c.relowner) as "Owner"
+	FROM pg_catalog.pg_class c
+	     LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+	WHERE c.relkind IN ('r','p','')
+	      AND n.nspname <> 'pg_catalog'
+	      AND n.nspname <> 'information_schema'
+	      AND n.nspname !~ '^pg_toast'
+	  AND pg_catalog.pg_table_is_visible(c.oid)
+	ORDER BY 1,2;
+2018-06-15 10:54:24.026 UTC [8405]: [1-1] app=,db=,client=,user= LOG:  checkpoint starting: time
+2018-06-15 10:54:24.086 UTC [8405]: [2-1] app=,db=,client=,user= LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.000 s, total=0.060 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB
