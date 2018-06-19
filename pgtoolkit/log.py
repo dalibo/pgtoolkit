@@ -260,7 +260,8 @@ class PrefixParser(object):
     def cast_fields(cls, fields):
         # In-place cast of values in fields dictionnary.
 
-        for k, v in fields.items():
+        for k in fields:
+            v = fields[k]
             if v is None:
                 continue
             cast = cls._casts.get(k)
@@ -321,9 +322,9 @@ class Record(object):
 
         if severity in ('HINT', 'STATEMENT'):
             return severity.lower()
-        for prefix, type_ in cls._types_prefixes.items():
+        for prefix in cls._types_prefixes:
             if message_start.startswith(prefix):
-                return type_
+                return cls._types_prefixes[prefix]
         return 'unknown'
 
     @classmethod
