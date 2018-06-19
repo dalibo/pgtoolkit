@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+
+import cProfile
+import pstats
+
+from pgtoolkit.log import parse  # noqa
+
+
+def generate_lines(lines, count=20000):
+    while count > 0:
+        yield from iter(lines)
+        count -= len(lines)
+
+
+def main():
+    log_line_prefix = '%m [%p]: [%l-1] app=%a,db=%d%q,client=%h,user=%u '  # noqa
+    filename = 'data/postgresql.log'
+    with open(filename) as fo:
+        lines = fo.readlines()
+    lines = generate_lines(lines)
+
+    cProfile.runctx(
+        'list(parse(lines, log_line_prefix))',
+        globals=globals(),
+        locals=locals(),
+        filename='my-log-stats',
+    )
+    p = pstats.Stats('my-log-stats')
+    p.strip_dirs().sort_stats('cumtime').print_stats()
+
+
+if __name__ == '__main__':
+    main()

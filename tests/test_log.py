@@ -95,6 +95,18 @@ def test_prefix_parser_q():
     assert fields['user'] is None
 
 
+def test_datetime():
+    from pgtoolkit.log import parse_datetime
+
+    assert parse_datetime('2018-06-04 20:12:34.343 UTC')
+
+    with pytest.raises(ValueError):
+        parse_datetime('2018-06-000004')
+
+    with pytest.raises(ValueError):
+        parse_datetime('2018-06-04 20:12:34.343 CEST')
+
+
 def test_record_stage1_ok():
     from pgtoolkit.log import Record
 
