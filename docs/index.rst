@@ -1,9 +1,9 @@
-===========
- pgtoolkit
-===========
+####################################
+ Postgres Cluster Support in Python
+####################################
 
-pgtoolkit is a Python library providing API to interact with various
-PostgreSQL file formats. Namely:
+pgtoolkit is a Python library providing API to interact with various PostgreSQL
+file formats. Namely:
 
 * ``pg_hba.conf``
 * ``.pgpass``
