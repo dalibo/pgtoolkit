@@ -36,7 +36,7 @@ jobs:
           name: Check documentation
           command: |
             python setup.py --long-description | rst2html.py --strict >/dev/null
-            mkdocs build --clean --strict
+            make -C docs clean html
       - run: &script_tests
           name: Script tests
           command: |

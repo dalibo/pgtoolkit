@@ -1,8 +1,10 @@
 codecov
 docutils
 flake8
-mkdocs
 pytest
 pytest-capturelog; python_version == '2.6'
 pytest-cov
 pytest-mock
+sphinx; python_version > '2.6'
+sphinx-autobuild; python_version > '2.6'
+sphinx_rtd_theme; python_version > '2.6'
