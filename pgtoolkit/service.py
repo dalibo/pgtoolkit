@@ -9,19 +9,8 @@ See `The Connection Service File
 <https://www.postgresql.org/docs/current/static/libpq-pgservice.html>`__ in
 PostgreSQL documentation.
 
-``pgtoolkit.service.parse(fo, source=None) -> ServiceFile``
------------------------------------------------------------
 
-``parse()`` accepts a file-object as returned by open. Actually it only
-requires an iterable object yielding each lines of the file. You can
-provide ``source`` to have more precise error message.
-
-!!! note
-
-::
-
-    pgtoolkit is less strict than `libpq`. `libpq` does not accepts spaces
-    around equals.  pgtoolkit accepts them but do not write them.
+.. autofunction:: pgtoolkit.service.parse
 
 class ``pgtoolkit.service.Service(name, parameters, **extra)``
 --------------------------------------------------------------
@@ -232,6 +221,20 @@ def find(environ=os.environ):
 
 
 def parse(fo, source=None):
+    """Parse a service file.
+
+    :param fo: a file-object as returned by open.
+    :param source: Name of the source.
+    :rtype: A ``ServiceFile`` object.
+
+    Actually it only requires as ``fo`` an iterable object yielding each lines
+    of the file. You can provide ``source`` to have more precise error message.
+
+    .. warning::
+
+        pgtoolkit is less strict than `libpq`. `libpq` does not accepts spaces
+        around equals.  pgtoolkit accepts them but do not write them.
+    """
     services = ServiceFile()
     services.parse(fo, source=source)
     return services
