@@ -1,10 +1,18 @@
 from setuptools import setup
 
-setup(
+
+metadatas = dict(
     name='pgtoolkit',
+    description='Manage Postgres cluster files from Python',
     version='0.0.0',
     author='Dalibo',
     author_email='contact@dalibo.com',
     license='PostgreSQL',
-    packages=['pgtoolkit'],
 )
+
+
+if __name__ == '__main__':
+    setup(
+        packages=['pgtoolkit'],
+        **metadatas
+    )
