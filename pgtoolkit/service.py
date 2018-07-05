@@ -11,31 +11,7 @@ PostgreSQL documentation.
 
 
 .. autofunction:: pgtoolkit.service.parse
-
-class ``pgtoolkit.service.Service(name, parameters, **extra)``
---------------------------------------------------------------
-
-The ``Service`` class represent a single service definition in a Service
-file. It’s actually a dictionnary of its own parameters.
-
-The ``name`` attributes is mapped to the section name of the service in
-the Service file.
-
-Each parameters can be accessed either as a dictionnary entry or as an
-attributes.
-
-.. code:: python
-
-    >>> myservice = Service('myservice', {'dbname': 'mydb'}, host='myhost')
-    >>> myservice.name
-    'myservice'
-    >>> myservice.dbname
-    'mydb'
-    >>> myservice['dbname']
-    'mydb'
-    >>> myservice.user = 'myuser'
-    >>> list(myservice.items())
-    [('dbname', 'mydb'), ('host', 'myhost'), ('user', 'myuser')]
+.. autoclass:: pgtoolkit.service.Service
 
 class ``pgtoolkit.service.ServiceFile()``
 -----------------------------------------
@@ -115,6 +91,30 @@ from ._helpers import open_or_stdin
 
 
 class Service(dict):
+    """Service definition.
+
+    The :class:`Service` class represents a single service definition in a
+    Service file. It’s actually a dictionnary of its own parameters.
+
+    The ``name`` attributes is mapped to the section name of the service in the
+    Service file.
+
+    Each parameters can be accessed either as a dictionnary entry or as an
+    attributes.
+
+    >>> myservice = Service('myservice', {'dbname': 'mydb'}, host='myhost')
+    >>> myservice.name
+    'myservice'
+    >>> myservice.dbname
+    'mydb'
+    >>> myservice['dbname']
+    'mydb'
+    >>> myservice.user = 'myuser'
+    >>> list(myservice.items())
+    [('dbname', 'mydb'), ('host', 'myhost'), ('user', 'myuser')]
+
+    """
+
     def __init__(self, name, parameters=None, **extra):
         super(Service, self).__init__()
         self.name = name
