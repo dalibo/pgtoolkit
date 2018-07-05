@@ -60,23 +60,8 @@ the service file.
 ``ServiceFile`` is subscriptable. You can access service using
 ``servicefile['servicename']`` syntax.
 
-``pgtoolkit.service.find(environ=os.environ)``
-----------------------------------------------
+.. autofunction:: pgtoolkit.service.find
 
-``find()`` search for the first candidate of ``pg_service.conf`` file
-from either environment and regular locations. ``find`` raises an
-exception if it fails to find a Connection service file.
-
-.. code:: python
-
-    from pgtoolkit.service import find
-
-    try:
-        servicefile = find()
-    except Exception as e:
-        "Deal with exception."
-    else:
-        "Manage servicefile."
 
 Examples
 --------
@@ -201,7 +186,30 @@ def guess_sysconfdir(environ=os.environ):
     raise Exception("Can't find sysconfdir")
 
 
-def find(environ=os.environ):
+def find(environ=None):
+    """Find service file.
+
+    :param environ: Dict of environment variables.
+
+    :func:`find` searches for the first candidate of ``pg_service.conf`` file
+    from either environment and regular locations. :func:`find` raises an
+    Exception if it fails to find a Connection service file.
+
+    .. code:: python
+
+        from pgtoolkit.service import find
+
+        try:
+            servicefile = find()
+        except Exception as e:
+            "Deal with exception."
+        else:
+            "Manage servicefile."
+
+    """
+    if environ is None:
+        environ = os.environ
+
     fromenv = environ.get('PGSERVICEFILE')
     if fromenv:
         candidates = [fromenv]
