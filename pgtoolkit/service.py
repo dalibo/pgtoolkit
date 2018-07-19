@@ -1,4 +1,81 @@
-# cf. https://www.postgresql.org/docs/current/static/libpq-pgservice.html
+# coding: utf-8
+
+"""
+========================
+:mod:`pgtoolkit.service`
+========================
+
+See `The Connection Service File
+<https://www.postgresql.org/docs/current/static/libpq-pgservice.html>`__ in
+PostgreSQL documentation.
+
+
+.. autofunction:: pgtoolkit.service.parse
+.. autoclass:: pgtoolkit.service.Service
+
+class ``pgtoolkit.service.ServiceFile()``
+-----------------------------------------
+
+``ServiceFile`` class implements access, parsing and rendering of
+service file.
+
+``ServiceFile.add(service)`` adds a ```Service`` <#service>`__ object to
+the service file.
+
+``ServiceFile.parse(fo, source=None)`` method is strictly the same as
+```parse`` <#parse>`__ function. It’s the method counterpart.
+
+``ServiceFile.save(fo)`` writes services in ``fo`` file-like object.
+
+!!! note
+
+::
+
+    Comments are not preserved.
+
+``ServiceFile`` is subscriptable. You can access service using
+``servicefile['servicename']`` syntax.
+
+.. autofunction:: pgtoolkit.service.find
+
+
+Examples
+--------
+
+How to edit a service file:
+
+.. code:: python
+
+    from pgtoolkit.service import parse, Service
+
+    servicefilename = 'my_service.conf'
+    with open(servicefile) as fo:
+        servicefile = parse(fo, source=servicefilename)
+
+    myservice = servicefile['myservice']
+    myservice.host = 'newhost'
+    # Update service file
+    servicefile.add(myservice)
+
+    newservice = Service(name='newservice', host='otherhost')
+    servicefile.add(newservice)
+
+    with open(servicefile, 'w') as fo:
+        servicefile.save(fo)
+
+How to use a service file to connect with psycopg2:
+
+.. code:: python
+
+    from pgtoolkit.service import find, parse
+    from psycopg2 import connect
+
+    servicefilename = find()
+    with open(servicefile) as fo:
+        servicefile = parse(fo, source=servicefilename)
+    connection = connect(**servicefile['myservice'])
+
+"""
 
 from __future__ import print_function
 
@@ -14,6 +91,30 @@ from ._helpers import open_or_stdin
 
 
 class Service(dict):
+    """Service definition.
+
+    The :class:`Service` class represents a single service definition in a
+    Service file. It’s actually a dictionnary of its own parameters.
+
+    The ``name`` attributes is mapped to the section name of the service in the
+    Service file.
+
+    Each parameters can be accessed either as a dictionnary entry or as an
+    attributes.
+
+    >>> myservice = Service('myservice', {'dbname': 'mydb'}, host='myhost')
+    >>> myservice.name
+    'myservice'
+    >>> myservice.dbname
+    'mydb'
+    >>> myservice['dbname']
+    'mydb'
+    >>> myservice.user = 'myuser'
+    >>> list(myservice.items())
+    [('dbname', 'mydb'), ('host', 'myhost'), ('user', 'myuser')]
+
+    """
+
     def __init__(self, name, parameters=None, **extra):
         super(Service, self).__init__()
         self.name = name
@@ -85,7 +186,30 @@ def guess_sysconfdir(environ=os.environ):
     raise Exception("Can't find sysconfdir")
 
 
-def find(environ=os.environ):
+def find(environ=None):
+    """Find service file.
+
+    :param environ: Dict of environment variables.
+
+    :func:`find` searches for the first candidate of ``pg_service.conf`` file
+    from either environment and regular locations. :func:`find` raises an
+    Exception if it fails to find a Connection service file.
+
+    .. code:: python
+
+        from pgtoolkit.service import find
+
+        try:
+            servicefile = find()
+        except Exception as e:
+            "Deal with exception."
+        else:
+            "Manage servicefile."
+
+    """
+    if environ is None:
+        environ = os.environ
+
     fromenv = environ.get('PGSERVICEFILE')
     if fromenv:
         candidates = [fromenv]
@@ -105,6 +229,20 @@ def find(environ=os.environ):
 
 
 def parse(fo, source=None):
+    """Parse a service file.
+
+    :param fo: a file-object as returned by open.
+    :param source: Name of the source.
+    :rtype: A ``ServiceFile`` object.
+
+    Actually it only requires as ``fo`` an iterable object yielding each lines
+    of the file. You can provide ``source`` to have more precise error message.
+
+    .. warning::
+
+        pgtoolkit is less strict than `libpq`. `libpq` does not accepts spaces
+        around equals.  pgtoolkit accepts them but do not write them.
+    """
     services = ServiceFile()
     services.parse(fo, source=source)
     return services
