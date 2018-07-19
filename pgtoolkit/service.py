@@ -1,10 +1,6 @@
 # coding: utf-8
 
 """
-========================
-:mod:`pgtoolkit.service`
-========================
-
 See `The Connection Service File
 <https://www.postgresql.org/docs/current/static/libpq-pgservice.html>`__ in
 PostgreSQL documentation.
