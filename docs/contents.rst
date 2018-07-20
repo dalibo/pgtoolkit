@@ -6,4 +6,5 @@
 .. toctree::
 
    index
+   hba
    service

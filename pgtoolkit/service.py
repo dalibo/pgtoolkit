@@ -1,44 +1,18 @@
 # coding: utf-8
 
-"""
-See `The Connection Service File
+"""See `The Connection Service File
 <https://www.postgresql.org/docs/current/static/libpq-pgservice.html>`__ in
 PostgreSQL documentation.
 
 
+.. autofunction:: pgtoolkit.service.find
 .. autofunction:: pgtoolkit.service.parse
 .. autoclass:: pgtoolkit.service.Service
-
-class ``pgtoolkit.service.ServiceFile()``
------------------------------------------
-
-``ServiceFile`` class implements access, parsing and rendering of
-service file.
-
-``ServiceFile.add(service)`` adds a ```Service`` <#service>`__ object to
-the service file.
-
-``ServiceFile.parse(fo, source=None)`` method is strictly the same as
-```parse`` <#parse>`__ function. It’s the method counterpart.
-
-``ServiceFile.save(fo)`` writes services in ``fo`` file-like object.
-
-!!! note
-
-::
-
-    Comments are not preserved.
-
-``ServiceFile`` is subscriptable. You can access service using
-``servicefile['servicename']`` syntax.
-
-.. autofunction:: pgtoolkit.service.find
+.. autoclass:: pgtoolkit.service.ServiceFile
 
 
-Examples
---------
-
-How to edit a service file:
+Edit a service file
+-------------------
 
 .. code:: python
 
@@ -59,7 +33,11 @@ How to edit a service file:
     with open(servicefile, 'w') as fo:
         servicefile.save(fo)
 
-How to use a service file to connect with psycopg2:
+
+Load a service file to connect with psycopg2
+--------------------------------------------
+
+Actually, psycopg2 already support pgservice file. This is just a showcase.
 
 .. code:: python
 
@@ -70,6 +48,28 @@ How to use a service file to connect with psycopg2:
     with open(servicefile) as fo:
         servicefile = parse(fo, source=servicefilename)
     connection = connect(**servicefile['myservice'])
+
+
+Using as a script
+-----------------
+
+:mod:`pgtoolkit.service` is usable as a CLI script. It accepts a service file
+path as first argument, read it, validate it and re-render it, loosing
+comments.
+
+:class:`ServiceFile` is less strict than `libpq`. Spaces are accepted around
+`=`. The output conform strictly to `libpq` parser.
+
+.. code:: console
+
+    $ python -m pgtoolkit.service data/pg_service.conf
+    [mydb]
+    host=somehost
+    port=5433
+    user=admin
+
+    [my ini-style]
+    host=otherhost
 
 """
 
@@ -128,6 +128,16 @@ class Service(dict):
 
 
 class ServiceFile(object):
+    """Service file representation, parsing and rendering.
+
+    :class:`ServiceFile` is subscriptable. You can access service using
+    ``servicefile['servicename']`` syntax.
+
+    .. automethod:: add
+    .. automethod:: parse
+    .. automethod:: save
+    """
+
     _CONVERTERS = {
         'port': int,
     }
@@ -152,15 +162,25 @@ class ServiceFile(object):
         return len(self.config.sections())
 
     def add(self, service):
+        """Adds a :class:`Service` object to the service file."""
         self.config.remove_section(service.name)
         self.config.add_section(service.name)
         for parameter, value in service.items():
             self.config.set(service.name, parameter, str(value))
 
     def parse(self, fo, source=None):
+        """Add service from a service file.
+
+        This method is strictly the same as :func:`parse`. It’s the method
+        counterpart.
+        """
         self.config.read_file(fo, source=source)
 
     def save(self, fo):
+        """Writes services in ``fo`` file-like object.
+
+        .. note:: Comments are not preserved.
+        """
         self.config.write(fo, space_around_delimiters=False)
 
 
@@ -185,7 +205,7 @@ def guess_sysconfdir(environ=os.environ):
 def find(environ=None):
     """Find service file.
 
-    :param environ: Dict of environment variables.
+    :param dict environ: Dict of environment variables.
 
     :func:`find` searches for the first candidate of ``pg_service.conf`` file
     from either environment and regular locations. :func:`find` raises an

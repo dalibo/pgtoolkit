@@ -34,63 +34,63 @@ def test_comment():
 
 
 def test_parse_host_line():
-    from pgtoolkit.hba import HBAEntry
+    from pgtoolkit.hba import HBARecord
 
-    entry = HBAEntry.parse("host    replication   all   ::1/128         trust")
-    assert 'host' in repr(entry)
-    assert 'host' == entry.conntype
-    assert 'replication' == entry.database
-    assert 'all' == entry.user
-    assert '::1/128' == entry.address
-    assert 'trust' == entry.method
+    record = HBARecord.parse("host    replication   all   ::1/128       trust")
+    assert 'host' in repr(record)
+    assert 'host' == record.conntype
+    assert 'replication' == record.database
+    assert 'all' == record.user
+    assert '::1/128' == record.address
+    assert 'trust' == record.method
 
 
 def test_parse_local_line():
-    from pgtoolkit.hba import HBAEntry
+    from pgtoolkit.hba import HBARecord
 
-    entry = HBAEntry.parse("local    all     all     trust")
-    assert 'local' == entry.conntype
-    assert 'all' == entry.database
-    assert 'all' == entry.user
-    assert 'trust' == entry.method
+    record = HBARecord.parse("local    all     all     trust")
+    assert 'local' == record.conntype
+    assert 'all' == record.database
+    assert 'all' == record.user
+    assert 'trust' == record.method
 
     with pytest.raises(AttributeError):
-        entry.address
+        record.address
 
     wanted = 'local   all             all                                     trust'  # noqa
-    assert wanted == str(entry)
+    assert wanted == str(record)
 
 
 def test_parse_auth_option():
-    from pgtoolkit.hba import HBAEntry
+    from pgtoolkit.hba import HBARecord
 
-    entry = HBAEntry.parse(
+    record = HBARecord.parse(
         "local veryverylongdatabasenamethatdonotfit all ident map=omicron",
     )
-    assert 'local' == entry.conntype
-    assert 'veryverylongdatabasenamethatdonotfit' == entry.database
-    assert 'all' == entry.user
-    assert 'ident' == entry.method
-    assert 'omicron' == entry.map
+    assert 'local' == record.conntype
+    assert 'veryverylongdatabasenamethatdonotfit' == record.database
+    assert 'all' == record.user
+    assert 'ident' == record.method
+    assert 'omicron' == record.map
 
     wanted = [
         'local', 'veryverylongdatabasenamethatdonotfit', 'all', 'ident',
         'map=omicron',
     ]
-    assert wanted == str(entry).split()
+    assert wanted == str(record).split()
 
 
-def test_parse_entry_with_comment():
-    from pgtoolkit.hba import HBAEntry
+def test_parse_record_with_comment():
+    from pgtoolkit.hba import HBARecord
 
-    entry = HBAEntry.parse("local    all     all     trust  # My  comment")
-    assert 'local' == entry.conntype
-    assert 'all' == entry.database
-    assert 'all' == entry.user
-    assert 'trust' == entry.method
-    assert 'My comment' == entry.comment
+    record = HBARecord.parse("local    all     all     trust  # My  comment")
+    assert 'local' == record.conntype
+    assert 'all' == record.database
+    assert 'all' == record.user
+    assert 'trust' == record.method
+    assert 'My comment' == record.comment
 
-    fields = str(entry).split()
+    fields = str(record).split()
     assert ['local', 'all', 'all', 'trust', '#', 'My', 'comment'] == fields
 
 

@@ -1,4 +1,45 @@
-# cf. https://www.postgresql.org/docs/devel/static/auth-pg-hba-conf.html
+# coding: utf-8
+
+"""See `Client Authentication
+<https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html>`__ in
+PostgreSQL documentation.
+
+.. autofunction:: parse
+.. autoclass:: HBA
+.. autoclass:: HBARecord
+
+
+Loading a `pg_hba.conf` file
+----------------------------
+
+.. code:: python
+
+    hba = 'my_pg_hba.conf'
+    with open_or_stdin(hba) as fo:
+        hba = parse(fo)
+    for record in hba:
+        print(record.database, record.user)
+
+
+Using as a script
+-----------------
+
+:mod:`pgtoolkit.hba` is usable as a CLI script. It accepts a pg_hba file path
+as first argument, read it, validate it and re-render it. Fileds are aligned to
+fit pseudo-column width. If filename is ``-``, stdin is read instead.
+
+.. code:: console
+
+    $ python -m pgtoolkit.hba - < data/pg_hba.conf
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+    # "local" is for Unix domain socket connections only
+    local   all             all                                     trust
+    # IPv4 local connections:
+    host    all             all             127.0.0.1/32            ident map=omicron
+
+"""  # noqa
+
 
 from __future__ import print_function
 
@@ -15,7 +56,17 @@ class HBAComment(str):
         return '<%s %.32s>' % (self.__class__.__name__, self)
 
 
-class HBAEntry(object):
+class HBARecord(object):
+    """Hold a HBA record
+
+    Known fields are accessible through attribute : ``conntype``, ``database``,
+    ``user``, ``address``, ``netmask``, ``method``. Auth-options fields are
+    also accessible through attribute like ``map``, ``ldapserver``, etc.
+
+    .. automethod:: parse
+    .. automethod:: __str__
+    """
+
     CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
     KNOWN_FIELDS = [
         'conntype', 'database', 'user', 'address', 'netmask', 'method',
@@ -23,6 +74,13 @@ class HBAEntry(object):
 
     @classmethod
     def parse(cls, line):
+        """Parse a HBA record
+
+        :rtype: :class:`HBARecord` or a :class:`str` for a comment or blank
+                line.
+        :raises ValueError: If connection type is wrong.
+
+        """
         line = line.strip()
         fields = ['conntype', 'database', 'user']
         values = shlex.split(line, comments=False)
@@ -59,6 +117,7 @@ class HBAEntry(object):
         )
 
     def __str__(self):
+        """Serialize a record line, without EOL."""
         # Stolen from default pg_hba.conf
         widths = [8, 16, 16, 16, 8]
 
@@ -108,30 +167,58 @@ class HBAEntry(object):
 
 
 class HBA(object):
+    """Represents pg_hba.conf records
+
+    .. automethod:: __iter__
+    .. automethod:: parse
+    .. automethod:: save
+    """
     def __init__(self):
         self.lines = []
 
     def __iter__(self):
-        return iter(filter(lambda l: isinstance(l, HBAEntry), self.lines))
+        """Iterate on records, ignoring comments and blank lines."""
+        return iter(filter(lambda l: isinstance(l, HBARecord), self.lines))
 
     def parse(self, fo):
+        """Parse records and comments from file object
+
+        :param fo: An iterable returning lines
+        """
         for i, line in enumerate(fo):
             stripped = line.lstrip()
             if not stripped or stripped.startswith('#'):
-                entry = HBAComment(line.replace(os.linesep, ''))
+                record = HBAComment(line.replace(os.linesep, ''))
             else:
                 try:
-                    entry = HBAEntry.parse(line)
+                    record = HBARecord.parse(line)
                 except Exception as e:
                     raise ParseError(1 + i, line, str(e))
-            self.lines.append(entry)
+            self.lines.append(record)
 
     def save(self, fo):
+        """Write records and comments in a file
+
+        :param fo: A file-like object
+
+        Line order is preserved. Record fields are vertically aligned to match
+        the columen size of column headers from default configuration file.
+
+        .. code::
+
+            # TYPE  DATABASE        USER            ADDRESS                 METHOD
+            local   all             all                                     trust
+        """  # noqa
         for line in self.lines:
             fo.write(str(line) + os.linesep)
 
 
 def parse(fo):
+    """Parse a `pg_hba.conf` file.
+
+    :param fo: A line iterator such as a file-like object.
+    :rtype: :class:`HBA`.
+    """
     hba = HBA()
     hba.parse(fo)
     return hba
