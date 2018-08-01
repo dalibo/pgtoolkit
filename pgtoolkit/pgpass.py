@@ -1,10 +1,56 @@
-# .pgpass file format implementation
-#
-# cf. https://www.postgresql.org/docs/current/static/libpq-pgpass.html
-#
-# - Support : and \ escape.
-# - Sort entry by precision (even if commented).
-# - Preserve comment order when sorting.
+# coding: utf-8
+r""".. currentmodule:: pgtoolkit.pgpass
+
+This module provides support for `.pgpass` file format. Here are some
+highlights :
+
+ - Supports ``:`` and ``\`` escape.
+ - Sorts entry by precision (even if commented).
+ - Preserves comments order when sorting.
+
+See `The Password File
+<https://www.postgresql.org/docs/current/static/libpq-pgpass.html>`__ section
+in PostgreSQL documentation.
+
+.. autofunction:: parse
+.. autoclass:: PassEntry
+.. autoclass:: PassComment
+.. autoclass:: PassFile
+
+
+Editing a .pgpass file
+----------------------
+
+.. code:: python
+
+    with open('.pgpass') as fo:
+        pgpass = parse(fo)
+    pgpass.lines.append(PassEntry(username='toto', password='confidentiel'))
+    pgpass.sort()
+    with open('.pgpass', 'w') as fo:
+        pgpass.save(fo)
+
+
+Using as a script
+-----------------
+
+You can call :mod:`pgtoolkit.pgpass` module as a CLI script. It accepts a file
+path as first argument, read it, validate it, sort it and output it in stdout.
+
+
+.. code:: console
+
+   $ python -m pgtoolkit.pgpass ~/.pgpass
+   more:5432:precise:entry:0revea\\ed
+   #disabled:5432:*:entry:0secret
+
+   # Multiline
+   # comment.
+   other:5432:*:username:0unveiled
+   *:*:*:postgres:c0nfident\:el
+
+"""  # noqa
+
 
 from __future__ import print_function
 
@@ -41,6 +87,19 @@ def escapedsplit(s, delim):
 
 
 class PassComment(str):
+    """A .pgpass comment, including spaces and ``#``.
+
+    It's a child of ``str``.
+
+    >>> comm = PassComment("# my comment")
+    >>> comm.comment
+    'my comment'
+
+    .. attribute:: comment
+
+        The actual message of the comment. Surrounding whitespaces stripped.
+
+    """
     def __repr__(self):
         return '<%s %.32s>' % (self.__class__.__name__, self)
 
@@ -64,8 +123,44 @@ class PassComment(str):
 
 
 class PassEntry(object):
+    """Holds a .pgpass entry.
+
+    .. automethod:: parse
+
+    .. attribute:: hostname
+
+       Server hostname, the first field.
+
+    .. attribute:: port
+
+       Server port, the second field.
+
+    .. attribute:: database
+
+       Database, the third field.
+
+    .. attribute:: username
+
+       Username, the fourth field.
+
+    .. attribute:: password
+
+       Password, the fifth field.
+
+    :class:`PassEntry` object is sortable. A :class:`PassEntry` object is lower
+    than another if it is more specific. The more an entry has wildcard, the
+    less it is specific.
+
+    """
+
     @classmethod
     def parse(cls, line):
+        """ Parse a single line.
+
+        :param line: string containing a serialized .pgpass entry.
+        :return: :class:`PassEntry` object holding entry data.
+        :raises ValueError: on invalid line.
+        """
         fields = list(escapedsplit(line.strip(), ':'))
         if len(fields) != 5:
             raise ValueError("Invalid line.")
@@ -130,13 +225,40 @@ class PassEntry(object):
 
 
 class PassFile(object):
+    """Holds .pgpass file entries and comments.
+
+    .. automethod:: parse
+    .. automethod:: __iter__
+    .. automethod:: sort
+    .. automethod:: save
+
+    .. attribute:: lines
+
+        List of either :class:`PassEntry` or :class:`PassFile`. You can add
+        lines by appending :class:`PassEntry` or :class:`PassFile` instances to
+        this list.
+
+    """
+
+    lines = []
+
     def __init__(self):
         self.lines = []
 
     def __iter__(self):
+        """Iterate entries
+
+        Yield :class:`PassEntry` instance from parsed file, ignoring comments.
+        """
         return iter(filter(lambda l: isinstance(l, PassEntry), self.lines))
 
     def parse(self, fo):
+        """Parse lines
+
+        :param fo: A line iterator such as a file-like object.
+
+        Raises ``ParseError`` if a bad line is found.
+        """
         for i, line in enumerate(fo):
             stripped = line.lstrip()
             if not stripped or stripped.startswith('#'):
@@ -149,6 +271,18 @@ class PassFile(object):
             self.lines.append(entry)
 
     def sort(self):
+        """Sort entries preserving comments.
+
+        libpq use the first entry from .pgpass matching connexion informations.
+        Thus, less specific entries should be last in the file. This is the
+        purpose of :func:`sort` method.
+
+        About comments. Comments are supposed to bear with the entrie
+        **below**. Thus comments block are sorted according to the first entry
+        below.
+
+        Commented entries are sorted like entries, not like comment.
+        """
         # Sort but preserve comments above entries.
         entries = []
         comments = []
@@ -170,11 +304,20 @@ class PassFile(object):
             self.lines.append(entry)
 
     def save(self, fo):
+        """Save entries and comment in a file.
+
+        :param fo: a file-like object.
+        """
         for line in self.lines:
             fo.write(str(line) + os.linesep)
 
 
 def parse(fo):
+    """Parses a .pgpass file.
+
+    :param fo: A line iterator such as a file-like object.
+    :rtype: :class:`PassFile`
+    """
     pgpass = PassFile()
     pgpass.parse(fo)
     return pgpass

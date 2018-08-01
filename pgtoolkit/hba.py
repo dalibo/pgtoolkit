@@ -1,6 +1,9 @@
 # coding: utf-8
 
-"""See `Client Authentication
+"""
+..currentmodule:: pgtoolkit.hba
+
+See `Client Authentication
 <https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html>`__ in
 PostgreSQL documentation.
 
