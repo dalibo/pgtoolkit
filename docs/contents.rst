@@ -7,4 +7,5 @@
 
    index
    hba
+   pgpass
    service
