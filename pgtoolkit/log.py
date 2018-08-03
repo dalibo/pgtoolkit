@@ -165,9 +165,10 @@ def parse_datetime(raw):
     match = PrefixParser._datetime_re.match(raw)
     if not match:
         raise ValueError("%s is not a known date" % raw)
-    infos = []
-    for v in match.groups()[:-1]:
-        infos.append(0 if v is None else int(v))
+    infos = [
+        0 if v is None else int(v)
+        for v in match.groups()[:-1]
+    ]
     tz = match.group('timezone')
     if tz != 'UTC':
         # We need tzdata for that.
