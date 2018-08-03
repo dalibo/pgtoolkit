@@ -477,6 +477,13 @@ class Record(object):
     :func:`hasattr` to check whether a record have a specific attribute.
     """
 
+    __slots__ = (
+        '__dict__',
+        'message_lines',
+        'prefix',
+        'raw_lines',
+    )
+
     # This actually mix severities and message types since they are in the same
     # field.
     _severities = [
@@ -563,7 +570,6 @@ class Record(object):
         return dict([
             (k, v)
             for k, v in self.__dict__.items()
-            if k not in ('raw_lines', 'message_lines', 'prefix')
         ])
 
 
