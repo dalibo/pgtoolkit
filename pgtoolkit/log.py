@@ -162,16 +162,23 @@ def group_lines(lines, cont='\t'):
 
 
 def parse_datetime(raw):
-    match = PrefixParser._datetime_re.match(raw)
-    if not match:
+    try:
+        infos = (
+            int(raw[:4]),
+            int(raw[5:7]),
+            int(raw[8:10]),
+            int(raw[11:13]),
+            int(raw[14:16]),
+            int(raw[17:19]),
+            int(raw[20:23]) if raw[19] == '.' else 0,
+        )
+    except ValueError:
         raise ValueError("%s is not a known date" % raw)
-    infos = []
-    for v in match.groups()[:-1]:
-        infos.append(0 if v is None else int(v))
-    tz = match.group('timezone')
-    if tz != 'UTC':
+
+    if raw[-3:] != 'UTC':
         # We need tzdata for that.
-        raise ValueError("Timezone %s is not managed" % tz)
+        raise ValueError("%s not in UTC." % raw)
+
     return datetime(*infos)
 
 
@@ -254,15 +261,6 @@ class PrefixParser(object):
     #
     # cf.
     # https://www.postgresql.org/docs/current/static/runtime-config-logging.html#GUC-LOG-LINE-PREFIX
-
-    _datetime_re = re.compile(
-        r'(?P<year>\d{4})-(?P<month>[01]\d)-(?P<day>[0-3]\d)'
-        r' '
-        r'(?P<hour>[012]\d):(?P<minute>[0-6]\d):(?P<second>[0-6]\d)'
-        r'(?:\.(?P<microsecond>\d+))?'
-        r' '
-        r'(?P<timezone>\w+)'
-    )
 
     _datetime_pat = r'\d{4}-[01]\d-[0-3]\d [012]\d:[0-6]\d:[0-6]\d'
     # Pattern map of Status informations.
@@ -479,6 +477,13 @@ class Record(object):
     :func:`hasattr` to check whether a record have a specific attribute.
     """
 
+    __slots__ = (
+        '__dict__',
+        'message_lines',
+        'prefix',
+        'raw_lines',
+    )
+
     # This actually mix severities and message types since they are in the same
     # field.
     _severities = [
@@ -565,7 +570,6 @@ class Record(object):
         return dict([
             (k, v)
             for k, v in self.__dict__.items()
-            if k not in ('raw_lines', 'message_lines', 'prefix')
         ])
 
 
