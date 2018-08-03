@@ -1,30 +1,100 @@
 # coding: utf-8
-#
-#
-#                P O S T G R E S   L O G   P A R S E R
-#
-#
-# Postgres logs are still the best sources of information on what's going on in
-# a cluster. Here is a parser to exploit Postgres log records from Python.
-#
-# Parsing logs is tricky because format is varying accros configuration and
-# performance is important.
-#
-# The fastest code is NOOP. Thus, the parser allows you to filter records as
-# soon as possible. The parser has several distinct stages and records can be
-# filter after each stages.
-#
-# 1. Split prefix, severity and message, determine message type.
-# 2. Extract and decode prefix data
-# 3. Extract and decode message data.
-#
-# cf. https://www.postgresql.org/docs/10/static/runtime-config-logging.html for
-# details on logging fields and configuration.
-#
-# You can use this module to dump logs as JSON:
-#
-#     python -m pgtoolkit.log <log_line_prefix> [<filename>]
-#
+"""\
+.. currentmodule:: pgtoolkit.log
+
+Postgres logs are still the most comprehensive source of information on what's
+going on in a cluster. :mod:`pgtoolkit.log` provides a parser to exploit
+efficiently Postgres log records from Python.
+
+Parsing logs is tricky because format vary accros configurations. Also
+performance is important while logs can contain thousands of records.
+
+
+Configuration
+-------------
+
+Postgres log records have a prefix, configured with ``log_line_prefix`` cluster
+setting. When analyzing a log file, you must known the ``log_line_prefix``
+value used to generate the records.
+
+Postgres can emit more message for your needs. See `Error Reporting and Logging
+section
+<https://www.postgresql.org/docs/current/static/runtime-config-logging.html>`_
+if PostgreSQL documentation for details on logging fields and message type.
+
+
+Performance
+-----------
+
+The fastest code is NOOP. Thus, the parser allows you to filter records as soon
+as possible. The parser has several distinct stages. After each stage, the
+parser calls a filter to determine whether to stop record processing. Here are
+the stages in processing order :
+
+1. Split prefix, severity and message, determine message type.
+2. Extract and decode prefix data
+3. Extract and decode message data.
+
+
+Limitations
+-----------
+
+:mod:`pgtoolkit.log` does not manage opening and uncompressing logs. It only
+accepts a line reader iterator that loops log lines. The same way,
+:mod:`pgtoolkit.log` does not manage to start analyze at a specific position in
+a file.
+
+:mod:`pgtoolkit.log` does not gather record set such as ``ERROR`` and
+following ``HINT`` record. It's up to the application to make sense of record
+sequences.
+
+:mod:`pgtoolkit.log` does not analyze log records. It's just a parser, a
+building block to write a log analyzer in your app.
+
+
+API Reference
+-------------
+
+Here are the few functions and classes used to parse and access log records.
+
+.. autofunction:: parse
+.. autoclass:: Record
+.. autoclass:: UnknownData
+.. autoclass:: NoopFilters
+
+
+Example
+-------
+
+Here is a sample structure of code parsing a plain log file.
+
+.. code-block:: python
+
+    with open('postgresql.log') as fo:
+        for r in parse(fo, prefix_fmt='%m [%p]'):
+        if isinstance(r, UnknownData):
+            "Process unknown data"
+        else:
+            "Process record"
+
+
+
+Using :mod:`pgtoolkit.log` as a script
+--------------------------------------
+
+You can use this module to dump logs as JSON using the following usage::
+
+    python -m pgtoolkit.log <log_line_prefix> [<filename>]
+
+:mod:`pgtoolkit.log` serializes each record as a JSON object on a single line.
+
+.. code:: console
+
+    $ python -m pgtoolkit.log '%m [%p]: [%l-1] app=%a,db=%d%q,client=%h,user=%u ' data/postgresql.log
+    {"severity": "LOG", "timestamp": "2018-06-15T10:49:31.000144", "message_type": "connection", "line_num": 2, "remote_host": "[local]", "application": "[unknown]", "user": "postgres", "message": "connection authorized: user=postgres database=postgres", "database": "postgres", "pid": 8423}
+    {"severity": "LOG", "timestamp": "2018-06-15T10:49:34.000172", "message_type": "connection", "line_num": 1, "remote_host": "[local]", "application": "[unknown]", "user": "[unknown]", "message": "connection received: host=[local]", "database": "[unknown]", "pid": 8424}
+
+"""  # noqa
 
 from __future__ import print_function
 
@@ -44,11 +114,18 @@ logger = logging.getLogger(__name__)
 
 
 def parse(fo, prefix_fmt, filters=None):
-    # This is the main entry point. Parses log lines and yield Record objects
-    # or UnknownData.
-    #
-    # prefix_fmt is exactly the value of log_line_prefix in postgresql.conf.
-    # filters is an object like NoopFilters() class.
+    """Parses log lines and yield :class:`Record` or :class:`UnknownData` objects.
+
+    This is the main entry point of the API.
+
+    :param fo: A line iterator such as a file-like object.
+    :param prefix_fmt: is exactly the value of ``log_line_prefix`` Postgresql
+        settings.
+    :param filters: is an object like :class:`NoopFilters` instance.
+
+    See Example_ section for usage.
+
+    """
 
     prefix_parser = PrefixParser.from_configuration(prefix_fmt).parse
     filters = filters or NoopFilters()
@@ -107,6 +184,14 @@ def parse_epoch(raw):
 
 
 class UnknownData(Exception):
+    """Represents unparseable data.
+
+    :class:`UnknownData` is throwable, you can raise it.
+
+    .. attribute:: lines
+
+        The list of unparseable strings.
+    """
     # UnknownData object is an exception to be throwable.
 
     def __init__(self, lines):
@@ -117,21 +202,50 @@ class UnknownData(Exception):
 
 
 class NoopFilters(object):
-    # Filters are grouped in an object to simplify the definition of a
-    # filtering policy. We can implement simple filter or heavy parameterize
-    # filtering policy from this API.
-    #
-    # If a filter method returns True, the record processing stops and the
-    # record is dropped.
+    """Basic filter doing nothing.
+
+    Filters are grouped in an object to simplify the definition of a filtering
+    policy. By subclassing :class:`NoopFilters`, you can implement simple
+    filtering or heavy parameterized filtering policy from this API.
+
+    If a filter method returns True, the record processing stops and the
+    record is dropped.
+
+    .. automethod:: stage1
+    .. automethod:: stage2
+    .. automethod:: stage3
+
+    """
 
     def stage1(self, record):
-        pass
+        """First stage filter.
+
+        :param Record record: A new record.
+        :returns: ``True`` if record must be dropped.
+
+        ``record`` has only `prefix`, `severity` and `message_type`
+        attributes.
+        """
 
     def stage2(self, record):
-        pass
+        """Second stage filter.
+
+        :param Record record: A new record.
+        :returns: ``True`` if record must be dropped.
+
+        ``record`` has attributes from stage 1 plus attributes from prefix
+        analysis. See :class:`Record` for details.
+        """
 
     def stage3(self, record):
-        pass
+        """Third stage filter.
+
+        :param Record record: A new record.
+        :returns: ``True`` if record must be dropped.
+
+        ``record`` has attributes from stage 2 plus attributes from message
+        analysis, depending on message type.
+        """
 
 
 class PrefixParser(object):
@@ -139,7 +253,7 @@ class PrefixParser(object):
     # parameterized by log_line_prefix.
     #
     # cf.
-    # https://www.postgresql.org/docs/10/static/runtime-config-logging.html#GUC-LOG-LINE-PREFIX
+    # https://www.postgresql.org/docs/current/static/runtime-config-logging.html#GUC-LOG-LINE-PREFIX
 
     _datetime_re = re.compile(
         r'(?P<year>\d{4})-(?P<month>[01]\d)-(?P<day>[0-3]\d)'
@@ -270,27 +384,102 @@ class PrefixParser(object):
 
 
 class Record(object):
-    # Log record object.
-    #
-    # Implements the different parse stages and store status informations.
-    #
-    # A record is primarily defined as a prefix, a severity and a message.
-    # Actually, severity is mixed with message type. For example, a HINT:
-    # message has the same severity as LOG: (see csvlog output to compare).
-    # Thus we can determine easily message type as this stage.
-    #
-    # Once prefix, severity and message are splitted, we parse prefix from
-    # log_line_prefix parameter. Prefix can give a lot of information for
-    # filtering.
-    #
-    # Finally, we parse the message to extract information such as statement,
-    # hint, duration, execution plan, etc. depending on the type.
-    #
-    # All a these stages are separated to allow marshalling to apply filter
-    # between each stage.
-    #
+    """Log record object.
 
-    # This actually mix severities and message type since they are in the same
+    Record object stores record fields and implements the different parse
+    stages.
+
+    A record is primarily composed by a prefix, a severity and a message.
+    Actually, severity is mixed with message type. For example, a HINT: message
+    has the same severity as ``LOG:`` and is actually a continuation message
+    (see csvlog output to compare). Thus we can determine easily message type
+    as this stage. :mod:`pgtoolkit.log` does not rewrite message severity.
+
+    Once prefix, severity and message are splitted, the parser analyze prefix
+    according to ``log_line_prefix`` parameter. Prefix can give a lot of
+    informations for filtering, but costs some CPU cycles to process.
+
+    Finally, the parser analyze the message to extract informations such as
+    statement, hint, duration, execution plan, etc. depending on the message
+    type.
+
+    These stages are separated so that marshalling can apply filter between
+    each stage.
+
+    .. automethod:: as_dict
+
+    Each record field is accessible as an attribute :
+
+    .. attribute:: prefix
+
+        Raw prefix line.
+
+    .. attribute:: severity
+
+        One of ``DEBUG1`` to ``DEBUG5``, ``CONTEXT``, ``DETAIL``, ``ERROR``,
+        etc.
+
+    .. attribute:: message_type
+
+        A string identifying message type. One of ``unknown``, ``duration``,
+        ``connection``, ``analyze``, ``checkpoint``.
+
+    .. attribute:: raw_lines
+
+        A record can span multiple lines. This attribute keep a reference on
+        raw record lines of the record.
+
+    .. attribute:: message_lines
+
+        Just like :attr:`raw_lines`, but the first line only include message,
+        without prefix nor severity.
+
+    The following attributes correspond to prefix fields. See `log_line_prefix
+    documentation
+    <https://www.postgresql.org/docs/current/static/runtime-config-logging.html#GIC-LOG-LINE-PREFIX>`_
+    for details.
+
+    .. attribute:: application_name
+    .. attribute:: command_tag
+    .. attribute:: database
+    .. attribute:: epoch
+
+       :type: :class:`datetime.datetime`
+
+    .. attribute:: error
+    .. attribute:: line_num
+
+       :type: :class:`int`
+
+    .. attribute:: pid
+
+       :type: :class:`int`
+
+    .. attribute:: remote_host
+    .. attribute:: remote_port
+
+       :type: :class:`int`
+
+    .. attribute:: session
+    .. attribute:: start
+
+       :type: :class:`datetime.datetime`
+
+    .. attribute:: timestamp
+
+       :type: :class:`datetime.datetime`
+
+    .. attribute:: user
+    .. attribute:: virtual_xid
+    .. attribute:: xid
+
+       :type: :class:`int`
+
+    If the log lines miss a field, the record won't have the attribute. Use
+    :func:`hasattr` to check whether a record have a specific attribute.
+    """
+
+    # This actually mix severities and message types since they are in the same
     # field.
     _severities = [
         'CONTEXT',
@@ -372,6 +561,7 @@ class Record(object):
         ])
 
     def as_dict(self):
+        """Returns record fields as a :class:`dict`."""
         return dict([
             (k, v)
             for k, v in self.__dict__.items()
