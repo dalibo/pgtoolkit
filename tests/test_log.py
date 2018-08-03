@@ -98,7 +98,15 @@ def test_prefix_parser_q():
 def test_datetime():
     from pgtoolkit.log import parse_datetime
 
-    assert parse_datetime('2018-06-04 20:12:34.343 UTC')
+    date = parse_datetime('2018-06-04 20:12:34.343 UTC')
+    assert date
+    assert 2018 == date.year
+    assert 6 == date.month
+    assert 4 == date.day
+    assert 20 == date.hour
+    assert 12 == date.minute
+    assert 34 == date.second
+    assert 343 == date.microsecond
 
     with pytest.raises(ValueError):
         parse_datetime('2018-06-000004')
