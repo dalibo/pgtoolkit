@@ -1,34 +1,54 @@
 # coding: utf-8
 
-"""
-..currentmodule:: pgtoolkit.hba
+""".. currentmodule:: pgtoolkit.hba
 
-See `Client Authentication
+This module supports reading, validating, editing and rendering ``pg_hba.conf``
+file. See `Client Authentication
 <https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html>`__ in
-PostgreSQL documentation.
+PostgreSQL documentation for details on format and values of ``pg_hba.conf``
+file.
+
+
+API Reference
+-------------
+
+The main entrypoint of this API is the :func:`parse` function. It returns a
+:class:`HBA` object containing :class:`HBARecord` instances.
 
 .. autofunction:: parse
 .. autoclass:: HBA
 .. autoclass:: HBARecord
 
 
-Loading a `pg_hba.conf` file
-----------------------------
+Examples
+--------
+
+Loading a ``pg_hba.conf`` file :
 
 .. code:: python
 
     hba = 'my_pg_hba.conf'
-    with open_or_stdin(hba) as fo:
+    with open(hba, 'r') as fo:
         hba = parse(fo)
     for record in hba:
         print(record.database, record.user)
+
+
+Creating a ``pg_hba.conf`` file from scratch :
+
+.. code:: python
+
+    hba = HBA()
+    hba.lines.append(HBARecord(conntype='local', database='all', user='all', method='peer'))
+    with open('pg_hba.conf', 'w') as fo:
+        hba.write(fo)
 
 
 Using as a script
 -----------------
 
 :mod:`pgtoolkit.hba` is usable as a CLI script. It accepts a pg_hba file path
-as first argument, read it, validate it and re-render it. Fileds are aligned to
+as first argument, read it, validate it and re-render it. Fields are aligned to
 fit pseudo-column width. If filename is ``-``, stdin is read instead.
 
 .. code:: console
@@ -60,14 +80,16 @@ class HBAComment(str):
 
 
 class HBARecord(object):
-    """Hold a HBA record
+    """Holds a HBA record
 
     Known fields are accessible through attribute : ``conntype``, ``database``,
     ``user``, ``address``, ``netmask``, ``method``. Auth-options fields are
     also accessible through attribute like ``map``, ``ldapserver``, etc.
 
     .. automethod:: parse
+    .. automethod:: __init__
     .. automethod:: __str__
+
     """
 
     CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
@@ -107,9 +129,15 @@ class HBARecord(object):
         auth_options = [o.split('=') for o in values[len(fields):]]
         return cls(base_options + auth_options, comment=comment)
 
-    def __init__(self, values, comment=None):
-        self.__dict__.update(dict(values))
-        self.fields = [k for k, _ in values]
+    def __init__(self, values=None, comment=None, **kw_values):
+        """
+        :param values: A dict of fields.
+        :param kw_values: Fields passed as keyword.
+        :param comment:  Comment at the end of the line.
+        """
+        values = dict(values or {}, **kw_values)
+        self.__dict__.update(values)
+        self.fields = [k for k, _ in values.items()]
         self.comment = comment
 
     def __repr__(self):
@@ -171,6 +199,10 @@ class HBARecord(object):
 
 class HBA(object):
     """Represents pg_hba.conf records
+
+    .. attribute:: lines
+
+        List of :class:`HBARecord` and comments.
 
     .. automethod:: __iter__
     .. automethod:: parse
