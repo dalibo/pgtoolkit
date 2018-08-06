@@ -3,12 +3,12 @@
 ####################################
 
 pgtoolkit is a Python library providing API to interact with various PostgreSQL
-file formats. Namely:
+file formats, offline. Namely:
 
-* ``pg_hba.conf``
-* ``.pgpass``
-* ``pg_service.conf``
-* logs
+* :mod:`pg_hba.conf <pgtoolkit.hba>`
+* :mod:`.pgpass <pgtoolkit.pgpass>`
+* :mod:`pg_service.conf <pgtoolkit.service>`
+* :mod:`logs <pgtoolkit.log>`
 
 
 Quick installation
