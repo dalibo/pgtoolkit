@@ -1,14 +1,23 @@
 # coding: utf-8
 
-"""See `The Connection Service File
+""".. currentmodule:: pgtoolkit.service
+
+This module supports reading, validating, editing and rendering ``pg_service``
+file. See `The Connection Service File
 <https://www.postgresql.org/docs/current/static/libpq-pgservice.html>`__ in
 PostgreSQL documentation.
 
+API Reference
+-------------
 
-.. autofunction:: pgtoolkit.service.find
-.. autofunction:: pgtoolkit.service.parse
-.. autoclass:: pgtoolkit.service.Service
-.. autoclass:: pgtoolkit.service.ServiceFile
+The main entrypoint of the API is the :func:`parse` function. :func:`find`
+function may be useful if you need to search for ``pg_service.conf`` files in
+regular locations.
+
+.. autofunction:: find
+.. autofunction:: parse
+.. autoclass:: Service
+.. autoclass:: ServiceFile
 
 
 Edit a service file
@@ -257,7 +266,8 @@ def parse(fo, source=None):
     .. warning::
 
         pgtoolkit is less strict than `libpq`. `libpq` does not accepts spaces
-        around equals.  pgtoolkit accepts them but do not write them.
+        around equals. pgtoolkit accepts spaces but do not write them.
+
     """
     services = ServiceFile()
     services.parse(fo, source=source)

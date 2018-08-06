@@ -3,12 +3,12 @@
 ####################################
 
 pgtoolkit is a Python library providing API to interact with various PostgreSQL
-file formats. Namely:
+file formats, offline. Namely:
 
-* ``pg_hba.conf``
-* ``.pgpass``
-* ``pg_service.conf``
-* logs
+* :mod:`pg_hba.conf <pgtoolkit.hba>`
+* :mod:`.pgpass <pgtoolkit.pgpass>`
+* :mod:`pg_service.conf <pgtoolkit.service>`
+* :mod:`logs <pgtoolkit.log>`
 
 
 Quick installation
@@ -18,7 +18,7 @@ Just use PyPI as any regular Python project:
 
 .. code:: console
 
-    $ pip install pgtoolkit
+    $ pip install --pre pgtoolkit
 
 
 Support
@@ -34,9 +34,11 @@ Project name
 There is a homonym project by @grayhemp since September 2013:
 `PgToolkit <https://github.com/grayhemp/pgtoolkit>`__.
 ``grayhemp/PgToolkit`` is a single tool projet, thus *toolkit* is
-misleading. Also, as of June 2018, ``grayhemp/PgToolkit`` is inactive
-for 3 years.
+misleading. Also, as of August 2018, it is inactive for 3 years.
 
 There is no Python library named ``pgtoolkit``. There is no CLI program
 named ``pgtoolkit``. There is no ``pgtoolkit`` package. Considering
 this, ``pgtoolkit`` was chosen for this project.
+
+Please file a `new issue <https://github.com/dalibo/pgtoolkit/issues/new>`_ if
+you have feedback on project name.
