@@ -18,7 +18,7 @@ Just use PyPI as any regular Python project:
 
 .. code:: console
 
-    $ pip install pgtoolkit
+    $ pip install --pre pgtoolkit
 
 
 Support
