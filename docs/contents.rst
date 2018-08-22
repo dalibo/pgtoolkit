@@ -6,6 +6,7 @@
 .. toctree::
 
    index
+   conf
    hba
    log
    pgpass
