@@ -9,7 +9,7 @@ except ImportError:
 metadatas = dict(
     name='pgtoolkit',
     description='Manage Postgres cluster files from Python',
-    version='0.0.1a0',
+    version='0.0.1a1',
     author='Dalibo',
     author_email='contact@dalibo.com',
     license='PostgreSQL',
