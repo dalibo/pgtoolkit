@@ -1,4 +1,9 @@
-from setuptools import setup
+try:
+    # Use setuptools for bdist_wheel and other extension.
+    from setuptools import setup
+except ImportError:
+    # Let's try distutils for rpm build/install.
+    from distutils.core import setup
 
 
 metadatas = dict(
