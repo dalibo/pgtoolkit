@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  centos7:
+    image: rpmbuild/centos7
+    volumes:
+    - ../:/srv
+    command: /srv/rpm/build
+
+  centos6:
+    image: rpmbuild/centos6
+    volumes:
+    - ../:/srv
+    command: /srv/rpm/build
