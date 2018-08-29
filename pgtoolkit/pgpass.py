@@ -95,6 +95,8 @@ class PassComment(str):
     >>> comm.comment
     'my comment'
 
+    .. automethod:: matches
+
     .. attribute:: comment
 
         The actual message of the comment. Surrounding whitespaces stripped.
@@ -121,11 +123,24 @@ class PassComment(str):
             self._entry = PassEntry.parse(self.comment)
         return self._entry
 
+    def matches(self, **attrs):
+        """In case of a commented entry, tells if it is matching provided
+        attributes. Returns False otherwise.
+
+        :param attrs: keyword/values pairs correspond to one or more
+            PassEntry attributes (ie. hostname, port, etc...)
+        """
+        try:
+            return self.entry.matches(**attrs)
+        except ValueError:
+            return False
+
 
 class PassEntry(object):
     """Holds a .pgpass entry.
 
     .. automethod:: parse
+    .. automethod:: matches
 
     .. attribute:: hostname
 
@@ -223,6 +238,24 @@ class PassEntry(object):
         # More specific entries comes first.
         return [precision] + [chr(0xFF) if x == '*' else x for x in tpl]
 
+    def matches(self, **attrs):
+        """Tells if the current entry is matching provided attributes.
+
+        :param attrs: keyword/values pairs correspond to one or more
+            PassEntry attributes (ie. hostname, port, etc...)
+        """
+
+        # Provided attributes should be comparable to PassEntry attributes
+        expected_attributes = self.__dict__.keys()
+        for k in attrs.keys():
+            if k not in expected_attributes:
+                raise AttributeError('%s is not a valid attribute' % k)
+
+        for k, v in attrs.items():
+            if getattr(self, k) != v:
+                return False
+        return True
+
 
 class PassFile(object):
     """Holds .pgpass file entries and comments.
@@ -231,6 +264,7 @@ class PassFile(object):
     .. automethod:: __iter__
     .. automethod:: sort
     .. automethod:: save
+    .. automethod:: remove
 
     .. attribute:: lines
 
@@ -310,6 +344,25 @@ class PassFile(object):
         """
         for line in self.lines:
             fo.write(str(line) + os.linesep)
+
+    def remove(self, **attrs):
+        """Remove entries matching the provided attributes.
+
+        One can for example remove all entries for which port is 5433.
+
+        Note: commented entries matching will also be removed.
+
+        :param attrs: keyword/values pairs correspond to one or more
+            PassEntry attributes (ie. hostname, port, etc...)
+        """
+
+        # Attributes list to look for must not be empty
+        if not len(attrs.keys()):
+            raise ValueError('Attributes dict cannot be empty')
+
+        self.lines = [
+            line for line in self.lines if not line.matches(**attrs)
+        ]
 
 
 def parse(fo):
