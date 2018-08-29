@@ -106,6 +106,7 @@ import re
 import sys
 from datetime import timedelta
 
+from ._helpers import JSONDateEncoder
 from ._helpers import open_or_stdin
 from ._helpers import Timer
 
@@ -573,13 +574,6 @@ class Record(object):
         ])
 
 
-class RecordEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime):
-            return obj.isoformat()
-        return super(RecordEncoder, self).default(obj)
-
-
 def main(argv=sys.argv[1:], environ=os.environ):
     logging.basicConfig(
         level=logging.INFO,
@@ -597,7 +591,8 @@ def main(argv=sys.argv[1:], environ=os.environ):
                         logger.warn("%s", record)
                     else:
                         counter += 1
-                        print(json.dumps(record.as_dict(), cls=RecordEncoder))
+                        print(
+                            json.dumps(record.as_dict(), cls=JSONDateEncoder))
         logger.info("Parsed %d records in %s.", counter, timer.delta)
     except Exception as e:
         print(str(e), file=sys.stderr)

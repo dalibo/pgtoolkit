@@ -1,5 +1,13 @@
 from datetime import datetime
+import json
 import sys
+
+
+class JSONDateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
 
 
 def open_or_stdin(filename, stdin=sys.stdin):
