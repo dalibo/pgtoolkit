@@ -94,3 +94,59 @@ def test_file(mocker):
     assert 2 == len(list(pgpass))
 
     pgpass.save(mocker.Mock(name='fo'))
+
+
+def test_matches():
+    from pgtoolkit.pgpass import PassComment, PassEntry
+
+    a = PassEntry(
+        hostname='/var/run/postgresql',
+        port=5432,
+        database='db',
+        username='postgres',
+        password='newpassword',
+    )
+    assert a.matches(port=5432, database='db')
+    with pytest.raises(AttributeError):
+        assert a.matches(dbname='newpassword')
+    assert not a.matches(port=5433)
+
+    b = PassComment('# some non-entry comment')
+    assert not b.matches(port=5432)
+
+    c = PassComment('# hostname:5432:*:*:password')
+    assert c.matches(port=5432)
+
+
+def test_remove():
+    from pgtoolkit.pgpass import parse
+    lines = [
+        '# Comment for h2',
+        'h2:*:*:postgres:confidentiel',
+        '# h1:*:*:postgres:confidentiel',
+        'h2:5432:*:postgres:confidentiel',
+        'h2:5432:*:david:Som3Password',
+        'h2:5433:*:postgres:confidentiel',
+    ]
+
+    pgpass = parse(lines)
+
+    with pytest.raises(ValueError):
+        pgpass.remove()
+
+    pgpass.remove(port=5432)
+    assert 4 == len(pgpass.lines)
+
+    # All matching entries are removed even commented ones
+    pgpass = parse(lines)
+    pgpass.remove(username='postgres')
+    assert 2 == len(pgpass.lines)
+
+    pgpass = parse(lines)
+    pgpass.remove(port=5432, username='postgres')
+    assert 5 == len(pgpass.lines)
+
+    # Error if attribute name is not valid
+    pgpass = parse(lines)
+    with pytest.raises(AttributeError):
+        pgpass.remove(userna='postgres')
