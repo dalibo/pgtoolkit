@@ -17,3 +17,5 @@ python -m pgtoolkit.log '%m [%p]: [%l-1] app=%a,db=%d%q,client=%h,user=%u ' data
 if is_python3 ; then
         scripts/profile-log
 fi
+
+python -m pgtoolkit.conf data/postgres.conf
