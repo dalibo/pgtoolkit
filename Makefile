@@ -1,6 +1,6 @@
 all:
 
-VERSION=$(python setup.py --version)
+VERSION=$(shell python setup.py --version)
 GIT_UPSTREAM=git@github.com:dalibo/pgtoolkit.git
 release:
 	git commit setup.py -m "Version $(VERSION)"
