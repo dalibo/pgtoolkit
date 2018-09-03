@@ -35,6 +35,13 @@ The API in this toolkit must:
 - Run everywhere.
 
 
+Support
+-------
+
+`pgtoolkit <https://github.com/dalibo/pgtoolkit>`_ home on GitHub is the unique
+way of interacting with developers. Feel free to open an issue to get support.
+
+
 .. |Codecov| image:: https://codecov.io/gh/dalibo/pgtoolkit/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/dalibo/pgtoolkit
    :alt: Code coverage report
