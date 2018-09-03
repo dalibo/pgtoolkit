@@ -12,6 +12,7 @@ metadatas = dict(
     version='0.0.1a1',
     author='Dalibo',
     author_email='contact@dalibo.com',
+    url='https://github.com/dalibo/pgtoolkit',
     license='PostgreSQL',
 )
 
