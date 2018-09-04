@@ -42,6 +42,14 @@ Edit a service file
     with open(servicefile, 'w') as fo:
         servicefile.save(fo)
 
+Shorter version using the file directly in `parse`:
+
+.. code:: python
+
+    servicefile = parse('my_service.conf')
+    […]
+    servicefile.save()
+
 
 Load a service file to connect with psycopg2
 --------------------------------------------
@@ -145,6 +153,11 @@ class ServiceFile(object):
     .. automethod:: add
     .. automethod:: parse
     .. automethod:: save
+
+    .. attribute:: path
+
+        Path to a file. Is automatically set when calling :meth:`parse` with a
+        path to a file. :meth:`save` will write to this file if set.
     """
 
     _CONVERTERS = {
@@ -152,6 +165,7 @@ class ServiceFile(object):
     }
 
     def __init__(self):
+        self.path = None
         self.config = ConfigParser(
             comment_prefixes=('#',),
             delimiters=('=',),
@@ -185,12 +199,25 @@ class ServiceFile(object):
         """
         self.config.read_file(fo, source=source)
 
-    def save(self, fo):
+    def save(self, fo=None):
         """Writes services in ``fo`` file-like object.
+
+        :param fo: a file-like object. Is not required if :attr:`path` is set.
 
         .. note:: Comments are not preserved.
         """
-        self.config.write(fo, space_around_delimiters=False)
+        config = self.config
+
+        def _write(fo):
+            config.write(fo, space_around_delimiters=False)
+
+        if fo:
+            _write(fo)
+        elif self.path:
+            with open(self.path, 'w') as fo:
+                _write(fo)
+        else:
+            raise ValueError('No file-like object nor path provided')
 
 
 def guess_sysconfdir(environ=os.environ):
@@ -253,10 +280,11 @@ def find(environ=None):
     raise Exception("Can't find pg_service file.")
 
 
-def parse(fo, source=None):
+def parse(file, source=None):
     """Parse a service file.
 
-    :param fo: a file-object as returned by open.
+    :param file: a file-object as returned by open or a string corresponding to
+        the path to a file to open and parse.
     :param source: Name of the source.
     :rtype: A ``ServiceFile`` object.
 
@@ -269,8 +297,13 @@ def parse(fo, source=None):
         around equals. pgtoolkit accepts spaces but do not write them.
 
     """
-    services = ServiceFile()
-    services.parse(fo, source=source)
+    if isinstance(file, str):
+        with open(file) as fo:
+            services = parse(fo, source=source)
+            services.path = file
+    else:
+        services = ServiceFile()
+        services.parse(file, source=source)
     return services
 
 
