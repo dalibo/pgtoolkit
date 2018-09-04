@@ -67,7 +67,7 @@ def test_compare():
     assert c < e
 
 
-def test_file(mocker):
+def test_parse_lines(mocker):
     from pgtoolkit.pgpass import parse, ParseError
 
     lines = [
@@ -94,6 +94,31 @@ def test_file(mocker):
     assert 2 == len(list(pgpass))
 
     pgpass.save(mocker.Mock(name='fo'))
+
+
+def test_parse_file(mocker):
+    from pgtoolkit.pgpass import parse, PassComment
+
+    m = mocker.mock_open()
+    try:
+        mocker.patch('builtins.open', m)
+    except Exception:
+        mocker.patch('__builtin__.open', m)
+    pgpass = parse('filename')
+    pgpass.lines.append(PassComment('# Something'))
+
+    assert m.called
+    pgpass.save()
+    handle = m()
+    handle.write.assert_called_with('# Something\n')
+
+
+def test_save_nofile(mocker):
+    from pgtoolkit.pgpass import PassFile, PassComment
+    pgpass = PassFile()
+    pgpass.lines.append(PassComment('# Something'))
+    with pytest.raises(ValueError):
+        pgpass.save()
 
 
 def test_matches():

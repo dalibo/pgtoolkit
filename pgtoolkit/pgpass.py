@@ -30,6 +30,14 @@ Editing a .pgpass file
     with open('.pgpass', 'w') as fo:
         pgpass.save(fo)
 
+Shorter version using the file directly in `parse`:
+
+.. code:: python
+
+    pgpass = parse('.pgpass')
+    pgpass.lines.append(PassEntry(username='toto', password='confidentiel'))
+    pgpass.sort()
+    pgpass.save()
 
 Using as a script
 -----------------
@@ -272,12 +280,19 @@ class PassFile(object):
         lines by appending :class:`PassEntry` or :class:`PassFile` instances to
         this list.
 
+    .. attribute:: path
+
+        Path to a file. Is automatically set when calling :meth:`parse` with a
+        path to a file. :meth:`save` will write to this file if set.
+
     """
 
     lines = []
+    path = None
 
     def __init__(self):
         self.lines = []
+        self.path = None
 
     def __iter__(self):
         """Iterate entries
@@ -337,13 +352,22 @@ class PassFile(object):
             self.lines.extend(comments)
             self.lines.append(entry)
 
-    def save(self, fo):
+    def save(self, fo=None):
         """Save entries and comment in a file.
 
-        :param fo: a file-like object.
+        :param fo: a file-like object. Is not required if :attr:`path` is set.
         """
-        for line in self.lines:
-            fo.write(str(line) + os.linesep)
+        def _write(fo, lines):
+            for line in lines:
+                fo.write(str(line) + os.linesep)
+
+        if fo:
+            _write(fo, self.lines)
+        elif self.path:
+            with open(self.path, 'w') as fo:
+                _write(fo, self.lines)
+        else:
+            raise ValueError('No file-like object nor path provided')
 
     def remove(self, **attrs):
         """Remove entries matching the provided attributes.
@@ -365,14 +389,20 @@ class PassFile(object):
         ]
 
 
-def parse(fo):
+def parse(file):
     """Parses a .pgpass file.
 
-    :param fo: A line iterator such as a file-like object.
+    :param file: Either a line iterator such as a file-like object or a string
+        corresponding to the path to the file to open and parse.
     :rtype: :class:`PassFile`
     """
-    pgpass = PassFile()
-    pgpass.parse(fo)
+    if isinstance(file, str):
+        with open(file) as fo:
+            pgpass = parse(fo)
+            pgpass.path = file
+    else:
+        pgpass = PassFile()
+        pgpass.parse(file)
     return pgpass
 
 
