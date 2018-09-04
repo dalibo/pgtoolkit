@@ -29,6 +29,27 @@ def test_parse():
     assert 'service0' in repr(service0)
 
 
+def test_parse_file(mocker):
+    from pgtoolkit.service import parse
+
+    m = mocker.mock_open()
+    try:
+        mocker.patch('builtins.open', m)
+    except Exception:
+        mocker.patch('__builtin__.open', m)
+    services = parse('filename')
+
+    assert m.called
+    services.save()
+
+    m = mocker.Mock()
+    try:
+        mocker.patch('configparser.ConfigParser.write', new_callable=m)
+    except Exception:
+        mocker.patch('ConfigParser.ConfigParser.write', new_callable=m)
+    assert m.called
+
+
 def test_render():
     from pgtoolkit.service import Service, ServiceFile
 
