@@ -26,4 +26,4 @@ Then, follow the next steps:
 - Follow instructions to [build rpm](./rpm) and upload to [Dalibo
   Labs](https://yum.dalibo.org/labs/).
 - Edit `setup.py` and set the new development version with the suffix `.dev0`.
-- Run `python setup.py egg_info` to regenerate you're metadatas.
+- Run `python setup.py egg_info` to regenerate your metadatas.
