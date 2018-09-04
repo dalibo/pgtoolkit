@@ -33,6 +33,12 @@ Loading a ``pg_hba.conf`` file :
     for record in hba:
         print(record.database, record.user)
 
+Shorter version using the file directly in `parse`:
+
+.. code:: python
+
+    pgpass = parse('my_pg_hba.conf')
+
 
 Creating a ``pg_hba.conf`` file from scratch :
 
@@ -204,12 +210,18 @@ class HBA(object):
 
         List of :class:`HBARecord` and comments.
 
+    .. attribute:: path
+
+        Path to a file. Is automatically set when calling :meth:`parse` with a
+        path to a file. :meth:`save` will write to this file if set.
+
     .. automethod:: __iter__
     .. automethod:: parse
     .. automethod:: save
     """
     def __init__(self):
         self.lines = []
+        self.path = None
 
     def __iter__(self):
         """Iterate on records, ignoring comments and blank lines."""
@@ -231,10 +243,10 @@ class HBA(object):
                     raise ParseError(1 + i, line, str(e))
             self.lines.append(record)
 
-    def save(self, fo):
+    def save(self, fo=None):
         """Write records and comments in a file
 
-        :param fo: A file-like object
+        :param fo: a file-like object. Is not required if :attr:`path` is set.
 
         Line order is preserved. Record fields are vertically aligned to match
         the columen size of column headers from default configuration file.
@@ -244,18 +256,33 @@ class HBA(object):
             # TYPE  DATABASE        USER            ADDRESS                 METHOD
             local   all             all                                     trust
         """  # noqa
-        for line in self.lines:
-            fo.write(str(line) + os.linesep)
+        def _write(fo, lines):
+            for line in lines:
+                fo.write(str(line) + os.linesep)
+
+        if fo:
+            _write(fo, self.lines)
+        elif self.path:
+            with open(self.path, 'w') as fo:
+                _write(fo, self.lines)
+        else:
+            raise ValueError('No file-like object nor path provided')
 
 
-def parse(fo):
+def parse(file):
     """Parse a `pg_hba.conf` file.
 
-    :param fo: A line iterator such as a file-like object.
+    :param file: Either a line iterator such as a file-like object or a string
+        corresponding to the path to the file to open and parse.
     :rtype: :class:`HBA`.
     """
-    hba = HBA()
-    hba.parse(fo)
+    if isinstance(file, str):
+        with open(file) as fo:
+            hba = parse(fo)
+            hba.path = file
+    else:
+        hba = HBA()
+        hba.parse(file)
     return hba
 
 

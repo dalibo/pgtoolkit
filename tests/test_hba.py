@@ -106,6 +106,23 @@ def test_hba(mocker):
     hba.save(mocker.Mock(name='file'))
 
 
+def test_parse_file(mocker):
+    from pgtoolkit.hba import parse, HBAComment
+
+    m = mocker.mock_open()
+    try:
+        mocker.patch('builtins.open', m)
+    except Exception:
+        mocker.patch('__builtin__.open', m)
+    pgpass = parse('filename')
+    pgpass.lines.append(HBAComment('# Something'))
+
+    assert m.called
+    pgpass.save()
+    handle = m()
+    handle.write.assert_called_with('# Something\n')
+
+
 def test_hba_error(mocker):
     from pgtoolkit.hba import parse, ParseError
 
