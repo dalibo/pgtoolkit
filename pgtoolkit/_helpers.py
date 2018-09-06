@@ -4,6 +4,17 @@ import sys
 from datetime import timedelta
 
 
+PY2 = sys.version_info < (3,)
+
+if PY2:  # pragma: nocover_py3
+    string_types = (str, unicode)  # noqa
+    unicode = unicode  # noqa
+    bytes = str
+else:  # pragma: nocover_py2
+    string_types = (str,)
+    unicode = str
+
+
 def format_timedelta(delta):
     values = [
         (delta.days, 'd'),

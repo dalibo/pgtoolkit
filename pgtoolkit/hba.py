@@ -77,7 +77,7 @@ import shlex
 import sys
 
 from .errors import ParseError
-from ._helpers import open_or_stdin
+from ._helpers import open_or_stdin, string_types
 
 
 class HBAComment(str):
@@ -276,7 +276,7 @@ def parse(file):
         corresponding to the path to the file to open and parse.
     :rtype: :class:`HBA`.
     """
-    if isinstance(file, str):
+    if isinstance(file, string_types):
         with open(file) as fo:
             hba = parse(fo)
             hba.path = file
