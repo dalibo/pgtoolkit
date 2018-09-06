@@ -100,7 +100,7 @@ except ImportError:  # pragma: nocover_py3
 import os
 import sys
 
-from ._helpers import open_or_stdin
+from ._helpers import open_or_stdin, string_types
 
 
 class Service(dict):
@@ -297,7 +297,7 @@ def parse(file, source=None):
         around equals. pgtoolkit accepts spaces but do not write them.
 
     """
-    if isinstance(file, str):
+    if isinstance(file, string_types):
         with open(file) as fo:
             services = parse(fo, source=source)
             services.path = file

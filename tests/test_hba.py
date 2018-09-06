@@ -122,6 +122,12 @@ def test_parse_file(mocker):
     handle = m()
     handle.write.assert_called_with('# Something\n')
 
+    # Also works for other string types
+    m.reset_mock()
+    pgpass = parse(u'filename')
+    pgpass.lines.append(HBAComment('# Something'))
+    assert m.called
+
 
 def test_hba_error(mocker):
     from pgtoolkit.hba import parse, ParseError

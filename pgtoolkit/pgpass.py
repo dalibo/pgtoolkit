@@ -66,7 +66,7 @@ import os
 import sys
 
 from .errors import ParseError
-from ._helpers import open_or_stdin
+from ._helpers import open_or_stdin, string_types
 
 
 def unescape(s, delim):
@@ -396,7 +396,7 @@ def parse(file):
         corresponding to the path to the file to open and parse.
     :rtype: :class:`PassFile`
     """
-    if isinstance(file, str):
+    if isinstance(file, string_types):
         with open(file) as fo:
             pgpass = parse(fo)
             pgpass.path = file
