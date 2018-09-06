@@ -21,6 +21,7 @@ To release a new version you'll need:
 Then, follow the next steps:
 
 - Edit `setup.py` and set the new version in metadata.
+- Do the same in `rpm/python-pgtoolkit.spec`.
 - Run `make release`. The new source archive is available at
   [PyPI](https://pypi.org/project/pgtoolkit/).
 - Follow instructions to [build rpm](./rpm) and upload to [Dalibo
