@@ -75,6 +75,7 @@ from __future__ import print_function
 import os
 import shlex
 import sys
+import warnings
 
 from .errors import ParseError
 from ._helpers import open_or_stdin, string_types
@@ -95,6 +96,7 @@ class HBARecord(object):
     .. automethod:: parse
     .. automethod:: __init__
     .. automethod:: __str__
+    .. automethod:: matches
 
     """
 
@@ -202,6 +204,24 @@ class HBARecord(object):
             if f not in self.KNOWN_FIELDS
         ]
 
+    def matches(self, **attrs):
+        """Tells if the current record is matching provided attributes.
+
+        :param attrs: keyword/values pairs corresponding to one or more
+            HBARecord attributes (ie. user, conntype, etc…)
+        """
+
+        # Provided attributes should be comparable to HBARecord attributes
+        expected_attributes = self.__dict__.keys()
+        for k in attrs.keys():
+            if k not in expected_attributes:
+                raise AttributeError('%s is not a valid attribute' % k)
+
+        for k, v in attrs.items():
+            if getattr(self, k) != v:
+                return False
+        return True
+
 
 class HBA(object):
     """Represents pg_hba.conf records
@@ -218,6 +238,7 @@ class HBA(object):
     .. automethod:: __iter__
     .. automethod:: parse
     .. automethod:: save
+    .. automethod:: remove
     """
     def __init__(self):
         self.lines = []
@@ -267,6 +288,39 @@ class HBA(object):
                 _write(fo, self.lines)
         else:
             raise ValueError('No file-like object nor path provided')
+
+    def remove(self, filter=None, **attrs):
+        """Remove records matching the provided attributes.
+
+        One can for example remove all records for which user is 'david'.
+
+        :param filter: a function to be used as filter. It is passed the record
+            to test against. If it returns True, the record is removed. It is
+            kept otherwise.
+        :param attrs: keyword/values pairs correspond to one or more
+            HBARecord attributes (ie. user, conntype, etc...)
+
+        Usage examples:
+
+        .. code:: python
+
+            hba.remove(filter=lamdba r: r.user == 'david')
+            hba.remove(user='david')
+
+        """
+        if filter is not None and len(attrs.keys()):
+            warnings.warn('Only filter will be taken into account')
+
+        # Attributes list to look for must not be empty
+        if filter is None and not len(attrs.keys()):
+            raise ValueError('Attributes dict cannot be empty')
+
+        filter = filter or (lambda l: l.matches(**attrs))
+
+        self.lines = [
+            l for l in self.lines
+            if not (isinstance(l, HBARecord) and filter(l))
+        ]
 
 
 def parse(file):

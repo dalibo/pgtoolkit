@@ -137,3 +137,47 @@ def test_hba_error(mocker):
     e = ei.value
     assert 'line #1' in str(e)
     assert repr(e)
+
+
+def test_remove():
+
+    from pgtoolkit.hba import parse
+
+    lines = HBA_SAMPLE.splitlines(True)
+    hba = parse(lines)
+
+    with pytest.raises(ValueError):
+        hba.remove()
+
+    hba.remove(database='replication')
+    entries = list(iter(hba))
+    assert 4 == len(entries)
+
+    hba = parse(lines)
+    hba.remove(filter=lambda r: r.database == 'replication')
+    entries = list(iter(hba))
+    assert 4 == len(entries)
+
+    hba = parse(lines)
+    hba.remove(conntype='host', database='replication')
+    entries = list(iter(hba))
+    assert 5 == len(entries)
+
+    def filter(r):
+        return r.conntype == 'host' and r.database == 'replication'
+    hba = parse(lines)
+    hba.remove(filter=filter)
+    entries = list(iter(hba))
+    assert 5 == len(entries)
+
+    # Only filter is taken into account
+    hba = parse(lines)
+    with pytest.warns(UserWarning):
+        hba.remove(filter=filter, database='replication')
+    entries = list(iter(hba))
+    assert 5 == len(entries)
+
+    # Error if attribute name is not valid
+    hba = parse(lines)
+    with pytest.raises(AttributeError):
+        hba.remove(foo='postgres')
