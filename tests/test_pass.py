@@ -171,6 +171,19 @@ def test_remove():
     pgpass.remove(port=5432, username='postgres')
     assert 5 == len(pgpass.lines)
 
+    def filter(l):
+        return l.username == 'postgres'
+
+    pgpass = parse(lines)
+    pgpass.remove(filter=filter)
+    assert 2 == len(pgpass.lines)
+
+    # Only filter is taken into account
+    pgpass = parse(lines)
+    with pytest.warns(UserWarning):
+        pgpass.remove(filter=filter, port=5432)
+    assert 2 == len(pgpass.lines)
+
     # Error if attribute name is not valid
     pgpass = parse(lines)
     with pytest.raises(AttributeError):

@@ -64,6 +64,7 @@ from __future__ import print_function
 
 import os
 import sys
+import warnings
 
 from .errors import ParseError
 from ._helpers import open_or_stdin, string_types
@@ -369,23 +370,47 @@ class PassFile(object):
         else:
             raise ValueError('No file-like object nor path provided')
 
-    def remove(self, **attrs):
+    def remove(self, filter=None, **attrs):
         """Remove entries matching the provided attributes.
 
         One can for example remove all entries for which port is 5433.
 
         Note: commented entries matching will also be removed.
 
+        :param filter: a function to be used as filter. It is passed the line
+             to test against. If it returns True, the line is removed. It is
+             kept otherwise.
         :param attrs: keyword/values pairs correspond to one or more
             PassEntry attributes (ie. hostname, port, etc...)
+
+        Usage examples:
+
+        .. code:: python
+
+            pgpass.remove(port=5432)
+            pgpass.remove(filter=lambda r: r.port != 5432)
         """
+        if filter is not None and len(attrs):
+            warnings.warn('Only filter will be taken into account')
 
         # Attributes list to look for must not be empty
-        if not len(attrs.keys()):
+        if filter is None and not len(attrs.keys()):
             raise ValueError('Attributes dict cannot be empty')
 
+        # Silently handle the case when line is a PassComment
+        def filter_(line):
+            if isinstance(line, PassComment):
+                try:
+                    return filter(line.entry)
+                except ValueError:
+                    return False
+            else:
+                return filter(line)
+
+        filter_ = filter_ if filter else (lambda l: l.matches(**attrs))
+
         self.lines = [
-            line for line in self.lines if not line.matches(**attrs)
+            line for line in self.lines if not filter_(line)
         ]
 
 
