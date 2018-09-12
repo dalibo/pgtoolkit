@@ -212,13 +212,12 @@ class HBARecord(object):
         """
 
         # Provided attributes should be comparable to HBARecord attributes
-        expected_attributes = self.__dict__.keys()
         for k in attrs.keys():
-            if k not in expected_attributes:
+            if k not in self.KNOWN_FIELDS:
                 raise AttributeError('%s is not a valid attribute' % k)
 
         for k, v in attrs.items():
-            if getattr(self, k) != v:
+            if getattr(self, k, None) != v:
                 return False
         return True
 

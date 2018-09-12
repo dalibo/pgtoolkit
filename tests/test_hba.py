@@ -163,6 +163,13 @@ def test_remove():
     entries = list(iter(hba))
     assert 5 == len(entries)
 
+    # Works even for fields that may not be valid for all records
+    # `address` is not valid for `local` connection type
+    hba = parse(lines)
+    hba.remove(address='127.0.0.1/32')
+    entries = list(iter(hba))
+    assert 6 == len(entries)
+
     def filter(r):
         return r.conntype == 'host' and r.database == 'replication'
     hba = parse(lines)
