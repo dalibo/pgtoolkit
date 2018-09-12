@@ -188,3 +188,48 @@ def test_remove():
     hba = parse(lines)
     with pytest.raises(AttributeError):
         hba.remove(foo='postgres')
+
+
+def test_merge():
+    import os
+    from pgtoolkit.hba import parse
+
+    sample = """\
+    # comment
+    host replication all all trust
+    # other comment
+    host replication  all        127.0.0.1  255.255.255.255         trust
+    # Comment should be kept
+    host all all all trust"""
+    lines = sample.splitlines(True)
+    hba = parse(lines)
+
+    other_sample = """\
+    # comment before 1.2.3.4 line
+    host replication all 1.2.3.4 trust
+    # method changed to 'peer'
+    # second comment
+    host all all all peer
+    """
+    other_lines = other_sample.splitlines(True)
+    other_hba = parse(other_lines)
+    hba.merge(other_hba)
+
+    expected_sample = """\
+    # comment
+    host replication all all trust
+    # other comment
+    host replication  all        127.0.0.1  255.255.255.255         trust
+    # Comment should be kept
+    # method changed to 'peer'
+    # second comment
+    host all all all peer
+    # comment before 1.2.3.4 line
+    host replication all 1.2.3.4 trust
+    """
+    expected_lines = expected_sample.splitlines(True)
+    expected_hba = parse(expected_lines)
+
+    def r(hba):
+        return os.linesep.join([str(l) for l in hba.lines])
+    assert r(hba) == r(expected_hba)
