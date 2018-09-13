@@ -238,6 +238,7 @@ class HBA(object):
     .. automethod:: parse
     .. automethod:: save
     .. automethod:: remove
+    .. automethod:: merge
     """
     def __init__(self):
         self.lines = []
@@ -320,6 +321,41 @@ class HBA(object):
             l for l in self.lines
             if not (isinstance(l, HBARecord) and filter(l))
         ]
+
+    def merge(self, other):
+        """Add new records to HBAFile or replace them if they are matching
+            (ie. same conntype, database, user and address)
+
+        :param other: HBAFile to merge into the current one.
+            Lines with matching conntype, database, user and database will be
+            replaced by the new one. Otherwise they will be added at the end.
+            Comments from the original hba are preserved.
+        """
+        lines = self.lines[:]
+        new_lines = other.lines[:]
+        other_comments = []
+
+        for i, line in enumerate(lines):
+            if isinstance(line, HBAComment):
+                continue
+            for new_line in new_lines:
+                if isinstance(new_line, HBAComment):
+                    # preserve comments until next record
+                    other_comments.append(new_line)
+                else:
+                    if line.matches(conntype=new_line.conntype,
+                                    database=new_line.database,
+                                    user=new_line.user,
+                                    address=new_line.address):
+                        # replace matched line with comments + record
+                        self.lines[i:i+1] = other_comments + [new_line]
+                        for c in other_comments:
+                            new_lines.remove(c)
+                        new_lines.remove(new_line)
+                        break  # found match, go to next line
+                    other_comments[:] = []
+        # Then add remaining new lines (not merged)
+        self.lines.extend(new_lines)
 
 
 def parse(file):
