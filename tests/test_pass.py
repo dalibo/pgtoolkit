@@ -13,6 +13,19 @@ def test_escaped_split():
         list(escapedsplit(r'', 'long-delim'))
 
 
+def test_passfile_create():
+    from pgtoolkit.pgpass import PassComment, PassEntry, PassFile
+
+    pgpass = PassFile([
+        PassComment('# Comment'),
+        PassEntry.parse('foo:*:bar:baz:dude')
+    ])
+    assert 2 == len(pgpass.lines)
+
+    with pytest.raises(ValueError):
+        PassFile('blah')
+
+
 def test_entry():
     from pgtoolkit.pgpass import PassEntry
 
