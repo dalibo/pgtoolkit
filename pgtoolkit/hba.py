@@ -240,8 +240,14 @@ class HBA(object):
     .. automethod:: remove
     .. automethod:: merge
     """
-    def __init__(self):
-        self.lines = []
+    def __init__(self, entries=None):
+        """HBA constructor
+
+        :param entries: A list of HBAComment or HBARecord. Optional.
+        """
+        if entries and not isinstance(entries, list):
+            raise ValueError('%s should be a list' % entries)
+        self.lines = entries or []
         self.path = None
 
     def __iter__(self):

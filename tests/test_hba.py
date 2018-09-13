@@ -106,6 +106,20 @@ def test_hba(mocker):
     hba.save(mocker.Mock(name='file'))
 
 
+def test_hba_create():
+    from pgtoolkit.hba import HBA, HBAComment, HBARecord
+
+    hba = HBA([
+        HBAComment('# a comment'),
+        HBARecord.parse('local all all trust'),
+    ])
+    assert 2 == len(hba.lines)
+
+    # Should be a list
+    with pytest.raises(ValueError):
+        HBA('blah')
+
+
 def test_parse_file(mocker):
     from pgtoolkit.hba import parse, HBAComment
 
