@@ -205,6 +205,8 @@ def test_merge():
     hba = parse(lines)
 
     other_sample = """\
+    # line with no address
+    local   all             all                                     trust
     # comment before 1.2.3.4 line
     host replication all 1.2.3.4 trust
     # method changed to 'peer'
@@ -224,6 +226,8 @@ def test_merge():
     # method changed to 'peer'
     # second comment
     host all all all peer
+    # line with no address
+    local   all             all                                     trust
     # comment before 1.2.3.4 line
     host replication all 1.2.3.4 trust
     """
