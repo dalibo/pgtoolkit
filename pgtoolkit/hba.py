@@ -343,10 +343,11 @@ class HBA(object):
                     # preserve comments until next record
                     other_comments.append(new_line)
                 else:
-                    if line.matches(conntype=new_line.conntype,
-                                    database=new_line.database,
-                                    user=new_line.user,
-                                    address=new_line.address):
+                    kwargs = dict()
+                    for a in ['conntype', 'database', 'user', 'address']:
+                        if hasattr(new_line, a):
+                            kwargs[a] = getattr(new_line, a)
+                    if line.matches(**kwargs):
                         # replace matched line with comments + record
                         self.lines[i:i+1] = other_comments + [new_line]
                         for c in other_comments:
