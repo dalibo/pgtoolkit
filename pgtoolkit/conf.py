@@ -55,6 +55,7 @@ from datetime import timedelta
 
 from ._helpers import JSONDateEncoder
 from ._helpers import open_or_stdin
+from ._helpers import open_or_return
 
 
 def parse(fo):
@@ -69,12 +70,14 @@ def parse(fo):
     In case of doubt, the value is kept as a string. It's up to you to enforce
     format.
 
-    :param fo: A line iterator such as a file-like object
+    :param fo: A line iterator such as a file-like object or a path.
     :returns: A :class:`Configuration` containing parsed configuration.
 
     """
     conf = Configuration()
-    conf.parse(fo)
+    with open_or_return(fo) as fo:
+        conf.parse(fo)
+        conf.path = getattr(fo, 'name', None)
     return conf
 
 
@@ -148,6 +151,12 @@ class Configuration(object):
     5432
     >>> conf['pg_stat_statement.min_duration']
     datetime.timedelta(0, 3)
+
+    .. attribute:: path
+
+        Path to a file. Automatically set when calling :fun:`parse` with a path
+        to a file.
+
     """  # noqa
     _parameter_re = re.compile(
         r'^(?P<name>[a-z_.]+)(?: +(?!=)| *= *)(?P<value>.*?)'
@@ -158,6 +167,7 @@ class Configuration(object):
     def __init__(self):
         self.lines = []
         self.entries = OrderedDict()
+        self.path = None
 
     def parse(self, fo):
         for raw_line in fo:

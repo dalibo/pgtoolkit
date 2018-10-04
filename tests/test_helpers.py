@@ -1,3 +1,7 @@
+from io import StringIO
+import pytest
+
+
 def test_open_or_stdin(mocker):
     from pgtoolkit._helpers import open_or_stdin
 
@@ -9,6 +13,27 @@ def test_open_or_stdin(mocker):
     open_.return_value = fo = object()
 
     assert open_or_stdin('toto.conf') is fo
+
+
+def test_open_or_return(mocker):
+    from pgtoolkit._helpers import open_or_return
+
+    # File case.
+    fo = object()
+    with open_or_return(fo) as ret:
+        assert ret is fo
+
+    # Path case
+    open_ = mocker.patch(
+        'pgtoolkit._helpers.open', creates=True)
+    open_.return_value = fo = StringIO()
+
+    with open_or_return('toto.conf') as ret:
+        assert ret is fo
+
+    # None case.
+    with pytest.raises(ValueError):
+        open_or_return(None)
 
 
 def test_timer():
