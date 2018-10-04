@@ -1,3 +1,4 @@
+from io import StringIO
 from textwrap import dedent
 
 import pytest
@@ -88,3 +89,13 @@ def test_parser():
 
     with pytest.raises(ValueError):
         parse(['bad_line'])
+
+
+def test_save():
+    from pgtoolkit.conf import parse
+
+    conf = parse(['listen_addresses = *'])
+    fo = StringIO()
+    conf.save(fo)
+    out = fo.getvalue()
+    assert 'listen_addresses = *' in out

@@ -154,8 +154,10 @@ class Configuration(object):
 
     .. attribute:: path
 
-        Path to a file. Automatically set when calling :fun:`parse` with a path
-        to a file.
+        Path to a file. Automatically set when calling :func:`parse` with a path
+        to a file. This is default target for :meth:`save`.
+
+    .. automethod:: save
 
     """  # noqa
     _parameter_re = re.compile(
@@ -196,6 +198,19 @@ class Configuration(object):
 
     def as_dict(self):
         return dict([(k, v['value']) for k, v in self.entries.items()])
+
+    def save(self, fo=None):
+        """Write configuration to a file.
+
+        Configuration entries order and comments are preserved.
+
+        :param fo: A path or file-like object. Required if :attr:`path` is
+            None.
+
+        """
+        with open_or_return(fo or self.path, mode='w') as fo:
+            for line in self.lines:
+                fo.write(line)
 
 
 def _main(argv):  # pragma: nocover
