@@ -216,6 +216,12 @@ class Configuration(object):
     >>> conf = parse(['port=5432\n', 'pg_stat_statement.min_duration = 3s\n'])
     >>> conf.port
     5432
+    >>> conf.port = 5433
+    >>> conf.port
+    5433
+    >>> conf['port'] = 5434
+    >>> conf.port
+    5434
     >>> conf['pg_stat_statement.min_duration']
     datetime.timedelta(0, 3)
 
@@ -233,10 +239,17 @@ class Configuration(object):
         r'(?P<comment>#.*)?$'
     )
 
+    # Internally, lines property contains an updated list of all comments and
+    # entries serialized. When adding a setting or updating an existing one,
+    # the serialized line is updated accordingly. This allows to keep comments
+    # and serialize only what's needed. Other lines are just written as-is.
+
     def __init__(self):
-        self.lines = []
-        self.entries = OrderedDict()
-        self.path = None
+        self.__dict__.update(dict(
+            lines=[],
+            entries=OrderedDict(),
+            path=None,
+        ))
 
     def parse(self, fo):
         for raw_line in fo:
@@ -260,8 +273,29 @@ class Configuration(object):
         except KeyError:
             raise AttributeError(name)
 
+    def __setattr__(self, name, value):
+        if name in self.__dict__:
+            self.__dict__[name] = value
+        else:
+            self[name] = value
+
     def __getitem__(self, key):
-        return self.entries[key]['value']
+        return self.entries[key].value
+
+    def __setitem__(self, key, value):
+        if key in self.entries:
+            e = self.entries[key]
+            e.value = value
+            # Update serialized entry.
+            old_line = e.raw_line
+            e.raw_line = str(e) + '\n'
+            lineno = self.lines.index(old_line)
+            self.lines[lineno:lineno+1] = [e.raw_line]
+        else:
+            self.entries[key] = e = Entry(name=key, value=value)
+            # Append serialized line.
+            e.raw_line = str(e) + '\n'
+            self.lines.append(e.raw_line)
 
     def as_dict(self):
         return dict([(k, v.value) for k, v in self.entries.items()])

@@ -4,6 +4,17 @@ from io import StringIO
 
 import pytest
 
+from pgtoolkit._helpers import PY2
+
+
+if PY2:
+    class UnicodeIO(StringIO):
+        def write(self, chunk):
+            if isinstance(chunk, str):
+                chunk = chunk.decode('utf-8')
+            return super(UnicodeIO, self).write(chunk)
+    StringIO = UnicodeIO
+
 
 def test_parse_value():
     from pgtoolkit.conf import parse_value
@@ -124,3 +135,24 @@ def test_save():
     conf.save(fo)
     out = fo.getvalue()
     assert 'listen_addresses = *' in out
+
+
+def test_edit():
+    from pgtoolkit.conf import Configuration
+
+    conf = Configuration()
+
+    conf.listen_addresses = '*'
+    assert '*' == conf.listen_addresses
+
+    conf['port'] = 5432
+    assert 5432 == conf.port
+
+    conf['port'] = 5433
+    assert 5433 == conf.port
+
+    with StringIO() as fo:
+        conf.save(fo)
+        out = fo.getvalue()
+
+    assert 'port = 5433' in out
