@@ -156,6 +156,57 @@ class Entry(object):
     def __repr__(self):
         return '<%s %s=%s>' % (self.__class__.__name__, self.name, self.value)
 
+    _minute = 60
+    _hour = 60 * _minute
+    _day = 24 * _hour
+
+    _timedelta_unit_map = [
+        ('d', _day),
+        ('h', _hour),
+        # The space before 'min' is intentionnal. I find '1 min' more readable
+        # than '1min'.
+        (' min', _minute),
+        ('s', 1),
+    ]
+
+    def serialize(self):
+        # This is the reverse of parse_value.
+        value = self.value
+        if isinstance(value, bool):
+            value = 'true' if value else 'false'
+        elif isinstance(value, int):
+            for unit in None, 'kB', 'MB', 'GB', 'TB':
+                if value % 1024:
+                    break
+                value = value // 1024
+            if unit:
+                value = "'%s %s'" % (value, unit)
+        elif isinstance(value, str):
+            if ' ' in value or "'" in value:
+                value = "'%s'" % value.replace("'", r"\'")
+        elif isinstance(value, timedelta):
+            seconds = value.days * self._day + value.seconds
+            if value.microseconds:
+                unit = ' ms'
+                value = seconds * 1000 + value.microseconds // 1000
+            else:
+                for unit, mod in self._timedelta_unit_map:
+                    if seconds % mod:
+                        continue
+                    value = seconds // mod
+                    break
+            value = "'%s%s'" % (value, unit)
+        else:
+            value = str(value)
+        return value
+
+    def __str__(self):
+        line = '%(name)s = %(value)s' % dict(
+            name=self.name, value=self.serialize())
+        if self.comment:
+            line += '  # ' + self.comment
+        return line
+
 
 class Configuration(object):
     r"""Holds a parsed configuration.
