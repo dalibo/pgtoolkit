@@ -141,6 +141,22 @@ def parse_value(raw):
                 return raw
 
 
+class Entry(object):
+    # Holds the parsed representation of a configuration entry line.
+    #
+    # This includes the comment.
+
+    def __init__(self, name, value, comment=None, raw_line=None):
+        self.name = name
+        self.value = value
+        self.comment = comment
+        # Store the raw_line to track the position in the list of lines.
+        self.raw_line = raw_line
+
+    def __repr__(self):
+        return '<%s %s=%s>' % (self.__class__.__name__, self.name, self.value)
+
+
 class Configuration(object):
     r"""Holds a parsed configuration.
 
@@ -181,11 +197,11 @@ class Configuration(object):
             m = self._parameter_re.match(line)
             if not m:
                 raise ValueError("Bad line: %r." % raw_line)
-            entry = m.groupdict()
-            entry['value'] = parse_value(entry['value'])
-            entry['raw_line'] = raw_line
-
-            self.entries[entry['name']] = entry
+            kwargs = m.groupdict()
+            kwargs['value'] = parse_value(kwargs['value'])
+            kwargs['raw_line'] = raw_line
+            entry = Entry(**kwargs)
+            self.entries[entry.name] = entry
 
     def __getattr__(self, name):
         try:
@@ -197,7 +213,7 @@ class Configuration(object):
         return self.entries[key]['value']
 
     def as_dict(self):
-        return dict([(k, v['value']) for k, v in self.entries.items()])
+        return dict([(k, v.value) for k, v in self.entries.items()])
 
     def save(self, fo=None):
         """Write configuration to a file.
