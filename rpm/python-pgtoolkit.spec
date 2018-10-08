@@ -21,7 +21,8 @@ Name:		python3-%{sname}
 %else
 Name:		python-%{sname}
 %endif
-Version:	0.7.0.dev0
+# Must point to a released version on PyPI.
+Version:	0.6.0
 Release:	1%{?dist}
 Epoch:		1
 Summary:	Manage Postgres cluster files from Python
