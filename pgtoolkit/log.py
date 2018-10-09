@@ -588,7 +588,7 @@ def main(argv=sys.argv[1:], environ=os.environ):
             with Timer() as timer:
                 for record in parse(fo, prefix_fmt=log_line_prefix):
                     if isinstance(record, UnknownData):
-                        logger.warn("%s", record)
+                        logger.warning("%s", record)
                     else:
                         counter += 1
                         print(
