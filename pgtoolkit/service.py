@@ -123,10 +123,10 @@ class Service(dict):
     >>> myservice['dbname']
     'mydb'
     >>> myservice.user = 'myuser'
-    >>> list(myservice.items())
-    [('dbname', 'mydb'), ('host', 'myhost'), ('user', 'myuser')]
+    >>> list(sorted(myservice.items()))
+    [('dbname', 'mydb'), ('host', 'myhost'), ('name', 'myservice'), ('user', 'myuser')]
 
-    """
+    """  # noqa
 
     def __init__(self, name, parameters=None, **extra):
         super(Service, self).__init__()
