@@ -1,6 +1,19 @@
+from datetime import timedelta
 from textwrap import dedent
+from io import StringIO
 
 import pytest
+
+from pgtoolkit._helpers import PY2
+
+
+if PY2:
+    class UnicodeIO(StringIO):
+        def write(self, chunk):
+            if isinstance(chunk, str):
+                chunk = chunk.decode('utf-8')
+            return super(UnicodeIO, self).write(chunk)
+    StringIO = UnicodeIO
 
 
 def test_parse_value():
@@ -88,3 +101,58 @@ def test_parser():
 
     with pytest.raises(ValueError):
         parse(['bad_line'])
+
+
+def test_serialize_entry():
+    from pgtoolkit.conf import Entry
+
+    e = Entry(name='grp.setting', value=True)
+
+    assert 'grp.setting' in repr(e)
+    assert 'grp.setting = true' == str(e)
+
+    assert "'2 kB'" == Entry(name='var', value=2048).serialize()
+    assert 'var = 15' == str(Entry(name='var', value=15))
+    assert 'var = 0.1' == str(Entry(name='var', value=.1))
+    assert 'var = enum' == str(Entry(name='var', value='enum'))
+    assert "var = 'sp ced'" == str(Entry(name='var', value='sp ced'))
+    assert r"var = 'quo\'ed'" == str(Entry(name='var', value="quo'ed"))
+
+    assert "'1d'" == Entry('var', value=timedelta(days=1)).serialize()
+    assert "'1h'" == Entry('var', value=timedelta(minutes=60)).serialize()
+    assert "'61 min'" == Entry('var', value=timedelta(minutes=61)).serialize()
+    e = Entry('var', value=timedelta(microseconds=12000))
+    assert "'12 ms'" == e.serialize()
+
+    assert '  # Comment' in str(Entry('var', 1, comment='Comment'))
+
+
+def test_save():
+    from pgtoolkit.conf import parse
+
+    conf = parse(['listen_addresses = *'])
+    fo = StringIO()
+    conf.save(fo)
+    out = fo.getvalue()
+    assert 'listen_addresses = *' in out
+
+
+def test_edit():
+    from pgtoolkit.conf import Configuration
+
+    conf = Configuration()
+
+    conf.listen_addresses = '*'
+    assert '*' == conf.listen_addresses
+
+    conf['port'] = 5432
+    assert 5432 == conf.port
+
+    conf['port'] = 5433
+    assert 5433 == conf.port
+
+    with StringIO() as fo:
+        conf.save(fo)
+        out = fo.getvalue()
+
+    assert 'port = 5433' in out
