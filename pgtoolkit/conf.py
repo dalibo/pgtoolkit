@@ -235,7 +235,7 @@ class Configuration(object):
     """  # noqa
     _parameter_re = re.compile(
         r'^(?P<name>[a-z_.]+)(?: +(?!=)| *= *)(?P<value>.*?)'
-        '[\s\t]*'
+        '[\\s\t]*'
         r'(?P<comment>#.*)?$'
     )
 

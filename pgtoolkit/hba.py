@@ -134,7 +134,7 @@ class HBARecord(object):
             fields.append('netmask')
         fields.append('method')
         base_options = list(zip(fields, values[:len(fields)]))
-        auth_options = [o.split('=') for o in values[len(fields):]]
+        auth_options = [o.split('=', 1) for o in values[len(fields):]]
         return cls(base_options + auth_options, comment=comment)
 
     def __init__(self, values=None, comment=None, **kw_values):

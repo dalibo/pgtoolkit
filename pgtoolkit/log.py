@@ -281,7 +281,7 @@ class PrefixParser(object):
         # Number of the log line for each session or process, starting at 1.
         l=r'(?P<line_num>\d+)',  # noqa
         # Time stamp with milliseconds
-        m=r'(?P<timestamp_ms>' + _datetime_pat + '.\d{3} [A-Z]{2,5})',
+        m=r'(?P<timestamp_ms>' + _datetime_pat + r'.\d{3} [A-Z]{2,5})',
         # Time stamp with milliseconds (as a Unix epoch)
         n=r'(?P<epoch>\d+\.\d+)',
         # Process ID
