@@ -103,7 +103,7 @@ class HBARecord(object):
 
     ``databases`` and ``users`` have a single value variant respectively
     :attr:`database` and :attr:`user`, computed after the list representation
-    of the filed.
+    of the field.
 
     .. automethod:: parse
     .. automethod:: __init__
@@ -131,7 +131,7 @@ class HBARecord(object):
         line = line.strip()
         record_fields = ['conntype', 'databases', 'users']
         values = shlex.split(line, comments=False)
-        # split database and user lists.
+        # Split databases and users lists.
         values[1] = values[1].split(',')
         values[2] = values[2].split(',')
         try:
