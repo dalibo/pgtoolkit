@@ -36,14 +36,16 @@ if ! rpmbuild --version | grep -q '4.8' ; then
         rpmbuild_args="--undefine _disable_source_fetch"
 fi
 
-rpmbuild -ba \
+rpmbuild -bb \
          ${rpmbuild_args-} \
          --define "_topdir ${top_srcdir}/dist" \
          --define "_sourcedir ${top_srcdir}/dist" \
          rpm/python-pgtoolkit.spec
 version=$(sed -n '/^Version:/{s,.*:\t,,g; p; q}' rpm/python-pgtoolkit.spec)
+rpm=dist/noarch/python-pgtoolkit*${version}*$(rpm --eval '%dist').noarch.rpm
+ln -fs noarch/$(basename $rpm) dist/last_build.rpm
 
 # Test it
-sudo yum install -y dist/noarch/python-pgtoolkit*${version}*$(rpm --eval '%dist').noarch.rpm
+sudo yum install -y $rpm
 cd /
 python -c 'import pgtoolkit'
