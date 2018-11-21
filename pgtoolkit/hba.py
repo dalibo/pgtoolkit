@@ -25,27 +25,29 @@ Examples
 
 Loading a ``pg_hba.conf`` file :
 
-.. code:: python
-
-    hba = 'my_pg_hba.conf'
-    with open(hba, 'r') as fo:
-        hba = parse(fo)
-    for record in hba:
-        print(record.database, record.user)
-
 Shorter version using the file directly in `parse`:
 
 .. code:: python
 
     pgpass = parse('my_pg_hba.conf')
 
+You can also pass a file-object:
+
+.. code:: python
+
+    with open('my_pg_hba.conf', 'r') as fo:
+        hba = parse(fo)
 
 Creating a ``pg_hba.conf`` file from scratch :
 
 .. code:: python
 
     hba = HBA()
-    hba.lines.append(HBARecord(conntype='local', database='all', user='all', method='peer'))
+    record = HBARecord(
+        conntype='local', database='all', user='all', method='peer',
+    )
+    hba.lines.append(record)
+
     with open('pg_hba.conf', 'w') as fo:
         hba.write(fo)
 
@@ -87,12 +89,15 @@ class HBAComment(str):
 
 
 class HBARecord(object):
-    """Holds a HBA record
+    """Holds a HBA record composed of fields and a comment.
 
     Common fields are accessible through attribute : ``conntype``,
     ``database``, ``user``, ``address``, ``netmask``, ``method``. Auth-options
     fields are also accessible through attribute like ``map``, ``ldapserver``,
     etc.
+
+    ``address`` and ``netmask`` fields are not always defined. If not,
+    accessing undefined attributes trigger an :exc:`AttributeError`.
 
     .. automethod:: parse
     .. automethod:: __init__
