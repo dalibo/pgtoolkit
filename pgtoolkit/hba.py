@@ -80,7 +80,11 @@ import sys
 import warnings
 
 from .errors import ParseError
-from ._helpers import open_or_stdin, string_types
+from ._helpers import (
+    open_or_return,
+    open_or_stdin,
+    string_types,
+)
 
 
 class HBAComment(str):
@@ -305,17 +309,9 @@ class HBA(object):
             # TYPE  DATABASE        USER            ADDRESS                 METHOD
             local   all             all                                     trust
         """  # noqa
-        def _write(fo, lines):
-            for line in lines:
+        with open_or_return(fo or self.path, mode='w') as fo:
+            for line in self.lines:
                 fo.write(str(line) + os.linesep)
-
-        if fo:
-            _write(fo, self.lines)
-        elif self.path:
-            with open(self.path, 'w') as fo:
-                _write(fo, self.lines)
-        else:
-            raise ValueError('No file-like object nor path provided')
 
     def remove(self, filter=None, **attrs):
         """Remove records matching the provided attributes.
