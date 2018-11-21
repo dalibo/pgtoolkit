@@ -92,7 +92,7 @@ class HBARecord(object):
     """Holds a HBA record composed of fields and a comment.
 
     Common fields are accessible through attribute : ``conntype``,
-    ``database``, ``user``, ``address``, ``netmask``, ``method``. Auth-options
+    ``database``, ``users``, ``address``, ``netmask``, ``method``. Auth-options
     fields are also accessible through attribute like ``map``, ``ldapserver``,
     etc.
 
@@ -107,7 +107,7 @@ class HBARecord(object):
     """
 
     COMMON_FIELDS = [
-        'conntype', 'database', 'user', 'address', 'netmask', 'method',
+        'conntype', 'database', 'users', 'address', 'netmask', 'method',
     ]
     CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
 
@@ -121,7 +121,7 @@ class HBARecord(object):
 
         """
         line = line.strip()
-        fields = ['conntype', 'database', 'user']
+        fields = ['conntype', 'database', 'users']
         values = shlex.split(line, comments=False)
         try:
             hash_pos = values.index('#')
@@ -135,6 +135,8 @@ class HBARecord(object):
             raise ValueError("Unknown connection types %s" % values[0])
         if 'local' != values[0]:
             fields.append('address')
+        # split user list.
+        values[2] = values[2].split(',')
         common_values = [v for v in values if '=' not in v]
         if len(common_values) >= 6:
             fields.append('netmask')
@@ -150,6 +152,8 @@ class HBARecord(object):
         :param comment:  Comment at the end of the line.
         """
         values = dict(values or {}, **kw_values)
+        if 'user' in values:
+            values['users'] = [values.pop('user')]
         self.__dict__.update(values)
         self.fields = [k for k, _ in values.items()]
         self.comment = comment
@@ -157,7 +161,7 @@ class HBARecord(object):
     def __repr__(self):
         return '<%s %s%s>' % (
             self.__class__.__name__,
-            ' '.join(self.common_values),
+            ' '.join([self.conntype, self.database, self.user, self.address]),
             '...' if self.auth_options else ''
         )
 
@@ -181,7 +185,9 @@ class HBARecord(object):
                 fmt += '%%(%s)-%ds ' % (field, width - 1)
             else:
                 fmt += '%%(%s)s ' % (field,)
-        line = fmt.rstrip() % self.__dict__
+        # Serialize user list using user property
+        values = dict(self.__dict__, users=self.user)
+        line = fmt.rstrip() % values
 
         auth_options = ['%s=%s' % i for i in self.auth_options]
         if auth_options:
@@ -209,6 +215,16 @@ class HBARecord(object):
             for f in self.fields
             if f not in self.COMMON_FIELDS
         ]
+
+    @property
+    def user(self):
+        """Hold user column as a single value.
+
+        Use ``users`` property to get parsed user list. ``user`` is guaranteed
+        to be a string.
+
+        """
+        return ','.join(self.users)
 
     def matches(self, **attrs):
         """Tells if the current record is matching provided attributes.
