@@ -118,11 +118,11 @@ class HBARecord(object):
         fields = ['conntype', 'database', 'user']
         values = shlex.split(line, comments=False)
         try:
-            hash_idx = values.index('#')
+            hash_pos = values.index('#')
         except ValueError:
             comment = None
         else:
-            values, comment = values[:hash_idx], values[hash_idx:]
+            values, comment = values[:hash_pos], values[hash_pos:]
             comment = ' '.join(comment[1:])
 
         if values[0] not in cls.CONNECTION_TYPES:
