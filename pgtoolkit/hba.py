@@ -89,9 +89,10 @@ class HBAComment(str):
 class HBARecord(object):
     """Holds a HBA record
 
-    Known fields are accessible through attribute : ``conntype``, ``database``,
-    ``user``, ``address``, ``netmask``, ``method``. Auth-options fields are
-    also accessible through attribute like ``map``, ``ldapserver``, etc.
+    Common fields are accessible through attribute : ``conntype``,
+    ``database``, ``user``, ``address``, ``netmask``, ``method``. Auth-options
+    fields are also accessible through attribute like ``map``, ``ldapserver``,
+    etc.
 
     .. automethod:: parse
     .. automethod:: __init__
@@ -100,10 +101,10 @@ class HBARecord(object):
 
     """
 
-    CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
-    KNOWN_FIELDS = [
+    COMMON_FIELDS = [
         'conntype', 'database', 'user', 'address', 'netmask', 'method',
     ]
+    CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
 
     @classmethod
     def parse(cls, line):
@@ -129,8 +130,8 @@ class HBARecord(object):
             raise ValueError("Unknown connection types %s" % values[0])
         if 'local' != values[0]:
             fields.append('address')
-        known_values = [v for v in values if '=' not in v]
-        if len(known_values) >= 6:
+        common_values = [v for v in values if '=' not in v]
+        if len(common_values) >= 6:
             fields.append('netmask')
         fields.append('method')
         base_options = list(zip(fields, values[:len(fields)]))
@@ -151,7 +152,7 @@ class HBARecord(object):
     def __repr__(self):
         return '<%s %s%s>' % (
             self.__class__.__name__,
-            ' '.join(self.known_values),
+            ' '.join(self.common_values),
             '...' if self.auth_options else ''
         )
 
@@ -161,7 +162,7 @@ class HBARecord(object):
         widths = [8, 16, 16, 16, 8]
 
         fmt = ''
-        for i, field in enumerate(self.KNOWN_FIELDS):
+        for i, field in enumerate(self.COMMON_FIELDS):
             try:
                 width = widths[i]
             except IndexError:
@@ -189,10 +190,10 @@ class HBARecord(object):
         return line
 
     @property
-    def known_values(self):
+    def common_values(self):
         return [
             getattr(self, f)
-            for f in self.KNOWN_FIELDS
+            for f in self.COMMON_FIELDS
             if f in self.fields
         ]
 
@@ -201,7 +202,7 @@ class HBARecord(object):
         return [
             (f, getattr(self, f))
             for f in self.fields
-            if f not in self.KNOWN_FIELDS
+            if f not in self.COMMON_FIELDS
         ]
 
     def matches(self, **attrs):
@@ -213,7 +214,7 @@ class HBARecord(object):
 
         # Provided attributes should be comparable to HBARecord attributes
         for k in attrs.keys():
-            if k not in self.KNOWN_FIELDS:
+            if k not in self.COMMON_FIELDS + ['user']:
                 raise AttributeError('%s is not a valid attribute' % k)
 
         for k, v in attrs.items():
