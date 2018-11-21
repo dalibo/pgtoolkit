@@ -25,27 +25,29 @@ Examples
 
 Loading a ``pg_hba.conf`` file :
 
-.. code:: python
-
-    hba = 'my_pg_hba.conf'
-    with open(hba, 'r') as fo:
-        hba = parse(fo)
-    for record in hba:
-        print(record.database, record.user)
-
 Shorter version using the file directly in `parse`:
 
 .. code:: python
 
     pgpass = parse('my_pg_hba.conf')
 
+You can also pass a file-object:
+
+.. code:: python
+
+    with open('my_pg_hba.conf', 'r') as fo:
+        hba = parse(fo)
 
 Creating a ``pg_hba.conf`` file from scratch :
 
 .. code:: python
 
     hba = HBA()
-    hba.lines.append(HBARecord(conntype='local', database='all', user='all', method='peer'))
+    record = HBARecord(
+        conntype='local', database='all', user='all', method='peer',
+    )
+    hba.lines.append(record)
+
     with open('pg_hba.conf', 'w') as fo:
         hba.write(fo)
 
@@ -78,7 +80,11 @@ import sys
 import warnings
 
 from .errors import ParseError
-from ._helpers import open_or_stdin, string_types
+from ._helpers import (
+    open_or_return,
+    open_or_stdin,
+    string_types,
+)
 
 
 class HBAComment(str):
@@ -87,23 +93,33 @@ class HBAComment(str):
 
 
 class HBARecord(object):
-    """Holds a HBA record
+    """Holds a HBA record composed of fields and a comment.
 
-    Known fields are accessible through attribute : ``conntype``, ``database``,
-    ``user``, ``address``, ``netmask``, ``method``. Auth-options fields are
-    also accessible through attribute like ``map``, ``ldapserver``, etc.
+    Common fields are accessible through attribute : ``conntype``,
+    ``databases``, ``users``, ``address``, ``netmask``, ``method``.
+    Auth-options fields are also accessible through attribute like ``map``,
+    ``ldapserver``, etc.
+
+    ``address`` and ``netmask`` fields are not always defined. If not,
+    accessing undefined attributes trigger an :exc:`AttributeError`.
+
+    ``databases`` and ``users`` have a single value variant respectively
+    :attr:`database` and :attr:`user`, computed after the list representation
+    of the filed.
 
     .. automethod:: parse
     .. automethod:: __init__
     .. automethod:: __str__
     .. automethod:: matches
+    .. autoattribute:: database
+    .. autoattribute:: user
 
     """
 
-    CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
-    KNOWN_FIELDS = [
-        'conntype', 'database', 'user', 'address', 'netmask', 'method',
+    COMMON_FIELDS = [
+        'conntype', 'databases', 'users', 'address', 'netmask', 'method',
     ]
+    CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
 
     @classmethod
     def parse(cls, line):
@@ -115,26 +131,29 @@ class HBARecord(object):
 
         """
         line = line.strip()
-        fields = ['conntype', 'database', 'user']
+        record_fields = ['conntype', 'databases', 'users']
         values = shlex.split(line, comments=False)
+        # split database and user lists.
+        values[1] = values[1].split(',')
+        values[2] = values[2].split(',')
         try:
-            hash_idx = values.index('#')
+            hash_pos = values.index('#')
         except ValueError:
             comment = None
         else:
-            values, comment = values[:hash_idx], values[hash_idx:]
+            values, comment = values[:hash_pos], values[hash_pos:]
             comment = ' '.join(comment[1:])
 
         if values[0] not in cls.CONNECTION_TYPES:
             raise ValueError("Unknown connection types %s" % values[0])
         if 'local' != values[0]:
-            fields.append('address')
-        known_values = [v for v in values if '=' not in v]
-        if len(known_values) >= 6:
-            fields.append('netmask')
-        fields.append('method')
-        base_options = list(zip(fields, values[:len(fields)]))
-        auth_options = [o.split('=', 1) for o in values[len(fields):]]
+            record_fields.append('address')
+        common_values = [v for v in values if '=' not in v]
+        if len(common_values) >= 6:
+            record_fields.append('netmask')
+        record_fields.append('method')
+        base_options = list(zip(record_fields, values[:len(record_fields)]))
+        auth_options = [o.split('=', 1) for o in values[len(record_fields):]]
         return cls(base_options + auth_options, comment=comment)
 
     def __init__(self, values=None, comment=None, **kw_values):
@@ -144,6 +163,10 @@ class HBARecord(object):
         :param comment:  Comment at the end of the line.
         """
         values = dict(values or {}, **kw_values)
+        if 'database' in values:
+            values['databases'] = [values.pop('database')]
+        if 'user' in values:
+            values['users'] = [values.pop('user')]
         self.__dict__.update(values)
         self.fields = [k for k, _ in values.items()]
         self.comment = comment
@@ -151,7 +174,7 @@ class HBARecord(object):
     def __repr__(self):
         return '<%s %s%s>' % (
             self.__class__.__name__,
-            ' '.join(self.known_values),
+            ' '.join(self.common_values),
             '...' if self.auth_options else ''
         )
 
@@ -161,7 +184,7 @@ class HBARecord(object):
         widths = [8, 16, 16, 16, 8]
 
         fmt = ''
-        for i, field in enumerate(self.KNOWN_FIELDS):
+        for i, field in enumerate(self.COMMON_FIELDS):
             try:
                 width = widths[i]
             except IndexError:
@@ -175,7 +198,9 @@ class HBARecord(object):
                 fmt += '%%(%s)-%ds ' % (field, width - 1)
             else:
                 fmt += '%%(%s)s ' % (field,)
-        line = fmt.rstrip() % self.__dict__
+        # Serialize database and user list using property.
+        values = dict(self.__dict__, databases=self.database, users=self.user)
+        line = fmt.rstrip() % values
 
         auth_options = ['%s=%s' % i for i in self.auth_options]
         if auth_options:
@@ -189,10 +214,13 @@ class HBARecord(object):
         return line
 
     @property
-    def known_values(self):
+    def common_values(self):
+        str_fields = self.COMMON_FIELDS[:]
+        # Use serialized variant.
+        str_fields[1:3] = ['database', 'user']
         return [
             getattr(self, f)
-            for f in self.KNOWN_FIELDS
+            for f in str_fields
             if f in self.fields
         ]
 
@@ -201,8 +229,28 @@ class HBARecord(object):
         return [
             (f, getattr(self, f))
             for f in self.fields
-            if f not in self.KNOWN_FIELDS
+            if f not in self.COMMON_FIELDS
         ]
+
+    @property
+    def database(self):
+        """Hold database column as a single value.
+
+        Use `databases` attribute to get parsed database list. `database` is
+        guaranteed to be a string.
+
+        """
+        return ','.join(self.databases)
+
+    @property
+    def user(self):
+        """Hold user column as a single value.
+
+        Use ``users`` property to get parsed user list. ``user`` is guaranteed
+        to be a string.
+
+        """
+        return ','.join(self.users)
 
     def matches(self, **attrs):
         """Tells if the current record is matching provided attributes.
@@ -213,7 +261,7 @@ class HBARecord(object):
 
         # Provided attributes should be comparable to HBARecord attributes
         for k in attrs.keys():
-            if k not in self.KNOWN_FIELDS:
+            if k not in self.COMMON_FIELDS + ['database', 'user']:
                 raise AttributeError('%s is not a valid attribute' % k)
 
         for k, v in attrs.items():
@@ -283,17 +331,9 @@ class HBA(object):
             # TYPE  DATABASE        USER            ADDRESS                 METHOD
             local   all             all                                     trust
         """  # noqa
-        def _write(fo, lines):
-            for line in lines:
+        with open_or_return(fo or self.path, mode='w') as fo:
+            for line in self.lines:
                 fo.write(str(line) + os.linesep)
-
-        if fo:
-            _write(fo, self.lines)
-        elif self.path:
-            with open(self.path, 'w') as fo:
-                _write(fo, self.lines)
-        else:
-            raise ValueError('No file-like object nor path provided')
 
     def remove(self, filter=None, **attrs):
         """Remove records matching the provided attributes.

@@ -12,9 +12,9 @@ HBA_SAMPLE = """\
 # "local" is for Unix domain socket connections only
 local   all             all                                     trust
 # IPv4 local connections:
-host    all             all             127.0.0.1/32            trust
+host    all             u0,u1           127.0.0.1/32            trust
 # IPv6 local connections:
-host    all             all             ::1/128                 trust
+host    all             +group,u2       ::1/128                 trust
 # Allow replication connections from localhost, by a user with the
 # replication privilege.
 local   replication     all                                     trust
@@ -40,9 +40,15 @@ def test_parse_host_line():
     assert 'host' in repr(record)
     assert 'host' == record.conntype
     assert 'replication' == record.database
+    assert ['replication'] == record.databases
     assert 'all' == record.user
+    assert ['all'] == record.users
     assert '::1/128' == record.address
     assert 'trust' == record.method
+
+    # This is not actually a public API. But let's keep it stable.
+    values = record.common_values
+    assert 'trust' in values
 
 
 def test_parse_local_line():
@@ -51,7 +57,7 @@ def test_parse_local_line():
     record = HBARecord.parse("local    all     all     trust")
     assert 'local' == record.conntype
     assert 'all' == record.database
-    assert 'all' == record.user
+    assert ['all'] == record.users
     assert 'trust' == record.method
 
     with pytest.raises(AttributeError):
@@ -69,7 +75,7 @@ def test_parse_auth_option():
     )
     assert 'local' == record.conntype
     assert 'veryverylongdatabasenamethatdonotfit' == record.database
-    assert 'all' == record.user
+    assert ['all'] == record.users
     assert 'ident' == record.method
     assert 'omicron' == record.map
 
@@ -86,7 +92,7 @@ def test_parse_record_with_comment():
     record = HBARecord.parse("local    all     all     trust  # My  comment")
     assert 'local' == record.conntype
     assert 'all' == record.database
-    assert 'all' == record.user
+    assert ['all'] == record.users
     assert 'trust' == record.method
     assert 'My comment' == record.comment
 
@@ -111,9 +117,14 @@ def test_hba_create():
 
     hba = HBA([
         HBAComment('# a comment'),
-        HBARecord.parse('local all all trust'),
+        HBARecord(
+            conntype='local', database='all', user='all', method='trust',
+        ),
     ])
     assert 2 == len(hba.lines)
+
+    r = hba.lines[1]
+    assert ['all'] == r.databases
 
     # Should be a list
     with pytest.raises(ValueError):
@@ -147,10 +158,13 @@ def test_hba_error(mocker):
     from pgtoolkit.hba import parse, ParseError
 
     with pytest.raises(ParseError) as ei:
-        parse(["lcal\n"])
+        parse(["lcal all all\n"])
     e = ei.value
     assert 'line #1' in str(e)
     assert repr(e)
+
+    with pytest.raises(ParseError) as ei:
+        parse(["local incomplete\n"])
 
 
 def test_remove():
