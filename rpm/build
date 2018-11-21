@@ -36,7 +36,7 @@ if ! rpmbuild --version | grep -q '4.8' ; then
         rpmbuild_args="--undefine _disable_source_fetch"
 fi
 
-rpmbuild -ba \
+rpmbuild -bb \
          ${rpmbuild_args-} \
          --define "_topdir ${top_srcdir}/dist" \
          --define "_sourcedir ${top_srcdir}/dist" \
