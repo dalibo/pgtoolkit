@@ -25,8 +25,6 @@ Examples
 
 Loading a ``pg_hba.conf`` file :
 
-Shorter version using the file directly in `parse`:
-
 .. code:: python
 
     pgpass = parse('my_pg_hba.conf')
