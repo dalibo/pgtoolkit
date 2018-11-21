@@ -40,6 +40,7 @@ def test_parse_host_line():
     assert 'host' in repr(record)
     assert 'host' == record.conntype
     assert 'replication' == record.database
+    assert ['replication'] == record.databases
     assert 'all' == record.user
     assert ['all'] == record.users
     assert '::1/128' == record.address
@@ -116,9 +117,14 @@ def test_hba_create():
 
     hba = HBA([
         HBAComment('# a comment'),
-        HBARecord.parse('local all all trust'),
+        HBARecord(
+            conntype='local', database='all', user='all', method='trust',
+        ),
     ])
     assert 2 == len(hba.lines)
+
+    r = hba.lines[1]
+    assert ['all'] == r.databases
 
     # Should be a list
     with pytest.raises(ValueError):
@@ -152,10 +158,13 @@ def test_hba_error(mocker):
     from pgtoolkit.hba import parse, ParseError
 
     with pytest.raises(ParseError) as ei:
-        parse(["lcal\n"])
+        parse(["lcal all all\n"])
     e = ei.value
     assert 'line #1' in str(e)
     assert repr(e)
+
+    with pytest.raises(ParseError) as ei:
+        parse(["local incomplete\n"])
 
 
 def test_remove():

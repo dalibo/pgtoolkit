@@ -96,22 +96,28 @@ class HBARecord(object):
     """Holds a HBA record composed of fields and a comment.
 
     Common fields are accessible through attribute : ``conntype``,
-    ``database``, ``users``, ``address``, ``netmask``, ``method``. Auth-options
-    fields are also accessible through attribute like ``map``, ``ldapserver``,
-    etc.
+    ``databases``, ``users``, ``address``, ``netmask``, ``method``.
+    Auth-options fields are also accessible through attribute like ``map``,
+    ``ldapserver``, etc.
 
     ``address`` and ``netmask`` fields are not always defined. If not,
     accessing undefined attributes trigger an :exc:`AttributeError`.
+
+    ``databases`` and ``users`` have a single value variant respectively
+    :attr:`database` and :attr:`user`, computed after the list representation
+    of the filed.
 
     .. automethod:: parse
     .. automethod:: __init__
     .. automethod:: __str__
     .. automethod:: matches
+    .. autoattribute:: database
+    .. autoattribute:: user
 
     """
 
     COMMON_FIELDS = [
-        'conntype', 'database', 'users', 'address', 'netmask', 'method',
+        'conntype', 'databases', 'users', 'address', 'netmask', 'method',
     ]
     CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
 
@@ -125,8 +131,11 @@ class HBARecord(object):
 
         """
         line = line.strip()
-        fields = ['conntype', 'database', 'users']
+        record_fields = ['conntype', 'databases', 'users']
         values = shlex.split(line, comments=False)
+        # split database and user lists.
+        values[1] = values[1].split(',')
+        values[2] = values[2].split(',')
         try:
             hash_pos = values.index('#')
         except ValueError:
@@ -138,15 +147,13 @@ class HBARecord(object):
         if values[0] not in cls.CONNECTION_TYPES:
             raise ValueError("Unknown connection types %s" % values[0])
         if 'local' != values[0]:
-            fields.append('address')
-        # split user list.
-        values[2] = values[2].split(',')
+            record_fields.append('address')
         common_values = [v for v in values if '=' not in v]
         if len(common_values) >= 6:
-            fields.append('netmask')
-        fields.append('method')
-        base_options = list(zip(fields, values[:len(fields)]))
-        auth_options = [o.split('=', 1) for o in values[len(fields):]]
+            record_fields.append('netmask')
+        record_fields.append('method')
+        base_options = list(zip(record_fields, values[:len(record_fields)]))
+        auth_options = [o.split('=', 1) for o in values[len(record_fields):]]
         return cls(base_options + auth_options, comment=comment)
 
     def __init__(self, values=None, comment=None, **kw_values):
@@ -156,6 +163,8 @@ class HBARecord(object):
         :param comment:  Comment at the end of the line.
         """
         values = dict(values or {}, **kw_values)
+        if 'database' in values:
+            values['databases'] = [values.pop('database')]
         if 'user' in values:
             values['users'] = [values.pop('user')]
         self.__dict__.update(values)
@@ -165,7 +174,7 @@ class HBARecord(object):
     def __repr__(self):
         return '<%s %s%s>' % (
             self.__class__.__name__,
-            ' '.join([self.conntype, self.database, self.user, self.address]),
+            ' '.join(self.common_values),
             '...' if self.auth_options else ''
         )
 
@@ -189,8 +198,8 @@ class HBARecord(object):
                 fmt += '%%(%s)-%ds ' % (field, width - 1)
             else:
                 fmt += '%%(%s)s ' % (field,)
-        # Serialize user list using user property
-        values = dict(self.__dict__, users=self.user)
+        # Serialize database and user list using property.
+        values = dict(self.__dict__, databases=self.database, users=self.user)
         line = fmt.rstrip() % values
 
         auth_options = ['%s=%s' % i for i in self.auth_options]
@@ -206,9 +215,12 @@ class HBARecord(object):
 
     @property
     def common_values(self):
+        str_fields = self.COMMON_FIELDS[:]
+        # Use serialized variant.
+        str_fields[1:3] = ['database', 'user']
         return [
             getattr(self, f)
-            for f in self.COMMON_FIELDS
+            for f in str_fields
             if f in self.fields
         ]
 
@@ -219,6 +231,16 @@ class HBARecord(object):
             for f in self.fields
             if f not in self.COMMON_FIELDS
         ]
+
+    @property
+    def database(self):
+        """Hold database column as a single value.
+
+        Use `databases` attribute to get parsed database list. `database` is
+        guaranteed to be a string.
+
+        """
+        return ','.join(self.databases)
 
     @property
     def user(self):
@@ -239,7 +261,7 @@ class HBARecord(object):
 
         # Provided attributes should be comparable to HBARecord attributes
         for k in attrs.keys():
-            if k not in self.COMMON_FIELDS + ['user']:
+            if k not in self.COMMON_FIELDS + ['database', 'user']:
                 raise AttributeError('%s is not a valid attribute' % k)
 
         for k, v in attrs.items():
