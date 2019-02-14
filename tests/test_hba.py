@@ -34,15 +34,15 @@ def test_comment():
 
 
 def test_parse_host_line():
-    from pgtoolkit.hba import HBARecord
+    from pgtoolkit.hba import HBARecord, ALL, REPLICATION
 
     record = HBARecord.parse("host    replication   all   ::1/128       trust")
     assert 'host' in repr(record)
     assert 'host' == record.conntype
-    assert 'replication' == record.database
-    assert ['replication'] == record.databases
-    assert 'all' == record.user
-    assert ['all'] == record.users
+    assert record.database is REPLICATION
+    assert [REPLICATION] == record.databases
+    assert record.user is ALL
+    assert [ALL] == record.users
     assert '::1/128' == record.address
     assert 'trust' == record.method
 
@@ -52,12 +52,12 @@ def test_parse_host_line():
 
 
 def test_parse_local_line():
-    from pgtoolkit.hba import HBARecord
+    from pgtoolkit.hba import HBARecord, ALL
 
     record = HBARecord.parse("local    all     all     trust")
     assert 'local' == record.conntype
-    assert 'all' == record.database
-    assert ['all'] == record.users
+    assert record.database is ALL
+    assert [ALL] == record.users
     assert 'trust' == record.method
 
     with pytest.raises(AttributeError):
@@ -68,20 +68,27 @@ def test_parse_local_line():
 
 
 def test_parse_auth_option():
-    from pgtoolkit.hba import HBARecord
+    from pgtoolkit.hba import HBARecord, ALL
 
     record = HBARecord.parse(
-        "local veryverylongdatabasenamethatdonotfit all ident map=omicron",
+        """local veryverylongdatabasenamethatdonotfit all ldap ldapserver="svcldap.grandmars.fr" ldapbasedn="ou=utilisateurs,o=annuaire" ldapsearchattribute="cn" ldapbinddn="cn=dev,ou=services,o=annuaire" ldapbindpasswd="Conf1tdanc!el" ldapport="389" #""",  # noqa
     )
     assert 'local' == record.conntype
     assert 'veryverylongdatabasenamethatdonotfit' == record.database
-    assert ['all'] == record.users
+    assert [ALL] == record.users
     assert 'ident' == record.method
-    assert 'omicron' == record.map
+    assert 'ldap' == record.map
+    auth_options = dict(record.auth_options)
+    assert 'ldapbasedn' in auth_options
 
     wanted = [
-        'local', 'veryverylongdatabasenamethatdonotfit', 'all', 'ident',
-        'map="omicron"',
+        'local', 'veryverylongdatabasenamethatdonotfit', 'all', 'ldap',
+        'ldapserver="svcldap.grandmars.fr"',
+        'ldapbasedn="ou=utilisateurs,o=annuaire"',
+        'ldapsearchattribute="cn"',
+        'ldapbinddn="cn=dev,ou=services,o=annuaire"',
+        'ldapbindpasswd="Conf1tdanc!el"',
+        'ldapport="389"',
     ]
     assert wanted == str(record).split()
 

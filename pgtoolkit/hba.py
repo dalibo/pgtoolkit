@@ -73,7 +73,7 @@ fit pseudo-column width. If filename is ``-``, stdin is read instead.
 from __future__ import print_function
 
 import os
-import shlex
+import re
 import sys
 import warnings
 
@@ -83,6 +83,22 @@ from ._helpers import (
     open_or_stdin,
     string_types,
 )
+
+
+class Constant(object):
+    def __str__(self):
+        return self.__name__.lower()
+
+    def __repr__(self):
+        return '<%s>' % self.__class__.__name__
+
+
+class ALL(Constant):
+    pass
+
+
+class REPLICATION(Constant):
+    pass
 
 
 class HBAComment(str):
@@ -118,6 +134,7 @@ class HBARecord(object):
         'conntype', 'databases', 'users', 'address', 'netmask', 'method',
     ]
     CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
+    _token_re = re.compile("""((?:[^ ]+=)?(?:"[^"]+"|[^ ]+))""")
 
     @classmethod
     def parse(cls, line):
@@ -130,7 +147,7 @@ class HBARecord(object):
         """
         line = line.strip()
         record_fields = ['conntype', 'databases', 'users']
-        values = shlex.split(line, comments=False)
+        values = cls._token_re.findall(line)
         # Split databases and users lists.
         values[1] = values[1].split(',')
         values[2] = values[2].split(',')
