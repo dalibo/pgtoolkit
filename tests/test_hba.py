@@ -81,7 +81,7 @@ def test_parse_auth_option():
 
     wanted = [
         'local', 'veryverylongdatabasenamethatdonotfit', 'all', 'ident',
-        'map=omicron',
+        'map="omicron"',
     ]
     assert wanted == str(record).split()
 

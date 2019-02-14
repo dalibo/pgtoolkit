@@ -200,7 +200,7 @@ class HBARecord(object):
         values = dict(self.__dict__, databases=self.database, users=self.user)
         line = fmt.rstrip() % values
 
-        auth_options = ['%s=%s' % i for i in self.auth_options]
+        auth_options = ['%s="%s"' % i for i in self.auth_options]
         if auth_options:
             line += ' ' + ' '.join(auth_options)
 
