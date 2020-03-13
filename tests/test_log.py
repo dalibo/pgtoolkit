@@ -31,6 +31,7 @@ BAD PREFIX 10:49:31.140 UTC [8423]: [1-1] app=[unknown],db=[unknown],client=[loc
     records = list(parse(lines, prefix_fmt=log_line_prefix))
 
     assert isinstance(records[0], UnknownData)
+    assert '\n' not in repr(records[0])
     record = records[1]
     assert 'LOG' == record.severity
 
@@ -127,6 +128,7 @@ def test_record_stage1_ok():
 
     record = Record.parse_stage1(lines)
     assert 'LOG' in repr(record)
+    assert '\n' not in repr(record)
     assert 4 == len(record.raw_lines)
     assert 'LOG' == record.severity
     assert 4 == len(record.message_lines)

@@ -94,8 +94,12 @@ class UnknownData(Exception):
     def __init__(self, lines):
         self.lines = lines
 
+    def __repr__(self):
+        summary = str(self)[:32].replace('\n', '')
+        return "<%s %s...>" % (self.__class__.__name__, summary)
+
     def __str__(self):
-        return "Unknown data:\n%s" % (''.join(self.lines),)
+        return ''.join(self.lines)
 
 
 class NoopFilters(object):
