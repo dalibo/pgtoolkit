@@ -1,4 +1,6 @@
 import codecs
+from datetime import datetime, tzinfo
+from functools import partial
 
 
 def test_octal_encoding():
@@ -44,3 +46,38 @@ Mar 13 09:28:26 socle-dev0 postgresql-12-main[22163]: [9-1] [22163]: [2-1] db=,u
     processed = list(processor.process(lines))
     assert len(lines) == len(processed)
     assert processed[1].startswith('\t')
+
+
+def test_datetime():
+    from pgtoolkit.log.syslog import parse_syslog_datetime
+
+    class MyTZ(tzinfo):
+        pass
+
+    mytz = MyTZ()
+    date = parse_syslog_datetime(
+        'Mar 13 09:28:26',
+        year=2020, tzinfo=mytz,
+    )
+    assert 2020 == date.year
+    assert 3 == date.month
+    assert 13 == date.day
+    assert 9 == date.hour
+    assert 28 == date.minute
+    assert 26 == date.second
+    assert date.tzinfo is mytz
+
+
+def test_parse_stage2():
+    from pgtoolkit.log.syslog import SyslogLine, parse_syslog_datetime
+    from pgtoolkit.log import Record
+
+    line = SyslogLine(
+        "message",
+        timestamp="Mar 13 09:28:26",
+        date_parser=partial(parse_syslog_datetime, year=2020)
+    )
+    record = Record("prefix", "LOG")
+    line.parse_stage2(record)
+
+    assert datetime(2020, 3, 13, 9, 28, 26) == record.timestamp
