@@ -36,7 +36,7 @@ BAD PREFIX 10:49:31.140 UTC [8423]: [1-1] app=[unknown],db=[unknown],client=[loc
 
 
 def test_group_lines():
-    from pgtoolkit.log import group_lines
+    from pgtoolkit.log.parser import group_lines
 
     lines = """\
 \tResult  (cost=0.00..0.01 rows=1 width=4) (actual time=1001.117..1001.118 rows=1 loops=1)
@@ -61,7 +61,7 @@ def test_group_lines():
 
 
 def test_prefix_parser():
-    from pgtoolkit.log import PrefixParser
+    from pgtoolkit.log.parser import PrefixParser
 
     # log_line_prefix with all options.
     prefix_fmt = '%m [%p]: [%l-1] app=%a,db=%d,client=%h,user=%u,remote=%r,epoch=%n,timestamp=%t,tag=%i,error=%e,session=%c,start=%s,vxid=%v,xid=%x '  # noqa
@@ -85,7 +85,7 @@ def test_prefix_parser():
 
 
 def test_prefix_parser_q():
-    from pgtoolkit.log import PrefixParser
+    from pgtoolkit.log.parser import PrefixParser
 
     # log_line_prefix with all options.
     prefix_fmt = '%m [%p]: %q%u@%h '
@@ -96,7 +96,7 @@ def test_prefix_parser_q():
 
 
 def test_datetime():
-    from pgtoolkit.log import parse_datetime
+    from pgtoolkit.log.parser import parse_datetime
 
     date = parse_datetime('2018-06-04 20:12:34.343 UTC')
     assert date
@@ -181,11 +181,14 @@ stage3 LOG:  connection authorized: user=postgres database=postgres
 
 
 def test_main(mocker, caplog, capsys):
-    mocker.patch('pgtoolkit.log.logging.basicConfig', autospec=True)
-    open_ = mocker.patch('pgtoolkit.log.open_or_stdin', autospec=True)
-    parse = mocker.patch('pgtoolkit.log.parse', autospec=True)
+    pkg = 'pgtoolkit.log.__main__'
+    mocker.patch(pkg + '.logging.basicConfig', autospec=True)
+    open_ = mocker.patch(pkg + '.open_or_stdin', autospec=True)
+    parse = mocker.patch(pkg + '.parse', autospec=True)
 
-    from pgtoolkit.log import main, Record, UnknownData, datetime
+    from datetime import datetime
+    from pgtoolkit.log import Record, UnknownData
+    from pgtoolkit.log.__main__ import main
 
     open_.return_value = mocker.MagicMock()
     parse.return_value = [
@@ -210,11 +213,13 @@ def test_main(mocker, caplog, capsys):
 
 
 def test_main_ko(mocker):
-    mocker.patch('pgtoolkit.log.logging.basicConfig', autospec=True)
-    open_ = mocker.patch('pgtoolkit.log.open_or_stdin', autospec=True)
-    parse = mocker.patch('pgtoolkit.log.parse', autospec=True)
+    pkg = 'pgtoolkit.log.__main__'
+    mocker.patch(pkg + '.logging.basicConfig', autospec=True)
+    open_ = mocker.patch(pkg + '.open_or_stdin', autospec=True)
+    parse = mocker.patch(pkg + '.parse', autospec=True)
 
-    from pgtoolkit.log import main, Record
+    from pgtoolkit.log import Record
+    from pgtoolkit.log.__main__ import main
 
     open_.return_value = mocker.MagicMock()
     parse.return_value = [Record('prefix', 'LOG', badentry=object())]
