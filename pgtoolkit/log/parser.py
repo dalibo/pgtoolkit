@@ -440,7 +440,8 @@ class Record(object):
 
     def __repr__(self):
         return '<%s %s: %.32s...>' % (
-            self.__class__.__name__, self.severity, self.message_lines[0],
+            self.__class__.__name__, self.severity,
+            self.message_lines[0].replace('\n', ''),
         )
 
     def parse_stage2(self, parse_prefix):
