@@ -51,7 +51,7 @@ def group_lines(lines, cont='\t'):
         yield group
 
 
-def parse_datetime(raw):
+def parse_isodatetime(raw):
     try:
         infos = (
             int(raw[:4]),
@@ -202,9 +202,9 @@ class PrefixParser(object):
         'line_num': int,
         'pid': int,
         'remote_port': int,
-        'start': parse_datetime,
-        'timestamp': parse_datetime,
-        'timestamp_ms': parse_datetime,
+        'start': parse_isodatetime,
+        'timestamp': parse_isodatetime,
+        'timestamp_ms': parse_isodatetime,
         'xid': int,
     }
 

@@ -96,10 +96,10 @@ def test_prefix_parser_q():
     assert fields['user'] is None
 
 
-def test_datetime():
-    from pgtoolkit.log.parser import parse_datetime
+def test_isodatetime():
+    from pgtoolkit.log.parser import parse_isodatetime
 
-    date = parse_datetime('2018-06-04 20:12:34.343 UTC')
+    date = parse_isodatetime('2018-06-04 20:12:34.343 UTC')
     assert date
     assert 2018 == date.year
     assert 6 == date.month
@@ -110,10 +110,10 @@ def test_datetime():
     assert 343 == date.microsecond
 
     with pytest.raises(ValueError):
-        parse_datetime('2018-06-000004')
+        parse_isodatetime('2018-06-000004')
 
     with pytest.raises(ValueError):
-        parse_datetime('2018-06-04 20:12:34.343 CEST')
+        parse_isodatetime('2018-06-04 20:12:34.343 CEST')
 
 
 def test_record_stage1_ok():
