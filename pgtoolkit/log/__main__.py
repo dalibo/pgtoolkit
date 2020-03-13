@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import sys
+from argparse import ArgumentParser
 
 from .._helpers import JSONDateEncoder
 from .._helpers import open_or_stdin
@@ -19,14 +20,23 @@ def main(argv=sys.argv[1:], environ=os.environ):
         level=logging.INFO,
         format='%(asctime)s %(levelname)5.5s %(message)s',
     )
+    parser = ArgumentParser()
+    # Default comes from PostgreSQL documentation.
+    parser.add_argument(
+        "log_line_prefix", default="%m [%p] ",
+        metavar="LOG_LINE_PREFIX",
+        help="log_line_prefix as configured in PostgreSQL. "
+        "default: '%(default)s'")
+    parser.add_argument(
+        "filename", nargs="?", default="-", metavar="FILENAME",
+        help="Log filename or - for stdin. default: %(default)s")
+    args = parser.parse_args(argv)
 
-    argv = argv + ['-']
-    log_line_prefix = argv[0]
     counter = 0
     try:
-        with open_or_stdin(argv[1]) as fo:
+        with open_or_stdin(args.filename) as fo:
             with Timer() as timer:
-                for record in parse(fo, prefix_fmt=log_line_prefix):
+                for record in parse(fo, prefix_fmt=args.log_line_prefix):
                     if isinstance(record, UnknownData):
                         logger.warning("%s", record)
                     else:
