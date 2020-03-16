@@ -3,10 +3,61 @@ import re
 from datetime import datetime, timedelta
 
 
+class LogParser(object):
+    """Log parsing manager
+
+    This object gather parsing parameters and trigger parsing logic. When
+    parsing multiple files with the same parameters or when parsing multiple
+    sets of lines, :class:`LogParser` object ease the initialization and
+    preservation of parsing parameters.
+
+    When parsing a single set of lines, one can use :func:`parse` helper
+    instead.
+
+    :param prefix_parser: An instance of :class:`PrefixParser`.
+    :param filters: An instance of :class:`NoopFilters`
+
+    """
+    def __init__(self, prefix_parser, filters=None):
+        self.prefix_parser = prefix_parser
+        self.filters = filters or NoopFilters()
+
+    def parse(self, fo):
+        """ Yield records and unparsed data from file-like object ``fo``
+
+        :param fo: A line iterator such as a file object.
+        :rtype: Iterator[Union[:class:`Record`, :class:`UnknownData`]]
+        :returns: Yields either :class:`Record` or :class:`UnknownData` object.
+        """
+        # Fast access variables to avoid attribute access overhead on each
+        # line.
+        parse_prefix = self.prefix_parser.parse
+        stage1 = Record.parse_stage1
+        filter_stage1 = self.filters.stage1
+        filter_stage2 = self.filters.stage2
+        filter_stage3 = self.filters.stage3
+
+        for group in group_lines(fo):
+            try:
+                record = stage1(group)
+                if filter_stage1(record):
+                    continue
+                record.parse_stage2(parse_prefix)
+                if filter_stage2(record):
+                    continue
+                record.parse_stage3()
+                if filter_stage3(record):
+                    continue
+            except UnknownData as e:
+                yield e
+            else:
+                yield record
+
+
 def parse(fo, prefix_fmt, filters=None):
     """Parses log lines and yield :class:`Record` or :class:`UnknownData` objects.
 
-    This is the main entry point of the API.
+    This is a helper around :class:`LogParser` and :`PrefixParser`.
 
     :param fo: A line iterator such as a file-like object.
     :param prefix_fmt: is exactly the value of ``log_line_prefix`` Postgresql
@@ -17,23 +68,12 @@ def parse(fo, prefix_fmt, filters=None):
 
     """
 
-    prefix_parser = PrefixParser.from_configuration(prefix_fmt).parse
-    filters = filters or NoopFilters()
-    for group in group_lines(fo):
-        try:
-            record = Record.parse_stage1(group)
-            if filters.stage1(record):
-                continue
-            record.parse_stage2(prefix_parser)
-            if filters.stage2(record):
-                continue
-            record.parse_stage3()
-            if filters.stage3(record):
-                continue
-        except UnknownData as e:
-            yield e
-        else:
-            yield record
+    parser = LogParser(
+        PrefixParser.from_configuration(prefix_fmt),
+        filters=filters,
+    )
+    for item in parser.parse(fo):
+        yield item
 
 
 def group_lines(lines, cont='\t'):
@@ -150,9 +190,10 @@ class NoopFilters(object):
 
 
 class PrefixParser(object):
-    # PrefixParser extracts information from the beginning of each log lines,
-    # parameterized by log_line_prefix.
-    #
+    """ Extract record metadata from PostgreSQL log line prefix.
+
+    .. automethod:: from_configuration
+    """
     # cf.
     # https://www.postgresql.org/docs/current/static/runtime-config-logging.html#GUC-LOG-LINE-PREFIX
 
@@ -221,7 +262,14 @@ class PrefixParser(object):
 
     @classmethod
     def from_configuration(cls, log_line_prefix):
-        # Parse log_line_prefix and build a prefix parser from this.
+        """Factory from log_line_prefix
+
+        Parses log_line_prefix and build a prefix parser from this.
+
+        :param log_line_prefix: ``log_line_prefix`` PostgreSQL setting.
+        :return: A :class:`PrefixParser` instance.
+
+        """
         try:
             fixed, optionnal = cls._q_re.split(log_line_prefix)
         except ValueError:

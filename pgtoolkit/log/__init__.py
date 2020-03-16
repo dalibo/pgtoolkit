@@ -58,6 +58,8 @@ API Reference
 Here are the few functions and classes used to parse and access log records.
 
 .. autofunction:: parse
+.. autoclass:: LogParser
+.. autoclass:: PrefixParser
 .. autoclass:: Record
 .. autoclass:: UnknownData
 .. autoclass:: NoopFilters
@@ -97,7 +99,9 @@ You can use this module to dump logs as JSON using the following usage::
 """  # noqa
 
 from .parser import (
+    LogParser,
     NoopFilters,
+    PrefixParser,
     Record,
     UnknownData,
     parse,
@@ -105,7 +109,9 @@ from .parser import (
 
 
 __all__ = [o.__name__ for o in [
+    LogParser,
     NoopFilters,
+    PrefixParser,
     Record,
     UnknownData,
     parse,
