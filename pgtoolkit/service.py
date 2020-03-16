@@ -47,7 +47,7 @@ Shorter version using the file directly in `parse`:
 .. code:: python
 
     servicefile = parse('my_service.conf')
-    […]
+    [...]
     servicefile.save()
 
 
