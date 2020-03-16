@@ -1,123 +1,63 @@
 # coding: utf-8
-"""\
-.. currentmodule:: pgtoolkit.log
-
-Postgres logs are still the most comprehensive source of information on what's
-going on in a cluster. :mod:`pgtoolkit.log` provides a parser to exploit
-efficiently Postgres log records from Python.
-
-Parsing logs is tricky because format vary accros configurations. Also
-performance is important while logs can contain thousands of records.
-
-
-Configuration
--------------
-
-Postgres log records have a prefix, configured with ``log_line_prefix`` cluster
-setting. When analyzing a log file, you must known the ``log_line_prefix``
-value used to generate the records.
-
-Postgres can emit more message for your needs. See `Error Reporting and Logging
-section
-<https://www.postgresql.org/docs/current/static/runtime-config-logging.html>`_
-if PostgreSQL documentation for details on logging fields and message type.
-
-
-Performance
------------
-
-The fastest code is NOOP. Thus, the parser allows you to filter records as soon
-as possible. The parser has several distinct stages. After each stage, the
-parser calls a filter to determine whether to stop record processing. Here are
-the stages in processing order :
-
-1. Split prefix, severity and message, determine message type.
-2. Extract and decode prefix data
-3. Extract and decode message data.
-
-
-Limitations
------------
-
-:mod:`pgtoolkit.log` does not manage opening and uncompressing logs. It only
-accepts a line reader iterator that loops log lines. The same way,
-:mod:`pgtoolkit.log` does not manage to start analyze at a specific position in
-a file.
-
-:mod:`pgtoolkit.log` does not gather record set such as ``ERROR`` and
-following ``HINT`` record. It's up to the application to make sense of record
-sequences.
-
-:mod:`pgtoolkit.log` does not analyze log records. It's just a parser, a
-building block to write a log analyzer in your app.
-
-
-API Reference
--------------
-
-Here are the few functions and classes used to parse and access log records.
-
-.. autofunction:: parse
-.. autoclass:: Record
-.. autoclass:: UnknownData
-.. autoclass:: NoopFilters
-
-
-Example
--------
-
-Here is a sample structure of code parsing a plain log file.
-
-.. code-block:: python
-
-    with open('postgresql.log') as fo:
-        for r in parse(fo, prefix_fmt='%m [%p]'):
-        if isinstance(r, UnknownData):
-            "Process unknown data"
-        else:
-            "Process record"
-
-
-
-Using :mod:`pgtoolkit.log` as a script
---------------------------------------
-
-You can use this module to dump logs as JSON using the following usage::
-
-    python -m pgtoolkit.log <log_line_prefix> [<filename>]
-
-:mod:`pgtoolkit.log` serializes each record as a JSON object on a single line.
-
-.. code:: console
-
-    $ python -m pgtoolkit.log '%m [%p]: [%l-1] app=%a,db=%d%q,client=%h,user=%u ' data/postgresql.log
-    {"severity": "LOG", "timestamp": "2018-06-15T10:49:31.000144", "message_type": "connection", "line_num": 2, "remote_host": "[local]", "application": "[unknown]", "user": "postgres", "message": "connection authorized: user=postgres database=postgres", "database": "postgres", "pid": 8423}
-    {"severity": "LOG", "timestamp": "2018-06-15T10:49:34.000172", "message_type": "connection", "line_num": 1, "remote_host": "[local]", "application": "[unknown]", "user": "[unknown]", "message": "connection received: host=[local]", "database": "[unknown]", "pid": 8424}
-
-"""  # noqa
-
-from __future__ import print_function
-
-from datetime import datetime
-import json
-import logging
-import os
 import re
-import sys
-from datetime import timedelta
-
-from ._helpers import JSONDateEncoder
-from ._helpers import open_or_stdin
-from ._helpers import Timer
+from datetime import datetime, timedelta
 
 
-logger = logging.getLogger(__name__)
+class LogParser(object):
+    """Log parsing manager
+
+    This object gather parsing parameters and trigger parsing logic. When
+    parsing multiple files with the same parameters or when parsing multiple
+    sets of lines, :class:`LogParser` object ease the initialization and
+    preservation of parsing parameters.
+
+    When parsing a single set of lines, one can use :func:`parse` helper
+    instead.
+
+    :param prefix_parser: An instance of :class:`PrefixParser`.
+    :param filters: An instance of :class:`NoopFilters`
+
+    """
+    def __init__(self, prefix_parser, filters=None):
+        self.prefix_parser = prefix_parser
+        self.filters = filters or NoopFilters()
+
+    def parse(self, fo):
+        """ Yield records and unparsed data from file-like object ``fo``
+
+        :param fo: A line iterator such as a file object.
+        :rtype: Iterator[Union[:class:`Record`, :class:`UnknownData`]]
+        :returns: Yields either :class:`Record` or :class:`UnknownData` object.
+        """
+        # Fast access variables to avoid attribute access overhead on each
+        # line.
+        parse_prefix = self.prefix_parser.parse
+        stage1 = Record.parse_stage1
+        filter_stage1 = self.filters.stage1
+        filter_stage2 = self.filters.stage2
+        filter_stage3 = self.filters.stage3
+
+        for group in group_lines(fo):
+            try:
+                record = stage1(group)
+                if filter_stage1(record):
+                    continue
+                record.parse_stage2(parse_prefix)
+                if filter_stage2(record):
+                    continue
+                record.parse_stage3()
+                if filter_stage3(record):
+                    continue
+            except UnknownData as e:
+                yield e
+            else:
+                yield record
 
 
 def parse(fo, prefix_fmt, filters=None):
     """Parses log lines and yield :class:`Record` or :class:`UnknownData` objects.
 
-    This is the main entry point of the API.
+    This is a helper around :class:`LogParser` and :`PrefixParser`.
 
     :param fo: A line iterator such as a file-like object.
     :param prefix_fmt: is exactly the value of ``log_line_prefix`` Postgresql
@@ -128,23 +68,12 @@ def parse(fo, prefix_fmt, filters=None):
 
     """
 
-    prefix_parser = PrefixParser.from_configuration(prefix_fmt).parse
-    filters = filters or NoopFilters()
-    for group in group_lines(fo):
-        try:
-            record = Record.parse_stage1(group)
-            if filters.stage1(record):
-                continue
-            record.parse_stage2(prefix_parser)
-            if filters.stage2(record):
-                continue
-            record.parse_stage3()
-            if filters.stage3(record):
-                continue
-        except UnknownData as e:
-            yield e
-        else:
-            yield record
+    parser = LogParser(
+        PrefixParser.from_configuration(prefix_fmt),
+        filters=filters,
+    )
+    for item in parser.parse(fo):
+        yield item
 
 
 def group_lines(lines, cont='\t'):
@@ -162,7 +91,7 @@ def group_lines(lines, cont='\t'):
         yield group
 
 
-def parse_datetime(raw):
+def parse_isodatetime(raw):
     try:
         infos = (
             int(raw[:4]),
@@ -205,8 +134,12 @@ class UnknownData(Exception):
     def __init__(self, lines):
         self.lines = lines
 
+    def __repr__(self):
+        summary = str(self)[:32].replace('\n', '')
+        return "<%s %s...>" % (self.__class__.__name__, summary)
+
     def __str__(self):
-        return "Unknown data:\n%s" % (''.join(self.lines),)
+        return ''.join(self.lines)
 
 
 class NoopFilters(object):
@@ -257,9 +190,10 @@ class NoopFilters(object):
 
 
 class PrefixParser(object):
-    # PrefixParser extracts information from the beginning of each log lines,
-    # parameterized by log_line_prefix.
-    #
+    """ Extract record metadata from PostgreSQL log line prefix.
+
+    .. automethod:: from_configuration
+    """
     # cf.
     # https://www.postgresql.org/docs/current/static/runtime-config-logging.html#GUC-LOG-LINE-PREFIX
 
@@ -309,9 +243,9 @@ class PrefixParser(object):
         'line_num': int,
         'pid': int,
         'remote_port': int,
-        'start': parse_datetime,
-        'timestamp': parse_datetime,
-        'timestamp_ms': parse_datetime,
+        'start': parse_isodatetime,
+        'timestamp': parse_isodatetime,
+        'timestamp_ms': parse_isodatetime,
         'xid': int,
     }
 
@@ -328,7 +262,14 @@ class PrefixParser(object):
 
     @classmethod
     def from_configuration(cls, log_line_prefix):
-        # Parse log_line_prefix and build a prefix parser from this.
+        """Factory from log_line_prefix
+
+        Parses log_line_prefix and build a prefix parser from this.
+
+        :param log_line_prefix: ``log_line_prefix`` PostgreSQL setting.
+        :return: A :class:`PrefixParser` instance.
+
+        """
         try:
             fixed, optionnal = cls._q_re.split(log_line_prefix)
         except ValueError:
@@ -551,7 +492,8 @@ class Record(object):
 
     def __repr__(self):
         return '<%s %s: %.32s...>' % (
-            self.__class__.__name__, self.severity, self.message_lines[0],
+            self.__class__.__name__, self.severity,
+            self.message_lines[0].replace('\n', ''),
         )
 
     def parse_stage2(self, parse_prefix):
@@ -572,33 +514,3 @@ class Record(object):
             (k, v)
             for k, v in self.__dict__.items()
         ])
-
-
-def main(argv=sys.argv[1:], environ=os.environ):
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s %(levelname)5.5s %(message)s',
-    )
-
-    argv = argv + ['-']
-    log_line_prefix = argv[0]
-    counter = 0
-    try:
-        with open_or_stdin(argv[1]) as fo:
-            with Timer() as timer:
-                for record in parse(fo, prefix_fmt=log_line_prefix):
-                    if isinstance(record, UnknownData):
-                        logger.warning("%s", record)
-                    else:
-                        counter += 1
-                        print(
-                            json.dumps(record.as_dict(), cls=JSONDateEncoder))
-        logger.info("Parsed %d records in %s.", counter, timer.delta)
-    except Exception as e:
-        print(str(e), file=sys.stderr)
-        return 1
-    return 0
-
-
-if '__main__' == __name__:  # pragma: nocover
-    sys.exit(main(argv=sys.argv[1:], environ=os.environ))

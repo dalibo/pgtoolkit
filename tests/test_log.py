@@ -31,12 +31,13 @@ BAD PREFIX 10:49:31.140 UTC [8423]: [1-1] app=[unknown],db=[unknown],client=[loc
     records = list(parse(lines, prefix_fmt=log_line_prefix))
 
     assert isinstance(records[0], UnknownData)
+    assert '\n' not in repr(records[0])
     record = records[1]
     assert 'LOG' == record.severity
 
 
 def test_group_lines():
-    from pgtoolkit.log import group_lines
+    from pgtoolkit.log.parser import group_lines
 
     lines = """\
 \tResult  (cost=0.00..0.01 rows=1 width=4) (actual time=1001.117..1001.118 rows=1 loops=1)
@@ -61,7 +62,7 @@ def test_group_lines():
 
 
 def test_prefix_parser():
-    from pgtoolkit.log import PrefixParser
+    from pgtoolkit.log.parser import PrefixParser
 
     # log_line_prefix with all options.
     prefix_fmt = '%m [%p]: [%l-1] app=%a,db=%d,client=%h,user=%u,remote=%r,epoch=%n,timestamp=%t,tag=%i,error=%e,session=%c,start=%s,vxid=%v,xid=%x '  # noqa
@@ -85,7 +86,7 @@ def test_prefix_parser():
 
 
 def test_prefix_parser_q():
-    from pgtoolkit.log import PrefixParser
+    from pgtoolkit.log.parser import PrefixParser
 
     # log_line_prefix with all options.
     prefix_fmt = '%m [%p]: %q%u@%h '
@@ -95,10 +96,10 @@ def test_prefix_parser_q():
     assert fields['user'] is None
 
 
-def test_datetime():
-    from pgtoolkit.log import parse_datetime
+def test_isodatetime():
+    from pgtoolkit.log.parser import parse_isodatetime
 
-    date = parse_datetime('2018-06-04 20:12:34.343 UTC')
+    date = parse_isodatetime('2018-06-04 20:12:34.343 UTC')
     assert date
     assert 2018 == date.year
     assert 6 == date.month
@@ -109,10 +110,10 @@ def test_datetime():
     assert 343 == date.microsecond
 
     with pytest.raises(ValueError):
-        parse_datetime('2018-06-000004')
+        parse_isodatetime('2018-06-000004')
 
     with pytest.raises(ValueError):
-        parse_datetime('2018-06-04 20:12:34.343 CEST')
+        parse_isodatetime('2018-06-04 20:12:34.343 CEST')
 
 
 def test_record_stage1_ok():
@@ -127,6 +128,7 @@ def test_record_stage1_ok():
 
     record = Record.parse_stage1(lines)
     assert 'LOG' in repr(record)
+    assert '\n' not in repr(record)
     assert 4 == len(record.raw_lines)
     assert 'LOG' == record.severity
     assert 4 == len(record.message_lines)
@@ -181,11 +183,14 @@ stage3 LOG:  connection authorized: user=postgres database=postgres
 
 
 def test_main(mocker, caplog, capsys):
-    mocker.patch('pgtoolkit.log.logging.basicConfig', autospec=True)
-    open_ = mocker.patch('pgtoolkit.log.open_or_stdin', autospec=True)
-    parse = mocker.patch('pgtoolkit.log.parse', autospec=True)
+    pkg = 'pgtoolkit.log.__main__'
+    mocker.patch(pkg + '.logging.basicConfig', autospec=True)
+    open_ = mocker.patch(pkg + '.open_or_stdin', autospec=True)
+    parse = mocker.patch(pkg + '.parse', autospec=True)
 
-    from pgtoolkit.log import main, Record, UnknownData, datetime
+    from datetime import datetime
+    from pgtoolkit.log import Record, UnknownData
+    from pgtoolkit.log.__main__ import main
 
     open_.return_value = mocker.MagicMock()
     parse.return_value = [
@@ -210,11 +215,13 @@ def test_main(mocker, caplog, capsys):
 
 
 def test_main_ko(mocker):
-    mocker.patch('pgtoolkit.log.logging.basicConfig', autospec=True)
-    open_ = mocker.patch('pgtoolkit.log.open_or_stdin', autospec=True)
-    parse = mocker.patch('pgtoolkit.log.parse', autospec=True)
+    pkg = 'pgtoolkit.log.__main__'
+    mocker.patch(pkg + '.logging.basicConfig', autospec=True)
+    open_ = mocker.patch(pkg + '.open_or_stdin', autospec=True)
+    parse = mocker.patch(pkg + '.parse', autospec=True)
 
-    from pgtoolkit.log import main, Record
+    from pgtoolkit.log import Record
+    from pgtoolkit.log.__main__ import main
 
     open_.return_value = mocker.MagicMock()
     parse.return_value = [Record('prefix', 'LOG', badentry=object())]
