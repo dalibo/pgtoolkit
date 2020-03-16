@@ -6,7 +6,7 @@ Postgres logs are still the most comprehensive source of information on what's
 going on in a cluster. :mod:`pgtoolkit.log` provides a parser to exploit
 efficiently Postgres log records from Python.
 
-Parsing logs is tricky because format vary accros configurations. Also
+Parsing logs is tricky because format varies accross configurations. Also
 performance is important while logs can contain thousands of records.
 
 
@@ -72,10 +72,10 @@ Here is a sample structure of code parsing a plain log file.
 
     with open('postgresql.log') as fo:
         for r in parse(fo, prefix_fmt='%m [%p]'):
-        if isinstance(r, UnknownData):
-            "Process unknown data"
-        else:
-            "Process record"
+            if isinstance(r, UnknownData):
+                "Process unknown data"
+            else:
+                "Process record"
 
 
 
