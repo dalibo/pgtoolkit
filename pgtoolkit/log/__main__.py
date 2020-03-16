@@ -3,8 +3,10 @@ from __future__ import print_function
 import json
 import logging
 import os
+import pdb
 import sys
 from argparse import ArgumentParser
+from distutils.util import strtobool
 
 from .._helpers import JSONDateEncoder
 from .._helpers import open_or_stdin
@@ -16,9 +18,10 @@ logger = logging.getLogger(__name__)
 
 
 def main(argv=sys.argv[1:], environ=os.environ):
+    debug = strtobool(environ.get('DEBUG', 'n'))
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s %(levelname)5.5s %(message)s',
+        level=logging.DEBUG if debug else logging.INFO,
+        format='%(asctime)s %(levelname).1s: %(message)s',
     )
     parser = ArgumentParser()
     # Default comes from PostgreSQL documentation.
@@ -44,8 +47,13 @@ def main(argv=sys.argv[1:], environ=os.environ):
                         print(
                             json.dumps(record.as_dict(), cls=JSONDateEncoder))
         logger.info("Parsed %d records in %s.", counter, timer.delta)
-    except Exception as e:
-        print(str(e), file=sys.stderr)
+    except (KeyboardInterrupt, pdb.bdb.BdbQuit):  # pragma: nocover
+        logger.info("Interrupted.")
+        return 1
+    except Exception:
+        logger.exception("Unhandled error:")
+        if debug:  # pragma: nocover
+            pdb.post_mortem(sys.exc_info()[2])
         return 1
     return 0
 
