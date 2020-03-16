@@ -74,10 +74,12 @@ def test_parse_stage2():
 
     line = SyslogLine(
         "message",
+        pid="123",
         timestamp="Mar 13 09:28:26",
         date_parser=partial(parse_syslog_datetime, year=2020)
     )
     record = Record("prefix", "LOG")
     line.parse_stage2(record)
 
+    assert 123 == record.pid
     assert datetime(2020, 3, 13, 9, 28, 26) == record.timestamp

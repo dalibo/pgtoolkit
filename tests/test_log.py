@@ -157,6 +157,21 @@ def test_record_stage2_ok(mocker):
     assert '[local]' == record.remote_host
 
 
+def test_record_stage2_syslog(mocker):
+    from pgtoolkit.log import Record
+
+    line = mocker.Mock(name="syslog-line")
+    record = Record(
+        prefix="app=psql,db=postgres,client=[local],user=postgres ",  # noqa
+        severity='LOG', message_lines=['message'], raw_lines=[line],
+    )
+
+    prefix_parser = mocker.Mock(name='prefix_parser')
+    prefix_parser.return_value = dict()
+    record.parse_stage2(prefix_parser)
+    assert line.parse_stage2.called is True
+
+
 def test_filters():
     from pgtoolkit.log import parse, NoopFilters
 

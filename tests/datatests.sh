@@ -25,5 +25,6 @@ python -m $logscript '%m [%p]: [%l-1] app=%a,db=%d%q,client=%h,user=%u ' data/po
 if is_python3 ; then
         scripts/profile-log
 fi
+python -m $logscript --syslog --syslog-year=2020 '[%p]: [%l-1] db=%d,user=%u,app=%a,client=%h ' < data/rsyslog.log
 
 python -m pgtoolkit.conf data/postgres.conf

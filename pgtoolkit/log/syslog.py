@@ -23,7 +23,15 @@ def parse_syslog_datetime(raw, fmt="%b %d %H:%M:%S", year=None, tzinfo=None):
 
 
 class SyslogPreprocessor(object):
+    """Restore PostgreSQL log lines from syslog records
+    """
     def __init__(self, syslog_sequence_numbers=True, date_parser=None):
+        """
+        :param syslog_sequence_numbers: The value of PostgreSQL setting
+            syslog_sequence_numbers.
+        :param date_parser: A callable parsing a string and returning a
+            datetime object.
+        """
         self.date_parser = date_parser
         self._re = re.compile(self.build_prefix_re(
             syslog_sequence_numbers=syslog_sequence_numbers
@@ -45,6 +53,17 @@ class SyslogPreprocessor(object):
         return pattern
 
     def process(self, lines):
+        """Preprocess syslog lines for parsing
+
+        If a line matches syslog prefix, the preprocessor wraps it unprefixed
+        with :class:`SyslogLine` object. This object hold decoded line as
+        PostgreSQL would have written it to a log file as well as syslog
+        metadata (timestamp, pid, etc.)
+
+        :param lines: A line iterator such as a file object.
+        :returns: Yields each :class:`SyslogLine` or plain line.
+
+        """
         for line in lines:
             m = self._re.match(line)
             if m:
@@ -68,6 +87,8 @@ class SyslogLine(str):
         return self
 
     def parse_stage2(self, record):
+        if not hasattr(record, 'pid'):
+            record.pid = int(self.pid)
         if not hasattr(record, 'timestamp'):
             record.timestamp = self.date_parser(self.timestamp)
 

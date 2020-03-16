@@ -500,6 +500,14 @@ class Record(object):
         # Stage 2. Analyze prefix fields
 
         self.__dict__.update(parse_prefix(self.prefix))
+        if not self.raw_lines:
+            return
+
+        # Syslog lines has a method to parse and inject metadata from syslog
+        # prefix to record.
+        line0 = self.raw_lines[0]
+        if hasattr(line0, 'parse_stage2'):
+            line0.parse_stage2(self)
 
     def parse_stage3(self):
         # Stage 3. Analyze message lines.
