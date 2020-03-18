@@ -1,3 +1,16 @@
+import codecs
+
+
+def test_octal_encoding():
+    __import__('pgtoolkit.log')
+
+    encoded = "#011my#012line"
+    assert "\tmy\nline" == codecs.decode(encoded, 'syslog-octal')
+
+    decoded = "tab\tline\r\n"
+    assert "tab#011line#015#012" == codecs.encode(decoded, 'syslog-octal')
+
+
 def test_process_syslog():
     from pgtoolkit.log.syslog import SyslogPreprocessor
 

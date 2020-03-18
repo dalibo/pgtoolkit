@@ -1,3 +1,5 @@
+# coding: utf-8
+import codecs
 import re
 
 
@@ -27,6 +29,8 @@ class SyslogPreprocessor(object):
             m = self._re.match(line)
             if m:
                 message = line[len(m.group(0)):]
+                # Avoid codecs registry and use impl directly.
+                message, _ = octal_decode(message)
                 line = SyslogLine(message, **m.groupdict())
             yield line
 
@@ -37,3 +41,36 @@ class SyslogLine(str):
         self = super(SyslogLine, cls).__new__(cls, message)
         self.__dict__.update(kw)
         return self
+
+
+_octal_char = re.compile('#([0-7]{3})')
+
+
+def octal_decode(text):
+    chunks = _octal_char.split(text)
+    out = []
+    for i, item in enumerate(chunks):
+        is_chunk = not i % 2
+        if is_chunk:
+            out.append(item)
+        else:
+            out.append(chr(int(item, base=8)))
+    return ''.join(out), len(text)
+
+
+def octal_encode(text):
+    out = []
+    for c in text:
+        codepoint = ord(c)
+        if codepoint <= 31:
+            out.append("#%03o" % codepoint)
+        else:
+            out.append(c)
+    return ''.join(out), len(text)
+
+
+def octal_search(encoding_name):
+    return codecs.CodecInfo(octal_encode, octal_decode, name='syslog-octal')
+
+
+codecs.register(octal_search)
