@@ -36,6 +36,22 @@ the stages in processing order :
 3. Extract and decode message data.
 
 
+Syslog support
+--------------
+
+When sending messages to syslog, PostgreSQL splits messages in chunks prefixed
+with one or two numbers like ``[1]`` or ``[1-1]``. The
+``syslog_sequence_number`` settings configures this prefix. syslog formats each
+line with its own configuration, usually with date, hostname, service and pid.
+The :class:`SyslogPreprocessor` analyzes the wrapping of PostgreSQL log record
+in multiple syslog messages.
+
+Dates require some attention with syslog. By default, rsyslog writes dates
+without year nor timezone. Instead of guessing, :mod:`pgtoolkit.log` provides
+tools to parse loose dates, letting user determine year and timezone. This is
+the purpose of :func:`parse_syslog_datetime`.
+
+
 Limitations
 -----------
 
@@ -58,11 +74,13 @@ API Reference
 Here are the few functions and classes used to parse and access log records.
 
 .. autofunction:: parse
+.. autofunction:: parse_syslog_datetime
 .. autoclass:: LogParser
 .. autoclass:: PrefixParser
 .. autoclass:: Record
 .. autoclass:: UnknownData
 .. autoclass:: NoopFilters
+.. autoclass:: SyslogPreprocessor
 
 
 Example
@@ -79,6 +97,26 @@ Here is a sample structure of code parsing a plain log file.
             else:
                 "Process record"
 
+
+Here is a wider sample of code demonstrating parsing a log file written by
+rsyslog.
+
+.. code-block:: python
+
+    preprocessor = SyslogPreprocessor(
+        date_parser=parse_syslog_datetime(year=2020, tzinfo=timezone.utc)
+    )
+    parser = LogParser(
+        prefix_parser=PrefixParser.from_configuration('%qapp=%a ')
+    )
+    for filename in glob('*.log'):
+        with open(filename) as fo:
+            lines = preprocessor.process(fo)
+            for result in parser.parse(lines):
+                if isinstance(result, UnknownData):
+                    "Process unknown data"
+                else:
+                    "Process record"
 
 
 Using :mod:`pgtoolkit.log` as a script
@@ -106,6 +144,10 @@ from .parser import (
     UnknownData,
     parse,
 )
+from .syslog import (
+    SyslogPreprocessor,
+    parse_syslog_datetime,
+)
 
 
 __all__ = [o.__name__ for o in [
@@ -113,6 +155,8 @@ __all__ = [o.__name__ for o in [
     NoopFilters,
     PrefixParser,
     Record,
+    SyslogPreprocessor,
     UnknownData,
     parse,
+    parse_syslog_datetime,
 ]]

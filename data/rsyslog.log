@@ -1,0 +1,223 @@
+Mar 12 17:57:10 socle-dev0 postgresql-12-main[19252]: [8-1] [19252]: [9-1] db=,user=,app=,client= LOG:  received fast shutdown request
+Mar 12 17:57:10 socle-dev0 postgresql-12-main[19252]: [9-1] [19252]: [10-1] db=,user=,app=,client= LOG:  aborting any active transactions
+Mar 12 17:57:10 socle-dev0 postgresql-12-main[19252]: [10-1] [19252]: [11-1] db=,user=,app=,client= LOG:  background worker "logical replication launcher" (PID 19261) exited with exit code 1
+Mar 12 17:57:10 socle-dev0 postgresql-12-main[19255]: [7-1] [19255]: [1-1] db=,user=,app=,client= LOG:  shutting down
+Mar 12 17:57:10 socle-dev0 postgresql-12-main[19255]: [8-1] [19255]: [2-1] db=,user=,app=,client= LOG:  checkpoint starting: shutdown immediate
+Mar 12 17:57:10 socle-dev0 postgresql-12-main[19255]: [9-1] [19255]: [3-1] db=,user=,app=,client= LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.002 s, sync=0.001 s, total=0.009 s; sync files=3, longest=0.001 s, average=0.000 s; distance=16384 kB, estimate=16384 kB
+Mar 12 17:57:10 socle-dev0 postgresql-12-main[19252]: [11-1] [19252]: [12-1] db=,user=,app=,client= LOG:  database system is shut down
+Mar 12 17:57:18 socle-dev0 postgresql-12-main[19436]: [1-1] [19436]: [1-1] db=,user=,app=,client= LOG:  starting PostgreSQL 12.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+Mar 12 17:57:18 socle-dev0 postgresql-12-main[19436]: [2-1] [19436]: [2-1] db=,user=,app=,client= LOG:  listening on IPv4 address "0.0.0.0", port 5432
+Mar 12 17:57:18 socle-dev0 postgresql-12-main[19436]: [3-1] [19436]: [3-1] db=,user=,app=,client= LOG:  listening on IPv6 address "::", port 5432
+Mar 12 17:57:18 socle-dev0 postgresql-12-main[19436]: [4-1] [19436]: [4-1] db=,user=,app=,client= LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+Mar 12 17:57:18 socle-dev0 postgresql-12-main[19436]: [5-1] [19436]: [5-1] db=,user=,app=,client= LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+Mar 12 17:57:18 socle-dev0 postgresql-12-main[19436]: [6-1] [19436]: [6-1] db=,user=,app=,client= LOG:  ending log output to stderr
+Mar 12 17:57:18 socle-dev0 postgresql-12-main[19436]: [6-2] [19436]: [7-1] db=,user=,app=,client= HINT:  Future log output will go to log destination "syslog".
+Mar 12 17:57:18 socle-dev0 postgresql-12-main[19438]: [7-1] [19438]: [1-1] db=,user=,app=,client= LOG:  database system was shut down at 2020-03-12 17:57:10 CET
+Mar 12 17:57:18 socle-dev0 postgresql-12-main[19436]: [7-1] [19436]: [8-1] db=,user=,app=,client= LOG:  database system is ready to accept connections
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19473]: [8-1] [19473]: [1-1] db=[unknown],user=[unknown],app=[unknown],client=192.168.6.1 LOG:  connection received: host=192.168.6.1 port=58376
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19473]: [9-1] [19473]: [2-1] db=postgres,user=bersace,app=[unknown],client=192.168.6.1 LOG:  connection authorized: user=bersace database=postgres SSL enabled (protocol=TLSv1.2, cipher=ECDHE-RSA-AES256-GCM-SHA384, bits=256, compression=off)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [8-1] [19474]: [1-1] db=[unknown],user=[unknown],app=[unknown],client=192.168.6.1 LOG:  connection received: host=192.168.6.1 port=58378
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [9-1] [19474]: [2-1] db=postgres,user=bersace,app=[unknown],client=192.168.6.1 LOG:  connection authorized: user=bersace database=postgres SSL enabled (protocol=TLSv1.2, cipher=ECDHE-RSA-AES256-GCM-SHA384, bits=256, compression=off)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [8-1] [19475]: [1-1] db=[unknown],user=[unknown],app=[unknown],client=192.168.6.1 LOG:  connection received: host=192.168.6.1 port=58380
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [9-1] [19475]: [2-1] db=appdb,user=bersace,app=[unknown],client=192.168.6.1 LOG:  connection authorized: user=bersace database=appdb SSL enabled (protocol=TLSv1.2, cipher=ECDHE-RSA-AES256-GCM-SHA384, bits=256, compression=off)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19476]: [8-1] [19476]: [1-1] db=[unknown],user=[unknown],app=[unknown],client=192.168.6.1 LOG:  connection received: host=192.168.6.1 port=58382
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19476]: [9-1] [19476]: [2-1] db=olddb,user=bersace,app=[unknown],client=192.168.6.1 LOG:  connection authorized: user=bersace database=olddb SSL enabled (protocol=TLSv1.2, cipher=ECDHE-RSA-AES256-GCM-SHA384, bits=256, compression=off)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-1] [19474]: [3-1] db=postgres,user=bersace,app=[unknown],client=192.168.6.1 LOG:  duration: 28.777 ms  plan:
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-2] #011Query Text: WITH
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-3] #011grants AS (SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-4] #011  pronamespace, grantee, priv,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-5] #011  array_agg(DISTINCT proname ORDER BY proname) AS procs
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-6] #011  FROM (
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-7] #011    SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-8] #011      pronamespace,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-9] #011      proname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-10] #011      (aclexplode(proacl)).grantee,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-11] #011      (aclexplode(proacl)).privilege_type AS priv
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-12] #011    FROM pg_catalog.pg_proc
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-13] #011    UNION
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-14] #011    SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-15] #011      pronamespace, proname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-16] #011      0 AS grantee,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-17] #011      'EXECUTE' AS priv
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-18] #011    FROM pg_catalog.pg_proc
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-19] #011    WHERE proacl IS NULL
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-20] #011  ) AS grants
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-21] #011  GROUP BY 1, 2, 3
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-22] #011),
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-23] #011namespaces AS (
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-24] #011  SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-25] #011    nsp.oid, nsp.nspname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-26] #011    array_remove(array_agg(DISTINCT pro.proname ORDER BY pro.proname), NULL) AS procs
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-27] #011  FROM pg_catalog.pg_namespace nsp
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-28] #011  LEFT OUTER JOIN pg_catalog.pg_proc AS pro
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-29] #011    ON pro.pronamespace = nsp.oid
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-30] #011  GROUP BY 1, 2
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-31] #011),
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-32] #011roles AS (
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-33] #011  SELECT oid, rolname
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-34] #011  FROM pg_catalog.pg_roles
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-35] #011  UNION
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-36] #011  SELECT 0, 'public'
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-37] #011)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-38] #011SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-39] #011  nspname, rolname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-40] #011  CASE
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-41] #011    WHEN nsp.procs = ARRAY[]::name[] THEN NULL
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-42] #011    ELSE nsp.procs = COALESCE(grants.procs, ARRAY[]::name[])
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-43] #011  END AS "full"
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-44] #011FROM namespaces AS nsp
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-45] #011CROSS JOIN roles
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-46] #011LEFT OUTER JOIN grants
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-47] #011  ON pronamespace = nsp.oid AND grants.grantee = roles.oid
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-48] #011WHERE NOT (array_length(nsp.procs, 1) IS NOT NULL AND grants.procs IS NULL)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-49] #011  AND (priv IS NULL OR priv = 'EXECUTE')
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-50] #011  AND nspname NOT LIKE 'pg\_%temp\_%'
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-51] #011-- ORDER BY 1, 2
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-52]
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-53] #011Merge Right Join  (cost=5224.54..5676.78 rows=1 width=129)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-54] #011  Merge Cond: ((grants.pronamespace = nsp.oid) AND (grants.grantee = roles.oid))
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-55] #011  Filter: (((array_length((array_remove(array_agg(DISTINCT pro.proname ORDER BY pro.proname), NULL::name)), 1) IS NULL) OR ((array_agg(DISTINCT grants.proname ORDER BY grants.proname)) IS NOT NULL)) AND ((grants.priv IS NULL) OR (grants.priv = 'EXECUTE'::text)))
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-56] #011  ->  GroupAggregate  (cost=4724.80..5132.09 rows=2962 width=72)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-57] #011        Group Key: grants.pronamespace, grants.grantee, grants.priv
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-58] #011        ->  Sort  (cost=4724.80..4798.85 rows=29621 width=104)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-59] #011              Sort Key: grants.pronamespace, grants.grantee, grants.priv
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-60] #011              ->  Subquery Scan on grants  (cost=1932.38..2524.80 rows=29621 width=104)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-61] #011                    ->  HashAggregate  (cost=1932.38..2228.59 rows=29621 width=104)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-62] #011                          Group Key: pg_proc.pronamespace, pg_proc.proname, (((aclexplode(pg_proc.proacl))).grantee), (((aclexplode(pg_proc.proacl))).privilege_type)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-63] #011                          ->  Append  (cost=0.00..1636.17 rows=29621 width=104)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-64] #011                                ->  Result  (cost=0.00..903.23 rows=29620 width=104)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-65] #011                                      ->  ProjectSet  (cost=0.00..458.93 rows=29620 width=100)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-66] #011                                            ->  Seq Scan on pg_proc  (cost=0.00..288.62 rows=2962 width=113)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-67] #011                                ->  Subquery Scan on "*SELECT* 2"  (cost=0.00..288.63 rows=1 width=104)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-68] #011                                      ->  Seq Scan on pg_proc pg_proc_1  (cost=0.00..288.62 rows=1 width=104)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-69] #011                                            Filter: (proacl IS NULL)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-70] #011  ->  Sort  (cost=499.74..499.89 rows=60 width=168)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-71] #011        Sort Key: nsp.oid, roles.oid
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-72] #011        ->  Nested Loop  (cost=467.23..497.97 rows=60 width=168)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-73] #011              ->  GroupAggregate  (cost=465.93..495.64 rows=6 width=100)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-74] #011                    Group Key: nsp.oid, nsp.nspname
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-75] #011                    ->  Sort  (cost=465.93..473.33 rows=2962 width=132)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-76] #011                          Sort Key: nsp.oid, nsp.nspname
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-77] #011                          ->  Hash Right Join  (cost=1.43..295.13 rows=2962 width=132)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-78] #011                                Hash Cond: (pro.pronamespace = nsp.oid)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-79] #011                                ->  Index Only Scan using pg_proc_proname_args_nsp_index on pg_proc pro  (cost=0.28..280.71 rows=2962 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-80] #011                                ->  Hash  (cost=1.07..1.07 rows=6 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-81] #011                                      Buckets: 1024  Batches: 1  Memory Usage: 9kB
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-82] #011                                      ->  Seq Scan on pg_namespace nsp  (cost=0.00..1.07 rows=6 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-83] #011                                            Filter: (nspname !~~ 'pg\_%temp\_%'::text)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-84] #011              ->  Materialize  (cost=1.30..1.55 rows=10 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-85] #011                    ->  Subquery Scan on roles  (cost=1.30..1.50 rows=10 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-86] #011                          ->  HashAggregate  (cost=1.30..1.40 rows=10 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-87] #011                                Group Key: pg_authid.oid, pg_authid.rolname
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-88] #011                                ->  Append  (cost=0.00..1.25 rows=10 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-89] #011                                      ->  Seq Scan on pg_authid  (cost=0.00..1.09 rows=9 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-90] #011                                      ->  Subquery Scan on "*SELECT* 2_1"  (cost=0.00..0.02 rows=1 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [10-91] #011                                            ->  Result  (cost=0.00..0.01 rows=1 width=68)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-1] [19474]: [4-1] db=postgres,user=bersace,app=[unknown],client=192.168.6.1 LOG:  temporary file: path "base/pgsql_tmp/pgsql_tmp19474.0", size 5341184
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-2] [19474]: [5-1] db=postgres,user=bersace,app=[unknown],client=192.168.6.1 STATEMENT:  WITH
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-3] #011grants AS (SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-4] #011  pronamespace, grantee, priv,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-5] #011  array_agg(DISTINCT proname ORDER BY proname) AS procs
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-6] #011  FROM (
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-7] #011    SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-8] #011      pronamespace,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-9] #011      proname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-10] #011      (aclexplode(proacl)).grantee,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-11] #011      (aclexplode(proacl)).privilege_type AS priv
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-12] #011    FROM pg_catalog.pg_proc
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-13] #011    UNION
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-14] #011    SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-15] #011      pronamespace, proname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-16] #011      0 AS grantee,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-17] #011      'EXECUTE' AS priv
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-18] #011    FROM pg_catalog.pg_proc
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-19] #011    WHERE proacl IS NULL
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-20] #011  ) AS grants
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-21] #011  GROUP BY 1, 2, 3
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-22] #011),
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-23] #011namespaces AS (
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-24] #011  SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-25] #011    nsp.oid, nsp.nspname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-26] #011    array_remove(array_agg(DISTINCT pro.proname ORDER BY pro.proname), NULL) AS procs
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-27] #011  FROM pg_catalog.pg_namespace nsp
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-28] #011  LEFT OUTER JOIN pg_catalog.pg_proc AS pro
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-29] #011    ON pro.pronamespace = nsp.oid
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-30] #011  GROUP BY 1, 2
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-31] #011),
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-32] #011roles AS (
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-33] #011  SELECT oid, rolname
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-34] #011  FROM pg_catalog.pg_roles
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-35] #011  UNION
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-36] #011  SELECT 0, 'public'
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-37] #011)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-38] #011SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-39] #011  nspname, rolname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-40] #011  CASE
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-41] #011    WHEN nsp.procs = ARRAY[]::name[] THEN NULL
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-42] #011    ELSE nsp.procs = COALESCE(grants.procs, ARRAY[]::name[])
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-43] #011  END AS "full"
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-44] #011FROM namespaces AS nsp
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-45] #011CROSS JOIN roles
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-46] #011LEFT OUTER JOIN grants
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-47] #011  ON pronamespace = nsp.oid AND grants.grantee = roles.oid
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-48] #011WHERE NOT (array_length(nsp.procs, 1) IS NOT NULL AND grants.procs IS NULL)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-49] #011  AND (priv IS NULL OR priv = 'EXECUTE')
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-50] #011  AND nspname NOT LIKE 'pg\_%temp\_%'
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-51] #011-- ORDER BY 1, 2
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [11-52]
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-1] [19475]: [4-1] db=appdb,user=bersace,app=[unknown],client=192.168.6.1 LOG:  temporary file: path "base/pgsql_tmp/pgsql_tmp19475.0", size 5357568
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-2] [19475]: [5-1] db=appdb,user=bersace,app=[unknown],client=192.168.6.1 STATEMENT:  WITH
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-3] #011grants AS (SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-4] #011  pronamespace, grantee, priv,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-5] #011  array_agg(DISTINCT proname ORDER BY proname) AS procs
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-6] #011  FROM (
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-7] #011    SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-8] #011      pronamespace,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-9] #011      proname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-10] #011      (aclexplode(proacl)).grantee,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-11] #011      (aclexplode(proacl)).privilege_type AS priv
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-12] #011    FROM pg_catalog.pg_proc
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-13] #011    UNION
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-14] #011    SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-15] #011      pronamespace, proname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-16] #011      0 AS grantee,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-17] #011      'EXECUTE' AS priv
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-18] #011    FROM pg_catalog.pg_proc
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-19] #011    WHERE proacl IS NULL
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-20] #011  ) AS grants
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-21] #011  GROUP BY 1, 2, 3
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-22] #011),
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-23] #011namespaces AS (
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-24] #011  SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-25] #011    nsp.oid, nsp.nspname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-26] #011    array_remove(array_agg(DISTINCT pro.proname ORDER BY pro.proname), NULL) AS procs
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-27] #011  FROM pg_catalog.pg_namespace nsp
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-28] #011  LEFT OUTER JOIN pg_catalog.pg_proc AS pro
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-29] #011    ON pro.pronamespace = nsp.oid
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-30] #011  GROUP BY 1, 2
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-31] #011),
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-32] #011roles AS (
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-33] #011  SELECT oid, rolname
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-34] #011  FROM pg_catalog.pg_roles
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-35] #011  UNION
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-36] #011  SELECT 0, 'public'
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-37] #011)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-38] #011SELECT
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-39] #011  nspname, rolname,
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-40] #011  CASE
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-41] #011    WHEN nsp.procs = ARRAY[]::name[] THEN NULL
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-42] #011    ELSE nsp.procs = COALESCE(grants.procs, ARRAY[]::name[])
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-43] #011  END AS "full"
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-44] #011FROM namespaces AS nsp
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-45] #011CROSS JOIN roles
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-46] #011LEFT OUTER JOIN grants
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-47] #011  ON pronamespace = nsp.oid AND grants.grantee = roles.oid
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-48] #011WHERE NOT (array_length(nsp.procs, 1) IS NOT NULL AND grants.procs IS NULL)
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-49] #011  AND (priv IS NULL OR priv = 'EXECUTE')
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-50] #011  AND nspname NOT LIKE 'pg\_%temp\_%'
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-51] #011-- ORDER BY 1, 2
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [11-52]
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19473]: [10-1] [19473]: [3-1] db=postgres,user=bersace,app=[unknown],client=192.168.6.1 LOG:  disconnection: session time: 0:00:00.308 user=bersace database=postgres host=192.168.6.1 port=58376
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19475]: [12-1] [19475]: [6-1] db=appdb,user=bersace,app=[unknown],client=192.168.6.1 LOG:  disconnection: session time: 0:00:00.275 user=bersace database=appdb host=192.168.6.1 port=58380
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19476]: [12-1] [19476]: [6-1] db=olddb,user=bersace,app=[unknown],client=192.168.6.1 LOG:  disconnection: session time: 0:00:00.261 user=bersace database=olddb host=192.168.6.1 port=58382
+Mar 12 17:57:33 socle-dev0 postgresql-12-main[19474]: [12-1] [19474]: [6-1] db=postgres,user=bersace,app=[unknown],client=192.168.6.1 LOG:  disconnection: session time: 0:00:00.286 user=bersace database=postgres host=192.168.6.1 port=58378
