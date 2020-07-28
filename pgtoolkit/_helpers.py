@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import sys
-from datetime import timedelta
 
 
 def format_timedelta(delta):
