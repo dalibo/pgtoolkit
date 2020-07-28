@@ -3,7 +3,7 @@ YUM_LABS=../../yum-labs
 
 all:
 	$(MAKE) -sC $(YUM_LABS) clean
-	$(MAKE) build-centos7 build-centos6
+	$(MAKE) build-centos7
 
 build-centos%:
 	docker-compose run --rm centos$*
