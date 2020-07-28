@@ -215,8 +215,8 @@ class Configuration:
     >>> conf['port'] = 5434
     >>> conf.port
     5434
-    >>> conf['pg_stat_statement.min_duration']
-    datetime.timedelta(0, 3)
+    >>> conf['pg_stat_statement.min_duration'].total_seconds()
+    3.0
 
     .. attribute:: path
 
