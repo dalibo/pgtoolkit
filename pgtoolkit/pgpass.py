@@ -1,4 +1,3 @@
-# coding: utf-8
 r""".. currentmodule:: pgtoolkit.pgpass
 
 This module provides support for `.pgpass` file format. Here are some
@@ -59,15 +58,12 @@ path as first argument, read it, validate it, sort it and output it in stdout.
 
 """  # noqa
 
-
-from __future__ import print_function
-
 import os
 import sys
 import warnings
 
 from .errors import ParseError
-from ._helpers import open_or_stdin, string_types
+from ._helpers import open_or_stdin
 
 
 def unescape(s, delim):
@@ -145,7 +141,7 @@ class PassComment(str):
             return False
 
 
-class PassEntry(object):
+class PassEntry:
     """Holds a .pgpass entry.
 
     .. automethod:: parse
@@ -266,7 +262,7 @@ class PassEntry(object):
         return True
 
 
-class PassFile(object):
+class PassFile:
     """Holds .pgpass file entries and comments.
 
     .. automethod:: parse
@@ -427,7 +423,7 @@ def parse(file):
         corresponding to the path to the file to open and parse.
     :rtype: :class:`PassFile`
     """
-    if isinstance(file, string_types):
+    if isinstance(file, str):
         with open(file) as fo:
             pgpass = parse(fo)
             pgpass.path = file

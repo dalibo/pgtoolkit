@@ -4,17 +4,6 @@ from io import StringIO
 
 import pytest
 
-from pgtoolkit._helpers import PY2
-
-
-if PY2:
-    class UnicodeIO(StringIO):
-        def write(self, chunk):
-            if isinstance(chunk, str):
-                chunk = chunk.decode('utf-8')
-            return super(UnicodeIO, self).write(chunk)
-    StringIO = UnicodeIO
-
 
 def test_parse_value():
     from pgtoolkit.conf import parse_value

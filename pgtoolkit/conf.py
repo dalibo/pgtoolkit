@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """\
 .. currentmodule:: pgtoolkit.conf
 
@@ -39,15 +38,9 @@ You can use this module to dump a configuration file as JSON object
 """
 
 
-from __future__ import print_function
-
 import json
 from ast import literal_eval
-try:  # pragma: nocover_py26
-    from collections import OrderedDict
-except ImportError:  # pragma: nocover_py3
-    # On python 2.6, order is not preserved
-    OrderedDict = dict
+from collections import OrderedDict
 import re
 import sys
 from datetime import timedelta
@@ -141,7 +134,7 @@ def parse_value(raw):
                 return raw
 
 
-class Entry(object):
+class Entry:
     # Holds the parsed representation of a configuration entry line.
     #
     # This includes the comment.
@@ -208,7 +201,7 @@ class Entry(object):
         return line
 
 
-class Configuration(object):
+class Configuration:
     r"""Holds a parsed configuration.
 
     You can access parameter using attribute or dictionnary syntax.
