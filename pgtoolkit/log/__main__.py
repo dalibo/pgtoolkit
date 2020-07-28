@@ -6,6 +6,7 @@ import pdb
 import sys
 from argparse import ArgumentParser
 from distutils.util import strtobool
+from typing import List, MutableMapping
 
 from .._helpers import JSONDateEncoder
 from .._helpers import open_or_stdin
@@ -16,7 +17,10 @@ from .parser import parse, UnknownData
 logger = logging.getLogger(__name__)
 
 
-def main(argv=sys.argv[1:], environ=os.environ):
+def main(
+    argv: List[str] = sys.argv[1:],
+    environ: MutableMapping[str, str] = os.environ,
+) -> int:
     debug = strtobool(environ.get('DEBUG', 'n'))
     logging.basicConfig(
         level=logging.DEBUG if debug else logging.INFO,

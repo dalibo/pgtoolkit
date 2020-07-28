@@ -107,7 +107,7 @@ from .parser import (
 )
 
 
-__all__ = [o.__name__ for o in [
+__all__ = [o.__name__ for o in [  # type: ignore
     LogParser,
     NoopFilters,
     PrefixParser,

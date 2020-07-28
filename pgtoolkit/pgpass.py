@@ -60,17 +60,27 @@ path as first argument, read it, validate it, sort it and output it in stdout.
 
 import os
 import sys
+from typing import (
+    Callable,
+    IO,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 import warnings
 
 from .errors import ParseError
 from ._helpers import open_or_stdin
 
 
-def unescape(s, delim):
+def unescape(s: str, delim: str) -> str:
     return s.replace('\\' + delim, delim).replace('\\\\', '\\')
 
 
-def escapedsplit(s, delim):
+def escapedsplit(s: str, delim: str) -> Iterator[str]:
     if len(delim) != 1:
         raise ValueError('Invalid delimiter: ' + delim)
 
@@ -107,10 +117,10 @@ class PassComment(str):
         The actual message of the comment. Surrounding whitespaces stripped.
 
     """
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s %.32s>' % (self.__class__.__name__, self)
 
-    def __lt__(self, other):
+    def __lt__(self, other: str) -> bool:
         if isinstance(other, PassEntry):
             try:
                 return self.entry < other
@@ -119,16 +129,16 @@ class PassComment(str):
         return False
 
     @property
-    def comment(self):
+    def comment(self) -> str:
         return self.lstrip('#').strip()
 
     @property
-    def entry(self):
+    def entry(self) -> "PassEntry":
         if not hasattr(self, '_entry'):
             self._entry = PassEntry.parse(self.comment)
         return self._entry
 
-    def matches(self, **attrs):
+    def matches(self, **attrs: Union[int, str]) -> bool:
         """In case of a commented entry, tells if it is matching provided
         attributes. Returns False otherwise.
 
@@ -174,7 +184,7 @@ class PassEntry:
     """
 
     @classmethod
-    def parse(cls, line):
+    def parse(cls, line: str) -> "PassEntry":
         """ Parse a single line.
 
         :param line: string containing a serialized .pgpass entry.
@@ -185,17 +195,24 @@ class PassEntry:
         if len(fields) != 5:
             raise ValueError("Invalid line.")
         if fields[1] != '*':
-            fields[1] = int(fields[1])
+            fields[1] = int(fields[1])  # type: ignore
         return cls(*fields)
 
-    def __init__(self, hostname, port, database, username, password):
+    def __init__(
+        self,
+        hostname: str,
+        port: Union[int, str],
+        database: str,
+        username: str,
+        password: str
+    ) -> None:
         self.hostname = hostname
         self.port = port
         self.database = database
         self.username = username
         self.password = password
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, PassComment):
             try:
                 other = other.entry
@@ -205,10 +222,10 @@ class PassEntry:
             return self.as_tuple()[:-1] == other.as_tuple()[:-1]
         return NotImplemented
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.as_tuple()[:-1])
 
-    def __lt__(self, other):
+    def __lt__(self, other: Union[PassComment, "PassEntry"]) -> bool:
         if isinstance(other, PassComment):
             try:
                 other = other.entry
@@ -218,19 +235,19 @@ class PassEntry:
             return self.sort_key() < other.sort_key()
         return NotImplemented
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s %s@%s:%s/%s>' % (
             self.__class__.__name__,
             self.username, self.hostname, self.port, self.database,
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ':'.join([
             str(x).replace('\\', r'\\').replace(':', r'\:')
             for x in self.as_tuple()
         ])
 
-    def as_tuple(self):
+    def as_tuple(self) -> Tuple[str, Union[int, str], str, str, str]:
         return (
             self.hostname,
             self.port,
@@ -239,14 +256,14 @@ class PassEntry:
             self.password,
         )
 
-    def sort_key(self):
+    def sort_key(self) -> Tuple[int, str, Union[int, str], str, str]:
         tpl = self.as_tuple()[:-1]
         # Compute precision from * occurences.
         precision = len([x for x in tpl if x == '*'])
         # More specific entries comes first.
-        return (precision,) + tuple(chr(0xFF) if x == '*' else x for x in tpl)
+        return (precision,) + tuple(chr(0xFF) if x == '*' else x for x in tpl)  # type: ignore  # noqa: E501
 
-    def matches(self, **attrs):
+    def matches(self, **attrs: Union[int, str]) -> bool:
         """Tells if the current entry is matching provided attributes.
 
         :param attrs: keyword/values pairs correspond to one or more
@@ -287,10 +304,13 @@ class PassFile:
 
     """
 
-    lines = []
-    path = None
+    lines: List[Union[PassComment, PassEntry]]
+    path: Optional[str] = None
 
-    def __init__(self, entries=None):
+    def __init__(
+        self,
+        entries: Optional[List[Union[PassComment, PassEntry]]] = None
+    ) -> None:
         """PassFile constructor.
 
         :param entries: A list of PassEntry or PassComment. Optional.
@@ -300,7 +320,7 @@ class PassFile:
         self.lines = entries or []
         self.path = None
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[PassEntry]:
         """Iterate entries
 
         Yield :class:`PassEntry` instance from parsed file, ignoring comments.
@@ -309,13 +329,14 @@ class PassFile:
             if isinstance(line, PassEntry):
                 yield line
 
-    def parse(self, fo):
+    def parse(self, fo: Iterable[str]) -> None:
         """Parse lines
 
         :param fo: A line iterator such as a file-like object.
 
         Raises ``ParseError`` if a bad line is found.
         """
+        entry: Union[PassComment, PassEntry]
         for i, line in enumerate(fo):
             stripped = line.lstrip()
             if not stripped or stripped.startswith('#'):
@@ -327,7 +348,7 @@ class PassFile:
                     raise ParseError(1 + i, line, str(e))
             self.lines.append(entry)
 
-    def sort(self):
+    def sort(self) -> None:
         """Sort entries preserving comments.
 
         libpq use the first entry from .pgpass matching connexion informations.
@@ -360,12 +381,12 @@ class PassFile:
             self.lines.extend(comments)
             self.lines.append(entry)
 
-    def save(self, fo=None):
+    def save(self, fo: Optional[IO[str]] = None) -> None:
         """Save entries and comment in a file.
 
         :param fo: a file-like object. Is not required if :attr:`path` is set.
         """
-        def _write(fo, lines):
+        def _write(fo: IO[str], lines: Iterable[object]) -> None:
             for line in lines:
                 fo.write(str(line) + os.linesep)
 
@@ -377,7 +398,13 @@ class PassFile:
         else:
             raise ValueError('No file-like object nor path provided')
 
-    def remove(self, filter=None, **attrs):
+    def remove(
+        self,
+        filter: Optional[
+            Callable[[Union[PassComment, PassEntry, str]], bool]
+        ] = None,
+        **attrs: Union[int, str],
+    ) -> None:
         """Remove entries matching the provided attributes.
 
         One can for example remove all entries for which port is 5433.
@@ -406,16 +433,16 @@ class PassFile:
 
         if filter is not None:
             # Silently handle the case when line is a PassComment
-            def filter_(line):
+            def filter_(line: Union[PassComment, PassEntry]) -> bool:
                 if isinstance(line, PassComment):
                     try:
-                        return filter(line.entry)
+                        return filter(line.entry)  # type: ignore
                     except ValueError:
                         return False
                 else:
-                    return filter(line)
+                    return filter(line)  # type: ignore
         else:
-            def filter_(line):
+            def filter_(line: Union[PassComment, PassEntry]) -> bool:
                 return line.matches(**attrs)
 
         self.lines = [
@@ -423,7 +450,7 @@ class PassFile:
         ]
 
 
-def parse(file):
+def parse(file: Union[str, IO[str]]) -> PassFile:
     """Parses a .pgpass file.
 
     :param file: Either a line iterator such as a file-like object or a string

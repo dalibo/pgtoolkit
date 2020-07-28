@@ -44,14 +44,14 @@ from collections import OrderedDict
 import re
 import sys
 from datetime import timedelta
-
+from typing import Dict, IO, Iterable, List, Optional, Union
 
 from ._helpers import JSONDateEncoder
 from ._helpers import open_or_stdin
 from ._helpers import open_or_return
 
 
-def parse(fo):
+def parse(fo: Union[str, IO[str]]) -> "Configuration":
     """Parse a configuration file.
 
     The parser tries to return Python object corresponding to value, based on
@@ -91,7 +91,10 @@ TIMEDELTA_ARGNAME = {
 _timedelta_re = re.compile(r'^\s*(?P<number>\d+)\s*(?P<unit>ms|s|min|h|d)\s*$')
 
 
-def parse_value(raw):
+Value = Union[str, bool, float, int, timedelta]
+
+
+def parse_value(raw: str) -> Value:
     # Ref.
     # https://www.postgresql.org/docs/current/static/config-setting.html#CONFIG-SETTING-NAMES-VALUES
 
@@ -139,14 +142,20 @@ class Entry:
     #
     # This includes the comment.
 
-    def __init__(self, name, value, comment=None, raw_line=None):
+    def __init__(
+        self,
+        name: str,
+        value: Value,
+        comment: Optional[str] = None,
+        raw_line: Optional[str] = None,
+    ) -> None:
         self.name = name
         self.value = value
         self.comment = comment
         # Store the raw_line to track the position in the list of lines.
         self.raw_line = raw_line
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s %s=%s>' % (self.__class__.__name__, self.name, self.value)
 
     _minute = 60
@@ -162,7 +171,7 @@ class Entry:
         ('s', 1),
     ]
 
-    def serialize(self):
+    def serialize(self) -> Union[int, str]:
         # This is the reverse of parse_value.
         value = self.value
         if isinstance(value, bool):
@@ -193,7 +202,7 @@ class Entry:
             value = str(value)
         return value
 
-    def __str__(self):
+    def __str__(self) -> str:
         line = '%(name)s = %(value)s' % dict(
             name=self.name, value=self.serialize())
         if self.comment:
@@ -226,6 +235,10 @@ class Configuration:
     .. automethod:: save
 
     """  # noqa
+    lines: List[str]
+    entries: Dict[str, Entry]
+    path: Optional[str]
+
     _parameter_re = re.compile(
         r'^(?P<name>[a-z_.]+)(?: +(?!=)| *= *)(?P<value>.*?)'
         '[\\s\t]*'
@@ -237,14 +250,14 @@ class Configuration:
     # the serialized line is updated accordingly. This allows to keep comments
     # and serialize only what's needed. Other lines are just written as-is.
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.__dict__.update(dict(
             lines=[],
             entries=OrderedDict(),
             path=None,
         ))
 
-    def parse(self, fo):
+    def parse(self, fo: Iterable[str]) -> None:
         for raw_line in fo:
             self.lines.append(raw_line)
             line = raw_line.strip()
@@ -259,22 +272,22 @@ class Configuration:
             entry = Entry(value=value, raw_line=raw_line, **kwargs)
             self.entries[entry.name] = entry
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Value:
         try:
             return self[name]
         except KeyError:
             raise AttributeError(name)
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Value) -> None:
         if name in self.__dict__:
             self.__dict__[name] = value
         else:
             self[name] = value
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Value:
         return self.entries[key].value
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Value) -> None:
         if key in self.entries:
             e = self.entries[key]
             e.value = value
@@ -290,10 +303,10 @@ class Configuration:
             e.raw_line = str(e) + '\n'
             self.lines.append(e.raw_line)
 
-    def as_dict(self):
+    def as_dict(self) -> Dict[str, Value]:
         return dict([(k, v.value) for k, v in self.entries.items()])
 
-    def save(self, fo=None):
+    def save(self, fo: Optional[Union[str, IO[str]]] = None) -> None:
         """Write configuration to a file.
 
         Configuration entries order and comments are preserved.
@@ -307,7 +320,7 @@ class Configuration:
                 fo.write(line)
 
 
-def _main(argv):  # pragma: nocover
+def _main(argv: List[str]) -> int:  # pragma: nocover
     argv = argv or ['-']
     try:
         with open_or_stdin(argv[0]) as fo:

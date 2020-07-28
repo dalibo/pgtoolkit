@@ -92,11 +92,15 @@ comments.
 from configparser import ConfigParser
 import os
 import sys
+from typing import Dict, IO, Iterable, MutableMapping, Optional, Union
 
 from ._helpers import open_or_stdin
 
 
-class Service(dict):
+Parameter = Union[str, int]
+
+
+class Service(Dict[str, Parameter]):
     """Service definition.
 
     The :class:`Service` class represents a single service definition in a
@@ -121,19 +125,24 @@ class Service(dict):
 
     """  # noqa
 
-    def __init__(self, name, parameters=None, **extra):
+    def __init__(
+        self,
+        name: str,
+        parameters: Optional[Dict[str, Parameter]] = None,
+        **extra: Parameter,
+    ) -> None:
         super(Service, self).__init__()
         self.name = name
         self.update(parameters or {})
         self.update(extra)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s %s>' % (self.__class__.__name__, self.name)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Parameter:
         return self[name]
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Parameter) -> None:
         self[name] = value
 
 
@@ -153,38 +162,40 @@ class ServiceFile:
         path to a file. :meth:`save` will write to this file if set.
     """
 
+    path: Optional[str]
+
     _CONVERTERS = {
         'port': int,
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.path = None
         self.config = ConfigParser(
             comment_prefixes=('#',),
             delimiters=('=',),
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s>' % (self.__class__.__name__)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Service:
         parameters = dict([
             (k, self._CONVERTERS.get(k, str)(v))
             for k, v in self.config.items(key)
         ])
         return Service(key, parameters)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.config.sections())
 
-    def add(self, service):
+    def add(self, service: Service) -> None:
         """Adds a :class:`Service` object to the service file."""
         self.config.remove_section(service.name)
         self.config.add_section(service.name)
         for parameter, value in service.items():
             self.config.set(service.name, parameter, str(value))
 
-    def parse(self, fo, source=None):
+    def parse(self, fo: Iterable[str], source: Optional[str] = None) -> None:
         """Add service from a service file.
 
         This method is strictly the same as :func:`parse`. It’s the method
@@ -192,7 +203,7 @@ class ServiceFile:
         """
         self.config.read_file(fo, source=source)
 
-    def save(self, fo=None):
+    def save(self, fo: Optional[IO[str]] = None) -> None:
         """Writes services in ``fo`` file-like object.
 
         :param fo: a file-like object. Is not required if :attr:`path` is set.
@@ -201,7 +212,7 @@ class ServiceFile:
         """
         config = self.config
 
-        def _write(fo):
+        def _write(fo: IO[str]) -> None:
             config.write(fo, space_around_delimiters=False)
 
         if fo:
@@ -213,7 +224,7 @@ class ServiceFile:
             raise ValueError('No file-like object nor path provided')
 
 
-def guess_sysconfdir(environ=os.environ):
+def guess_sysconfdir(environ: MutableMapping[str, str] = os.environ) -> str:
     fromenv = environ.get('PGSYSCONFDIR')
     if fromenv:
         candidates = [fromenv]
@@ -231,7 +242,7 @@ def guess_sysconfdir(environ=os.environ):
     raise Exception("Can't find sysconfdir")
 
 
-def find(environ=None):
+def find(environ: Optional[MutableMapping[str, str]] = None) -> str:
     """Find service file.
 
     :param dict environ: Dict of environment variables.
@@ -273,7 +284,9 @@ def find(environ=None):
     raise Exception("Can't find pg_service file.")
 
 
-def parse(file, source=None):
+def parse(
+    file: Union[str, Iterable[str]], source: Optional[str] = None
+) -> ServiceFile:
     """Parse a service file.
 
     :param file: a file-object as returned by open or a string corresponding to

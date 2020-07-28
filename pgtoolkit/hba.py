@@ -70,6 +70,19 @@ fit pseudo-column width. If filename is ``-``, stdin is read instead.
 import os
 import shlex
 import sys
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    IO,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 import warnings
 
 from .errors import ParseError
@@ -80,7 +93,7 @@ from ._helpers import (
 
 
 class HBAComment(str):
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s %.32s>' % (self.__class__.__name__, self)
 
 
@@ -114,7 +127,7 @@ class HBARecord:
     CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
 
     @classmethod
-    def parse(cls, line):
+    def parse(cls, line: str) -> "HBARecord":
         """Parse a HBA record
 
         :rtype: :class:`HBARecord` or a :class:`str` for a comment or blank
@@ -126,8 +139,8 @@ class HBARecord:
         record_fields = ['conntype', 'databases', 'users']
         values = shlex.split(line, comments=False)
         # Split databases and users lists.
-        values[1] = values[1].split(',')
-        values[2] = values[2].split(',')
+        values[1] = values[1].split(',')  # type: ignore
+        values[2] = values[2].split(',')  # type: ignore
         try:
             hash_pos = values.index('#')
         except ValueError:
@@ -146,15 +159,26 @@ class HBARecord:
         record_fields.append('method')
         base_options = list(zip(record_fields, values[:len(record_fields)]))
         auth_options = [o.split('=', 1) for o in values[len(record_fields):]]
-        return cls(base_options + auth_options, comment=comment)
+        options = base_options + auth_options  # type: ignore
+        return cls(options, comment=comment)
 
-    def __init__(self, values=None, comment=None, **kw_values):
+    databases: List[str]
+    users: List[str]
+
+    def __init__(
+        self,
+        values: Optional[
+            Union[Iterable[Tuple[str, str]], Dict[str, Any]]
+        ] = None,
+        comment: Optional[str] = None,
+        **kw_values: Union[str, Sequence[str]],
+    ) -> None:
         """
         :param values: A dict of fields.
         :param kw_values: Fields passed as keyword.
         :param comment:  Comment at the end of the line.
         """
-        values = dict(values or {}, **kw_values)
+        values: Dict[str, Any] = dict(values or {}, **kw_values)
         if 'database' in values:
             values['databases'] = [values.pop('database')]
         if 'user' in values:
@@ -163,14 +187,14 @@ class HBARecord:
         self.fields = [k for k, _ in values.items()]
         self.comment = comment
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s %s%s>' % (
             self.__class__.__name__,
             ' '.join(self.common_values),
             '...' if self.auth_options else ''
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Serialize a record line, without EOL."""
         # Stolen from default pg_hba.conf
         widths = [8, 16, 16, 16, 8]
@@ -206,7 +230,7 @@ class HBARecord:
         return line
 
     @property
-    def common_values(self):
+    def common_values(self) -> List[str]:
         str_fields = self.COMMON_FIELDS[:]
         # Use serialized variant.
         str_fields[1:3] = ['database', 'user']
@@ -217,7 +241,7 @@ class HBARecord:
         ]
 
     @property
-    def auth_options(self):
+    def auth_options(self) -> List[Tuple[str, str]]:
         return [
             (f, getattr(self, f))
             for f in self.fields
@@ -225,7 +249,7 @@ class HBARecord:
         ]
 
     @property
-    def database(self):
+    def database(self) -> str:
         """Hold database column as a single value.
 
         Use `databases` attribute to get parsed database list. `database` is
@@ -235,7 +259,7 @@ class HBARecord:
         return ','.join(self.databases)
 
     @property
-    def user(self):
+    def user(self) -> str:
         """Hold user column as a single value.
 
         Use ``users`` property to get parsed user list. ``user`` is guaranteed
@@ -244,7 +268,7 @@ class HBARecord:
         """
         return ','.join(self.users)
 
-    def matches(self, **attrs):
+    def matches(self, **attrs: str) -> bool:
         """Tells if the current record is matching provided attributes.
 
         :param attrs: keyword/values pairs corresponding to one or more
@@ -280,29 +304,36 @@ class HBA:
     .. automethod:: remove
     .. automethod:: merge
     """
-    def __init__(self, entries=None):
+
+    lines: List[Union[HBAComment, HBARecord]]
+    path: Optional[str]
+
+    def __init__(
+        self, entries: Optional[Iterable[Union[HBAComment, HBARecord]]] = None
+    ) -> None:
         """HBA constructor
 
         :param entries: A list of HBAComment or HBARecord. Optional.
         """
         if entries and not isinstance(entries, list):
             raise ValueError('%s should be a list' % entries)
-        self.lines = entries or []
+        self.lines = list(entries) if entries is not None else []
         self.path = None
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[HBARecord]:
         """Iterate on records, ignoring comments and blank lines."""
         for line in self.lines:
             if isinstance(line, HBARecord):
                 yield line
 
-    def parse(self, fo):
+    def parse(self, fo: Iterable[str]) -> None:
         """Parse records and comments from file object
 
         :param fo: An iterable returning lines
         """
         for i, line in enumerate(fo):
             stripped = line.lstrip()
+            record: Union[HBARecord, HBAComment]
             if not stripped or stripped.startswith('#'):
                 record = HBAComment(line.replace(os.linesep, ''))
             else:
@@ -312,7 +343,7 @@ class HBA:
                     raise ParseError(1 + i, line, str(e))
             self.lines.append(record)
 
-    def save(self, fo=None):
+    def save(self, fo: Optional[Union[str, IO[str]]] = None) -> None:
         """Write records and comments in a file
 
         :param fo: a file-like object. Is not required if :attr:`path` is set.
@@ -329,7 +360,11 @@ class HBA:
             for line in self.lines:
                 fo.write(str(line) + os.linesep)
 
-    def remove(self, filter=None, **attrs):
+    def remove(
+        self,
+        filter: Optional[Callable[[HBARecord], bool]] = None,
+        **attrs: str,
+    ) -> None:
         """Remove records matching the provided attributes.
 
         One can for example remove all records for which user is 'david'.
@@ -362,7 +397,7 @@ class HBA:
             if not (isinstance(line, HBARecord) and filter(line))
         ]
 
-    def merge(self, other):
+    def merge(self, other: "HBA") -> None:
         """Add new records to HBAFile or replace them if they are matching
             (ie. same conntype, database, user and address)
 
@@ -389,7 +424,7 @@ class HBA:
                             kwargs[a] = getattr(new_line, a)
                     if line.matches(**kwargs):
                         # replace matched line with comments + record
-                        self.lines[i:i+1] = other_comments + [new_line]
+                        self.lines[i:i+1] = other_comments + [new_line]  # type: ignore  # noqa: E501
                         for c in other_comments:
                             new_lines.remove(c)
                         new_lines.remove(new_line)
@@ -399,7 +434,7 @@ class HBA:
         self.lines.extend(new_lines)
 
 
-def parse(file):
+def parse(file: Union[str, Iterable[str]]) -> HBA:
     """Parse a `pg_hba.conf` file.
 
     :param file: Either a line iterator such as a file-like object or a string
