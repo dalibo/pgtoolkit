@@ -263,5 +263,5 @@ def test_merge():
     expected_hba = parse(expected_lines)
 
     def r(hba):
-        return os.linesep.join([str(l) for l in hba.lines])
+        return os.linesep.join([str(line) for line in hba.lines])
     assert r(hba) == r(expected_hba)

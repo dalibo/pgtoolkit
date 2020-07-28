@@ -184,8 +184,8 @@ def test_remove():
     pgpass.remove(port=5432, username='postgres')
     assert 5 == len(pgpass.lines)
 
-    def filter(l):
-        return l.username == 'postgres'
+    def filter(line):
+        return line.username == 'postgres'
 
     pgpass = parse(lines)
     pgpass.remove(filter=filter)

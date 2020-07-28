@@ -504,7 +504,7 @@ class Record:
         # Stage 3. Analyze message lines.
 
         self.message = ''.join([
-            l.lstrip('\t').rstrip('\n') for l in self.message_lines
+            line.lstrip('\t').rstrip('\n') for line in self.message_lines
         ])
 
     def as_dict(self):

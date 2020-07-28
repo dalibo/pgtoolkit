@@ -353,11 +353,11 @@ class HBA:
         if filter is None and not len(attrs.keys()):
             raise ValueError('Attributes dict cannot be empty')
 
-        filter = filter or (lambda l: l.matches(**attrs))
+        filter = filter or (lambda line: line.matches(**attrs))
 
         self.lines = [
-            l for l in self.lines
-            if not (isinstance(l, HBARecord) and filter(l))
+            line for line in self.lines
+            if not (isinstance(line, HBARecord) and filter(line))
         ]
 
     def merge(self, other):
