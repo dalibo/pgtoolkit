@@ -24,11 +24,13 @@ yum_install() {
 sudo sed -i '/^\[updates\]/,/^gpgkey=/d' /etc/yum.repos.d/CentOS-Base.repo
 
 # Purge previous installation
-if rpm --query --queryformat= python-pgtoolkit ; then
-    sudo yum remove -y python-pgtoolkit
+if rpm --query --queryformat= python3-pgtoolkit ; then
+    sudo yum remove -y python3-pgtoolkit
 fi
 
 rm -rf build/bdist*/rpm
+
+yum_install python3 python3-setuptools
 
 # Build it
 # No --undefine on CentOS 6.
@@ -42,10 +44,10 @@ rpmbuild -bb \
          --define "_sourcedir ${top_srcdir}/dist" \
          rpm/python-pgtoolkit.spec
 version=$(sed -n '/^Version:/{s,.*:\t,,g; p; q}' rpm/python-pgtoolkit.spec)
-rpm=dist/noarch/python-pgtoolkit*${version}*$(rpm --eval '%dist').noarch.rpm
+rpm=dist/noarch/python3-pgtoolkit*${version}*$(rpm --eval '%dist').noarch.rpm
 ln -fs noarch/$(basename $rpm) dist/last_build.rpm
 
 # Test it
 sudo yum install -y $rpm
 cd /
-python -c 'import pgtoolkit'
+python3 -c 'import pgtoolkit'
