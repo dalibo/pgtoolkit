@@ -1,9 +1,8 @@
-# coding: utf-8
 import re
 from datetime import datetime, timedelta
 
 
-class LogParser(object):
+class LogParser:
     """Log parsing manager
 
     This object gather parsing parameters and trigger parsing logic. When
@@ -142,7 +141,7 @@ class UnknownData(Exception):
         return ''.join(self.lines)
 
 
-class NoopFilters(object):
+class NoopFilters:
     """Basic filter doing nothing.
 
     Filters are grouped in an object to simplify the definition of a filtering
@@ -189,7 +188,7 @@ class NoopFilters(object):
         """
 
 
-class PrefixParser(object):
+class PrefixParser:
     """ Extract record metadata from PostgreSQL log line prefix.
 
     .. automethod:: from_configuration
@@ -323,7 +322,7 @@ class PrefixParser(object):
                 fields[k] = cast(v)
 
 
-class Record(object):
+class Record:
     """Log record object.
 
     Record object stores record fields and implements the different parse

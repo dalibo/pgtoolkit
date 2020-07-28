@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """.. currentmodule:: pgtoolkit.service
 
 This module supports reading, validating, editing and rendering ``pg_service``
@@ -90,17 +88,12 @@ comments.
 
 """
 
-from __future__ import print_function
 
-try:
-    from configparser import ConfigParser
-except ImportError:  # pragma: nocover_py3
-    from ConfigParser import ConfigParser
-
+from configparser import ConfigParser
 import os
 import sys
 
-from ._helpers import open_or_stdin, string_types
+from ._helpers import open_or_stdin
 
 
 class Service(dict):
@@ -144,7 +137,7 @@ class Service(dict):
         self[name] = value
 
 
-class ServiceFile(object):
+class ServiceFile:
     """Service file representation, parsing and rendering.
 
     :class:`ServiceFile` is subscriptable. You can access service using
@@ -297,7 +290,7 @@ def parse(file, source=None):
         around equals. pgtoolkit accepts spaces but do not write them.
 
     """
-    if isinstance(file, string_types):
+    if isinstance(file, str):
         with open(file) as fo:
             services = parse(fo, source=source)
             services.path = file

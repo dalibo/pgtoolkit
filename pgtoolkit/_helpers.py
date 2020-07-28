@@ -4,17 +4,6 @@ import sys
 from datetime import timedelta
 
 
-PY2 = sys.version_info < (3,)
-
-if PY2:  # pragma: nocover_py3
-    string_types = (str, unicode)  # noqa
-    unicode = unicode  # noqa
-    bytes = str
-else:  # pragma: nocover_py2
-    string_types = (str,)
-    unicode = str
-
-
 def format_timedelta(delta):
     values = [
         (delta.days, 'd'),
@@ -45,7 +34,7 @@ def open_or_stdin(filename, stdin=sys.stdin):
     return fo
 
 
-class PassthroughManager(object):
+class PassthroughManager:
     def __init__(self, ret=None):
         self.ret = ret
 
@@ -64,7 +53,7 @@ def open_or_return(fo_or_path, mode='r'):
 
     if fo_or_path is None:
         raise ValueError('No file-like object nor path provided')
-    if isinstance(fo_or_path, string_types):
+    if isinstance(fo_or_path, str):
         return open(fo_or_path, mode)
 
     # Skip default file context manager. This allows to always use with
@@ -74,7 +63,7 @@ def open_or_return(fo_or_path, mode='r'):
     return PassthroughManager(fo_or_path)
 
 
-class Timer(object):
+class Timer:
     def __enter__(self):
         self.start = datetime.utcnow()
         return self

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """.. currentmodule:: pgtoolkit.hba
 
 This module supports reading, validating, editing and rendering ``pg_hba.conf``
@@ -69,9 +67,6 @@ fit pseudo-column width. If filename is ``-``, stdin is read instead.
 
 """  # noqa
 
-
-from __future__ import print_function
-
 import os
 import shlex
 import sys
@@ -81,7 +76,6 @@ from .errors import ParseError
 from ._helpers import (
     open_or_return,
     open_or_stdin,
-    string_types,
 )
 
 
@@ -90,7 +84,7 @@ class HBAComment(str):
         return '<%s %.32s>' % (self.__class__.__name__, self)
 
 
-class HBARecord(object):
+class HBARecord:
     """Holds a HBA record composed of fields and a comment.
 
     Common fields are accessible through attribute : ``conntype``,
@@ -268,7 +262,7 @@ class HBARecord(object):
         return True
 
 
-class HBA(object):
+class HBA:
     """Represents pg_hba.conf records
 
     .. attribute:: lines
@@ -410,7 +404,7 @@ def parse(file):
         corresponding to the path to the file to open and parse.
     :rtype: :class:`HBA`.
     """
-    if isinstance(file, string_types):
+    if isinstance(file, str):
         with open(file) as fo:
             hba = parse(fo)
             hba.path = file
