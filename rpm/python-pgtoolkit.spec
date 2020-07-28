@@ -16,6 +16,7 @@ License:	PostgreSQL
 URL:		https://pypi.org/project/pgtoolkit/
 Source0:	https://files.pythonhosted.org/packages/source/%(n=%{srcname}; echo ${n:0:1})/%{srcname}/%{srcname}-%{version}.tar.gz
 BuildArch:	noarch
+BuildRequires:	python3-setuptools
 
 %description
 pgtoolkit provides implementations to manage various file formats in Postgres
