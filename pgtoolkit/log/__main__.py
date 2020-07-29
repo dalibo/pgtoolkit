@@ -9,7 +9,7 @@ from distutils.util import strtobool
 from .._helpers import JSONDateEncoder
 from .._helpers import open_or_stdin
 from .._helpers import Timer
-from . import parse, UnknownData
+from .parser import parse, UnknownData
 
 
 logger = logging.getLogger(__name__)
