@@ -279,6 +279,7 @@ class Configuration:
             e = self.entries[key]
             e.value = value
             # Update serialized entry.
+            assert e.raw_line is not None
             old_line = e.raw_line
             e.raw_line = str(e) + '\n'
             lineno = self.lines.index(old_line)
