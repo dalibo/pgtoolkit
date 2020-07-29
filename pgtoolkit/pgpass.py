@@ -404,17 +404,19 @@ class PassFile:
         if filter is None and not len(attrs.keys()):
             raise ValueError('Attributes dict cannot be empty')
 
-        # Silently handle the case when line is a PassComment
-        def filter_(line):
-            if isinstance(line, PassComment):
-                try:
-                    return filter(line.entry)
-                except ValueError:
-                    return False
-            else:
-                return filter(line)
-
-        filter_ = filter_ if filter else (lambda l: l.matches(**attrs))
+        if filter is not None:
+            # Silently handle the case when line is a PassComment
+            def filter_(line):
+                if isinstance(line, PassComment):
+                    try:
+                        return filter(line.entry)
+                    except ValueError:
+                        return False
+                else:
+                    return filter(line)
+        else:
+            def filter_(line):
+                return line.matches(**attrs)
 
         self.lines = [
             line for line in self.lines if not filter_(line)
