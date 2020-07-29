@@ -80,6 +80,12 @@ def test_compare():
     assert e < a
     assert c < e
 
+    with pytest.raises(TypeError):
+        a < 42
+    with pytest.raises(TypeError):
+        "meh" > a
+    assert (a == [1, 2]) is False
+
 
 def test_parse_lines(mocker):
     from pgtoolkit.pgpass import parse, ParseError

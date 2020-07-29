@@ -201,7 +201,9 @@ class PassEntry:
                 other = other.entry
             except ValueError:
                 return False
-        return self.as_tuple()[:-1] == other.as_tuple()[:-1]
+        if isinstance(other, PassEntry):
+            return self.as_tuple()[:-1] == other.as_tuple()[:-1]
+        return NotImplemented
 
     def __hash__(self):
         return hash(self.as_tuple()[:-1])
@@ -212,8 +214,9 @@ class PassEntry:
                 other = other.entry
             except ValueError:
                 return False
-
-        return self.sort_key() < other.sort_key()
+        if isinstance(other, PassEntry):
+            return self.sort_key() < other.sort_key()
+        return NotImplemented
 
     def __repr__(self):
         return '<%s %s@%s:%s/%s>' % (
