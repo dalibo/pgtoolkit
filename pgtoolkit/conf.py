@@ -255,9 +255,8 @@ class Configuration:
             if not m:
                 raise ValueError("Bad line: %r." % raw_line)
             kwargs = m.groupdict()
-            kwargs['value'] = parse_value(kwargs['value'])
-            kwargs['raw_line'] = raw_line
-            entry = Entry(**kwargs)
+            value = parse_value(kwargs.pop('value'))
+            entry = Entry(value=value, raw_line=raw_line, **kwargs)
             self.entries[entry.name] = entry
 
     def __getattr__(self, name):
