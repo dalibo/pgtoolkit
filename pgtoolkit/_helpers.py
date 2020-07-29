@@ -34,7 +34,7 @@ def open_or_stdin(filename, stdin=sys.stdin):
 
 
 class PassthroughManager:
-    def __init__(self, ret=None):
+    def __init__(self, ret):
         self.ret = ret
 
     def __enter__(self):
