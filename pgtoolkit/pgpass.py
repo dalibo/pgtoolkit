@@ -244,7 +244,7 @@ class PassEntry:
         # Compute precision from * occurences.
         precision = len([x for x in tpl if x == '*'])
         # More specific entries comes first.
-        return [precision] + [chr(0xFF) if x == '*' else x for x in tpl]
+        return (precision,) + tuple(chr(0xFF) if x == '*' else x for x in tpl)
 
     def matches(self, **attrs):
         """Tells if the current entry is matching provided attributes.
