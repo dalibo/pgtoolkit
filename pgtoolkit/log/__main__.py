@@ -1,3 +1,4 @@
+import bdb
 import json
 import logging
 import os
@@ -45,7 +46,7 @@ def main(argv=sys.argv[1:], environ=os.environ):
                         print(
                             json.dumps(record.as_dict(), cls=JSONDateEncoder))
         logger.info("Parsed %d records in %s.", counter, timer.delta)
-    except (KeyboardInterrupt, pdb.bdb.BdbQuit):  # pragma: nocover
+    except (KeyboardInterrupt, bdb.BdbQuit):  # pragma: nocover
         logger.info("Interrupted.")
         return 1
     except Exception:
