@@ -133,8 +133,8 @@ class HBARecord:
         except ValueError:
             comment = None
         else:
-            values, comment = values[:hash_pos], values[hash_pos:]
-            comment = ' '.join(comment[1:])
+            values, comments = values[:hash_pos], values[hash_pos:]
+            comment = ' '.join(comments[1:])
 
         if values[0] not in cls.CONNECTION_TYPES:
             raise ValueError("Unknown connection types %s" % values[0])
