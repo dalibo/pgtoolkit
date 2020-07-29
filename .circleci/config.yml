@@ -39,6 +39,10 @@ jobs:
           command: |
             git diff --check $(git merge-base origin/master $CIRCLE_SHA1)..$CIRCLE_SHA1
             flake8 .
+      - run:
+          name: Type check
+          command: |
+            mypy --strict pgtoolkit
       - run: &unit_tests
           name: Unit tests
           command: |
