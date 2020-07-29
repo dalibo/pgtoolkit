@@ -302,7 +302,9 @@ class PassFile:
 
         Yield :class:`PassEntry` instance from parsed file, ignoring comments.
         """
-        return iter(filter(lambda l: isinstance(l, PassEntry), self.lines))
+        for line in self.lines:
+            if isinstance(line, PassEntry):
+                yield line
 
     def parse(self, fo):
         """Parse lines

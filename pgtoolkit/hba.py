@@ -292,7 +292,9 @@ class HBA:
 
     def __iter__(self):
         """Iterate on records, ignoring comments and blank lines."""
-        return iter(filter(lambda l: isinstance(l, HBARecord), self.lines))
+        for line in self.lines:
+            if isinstance(line, HBARecord):
+                yield line
 
     def parse(self, fo):
         """Parse records and comments from file object
