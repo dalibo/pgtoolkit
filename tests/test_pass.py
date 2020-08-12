@@ -61,6 +61,7 @@ def test_compare():
 
     assert a < b
     assert c < b
+    assert a != b
 
     assert [c, a, b] == sorted([a, b, c])
 
