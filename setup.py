@@ -16,5 +16,6 @@ if __name__ == '__main__':
     setup(
         packages=['pgtoolkit'],
         package_data={'pgtoolkit': ['py.typed']},
+        python_requires=">=3.6",
         **metadatas
     )
