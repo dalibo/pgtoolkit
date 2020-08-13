@@ -7,5 +7,5 @@ release:
 	git tag $(VERSION)
 	git push $(GIT_UPSTREAM) master
 	git push --tags $(GIT_UPSTREAM)
-	python setup.py sdist bdist_wheel --universal
+	python setup.py sdist bdist_wheel
 	twine upload dist/pgtoolkit-$(VERSION).tar.gz dist/pgtoolkit-$(VERSION)-*.whl
