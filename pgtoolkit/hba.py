@@ -162,6 +162,7 @@ class HBARecord:
         options = base_options + auth_options  # type: ignore
         return cls(options, comment=comment)
 
+    conntype: Optional[str]
     databases: List[str]
     users: List[str]
 
