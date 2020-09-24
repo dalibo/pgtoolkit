@@ -30,7 +30,12 @@ fi
 
 rm -rf build/bdist*/rpm
 
-yum_install python3 python3-setuptools
+# install python 3.6 on CentOS 8
+if rpm --eval "%{dist}" | grep -q 'el8'; then
+    yum_install python36 python3-setuptools
+else
+    yum_install python3 python3-setuptools
+fi
 
 # Build it
 # No --undefine on CentOS 6.
@@ -38,14 +43,19 @@ if ! rpmbuild --version | grep -q '4.8' ; then
         rpmbuild_args="--undefine _disable_source_fetch"
 fi
 
+sudo sed -i 's/\.centos//' /etc/rpm/macros.dist
+
 rpmbuild -bb \
          ${rpmbuild_args-} \
          --define "_topdir ${top_srcdir}/dist" \
          --define "_sourcedir ${top_srcdir}/dist" \
+         --define "_rpmdir ${top_srcdir}/dist" \
          rpm/python-pgtoolkit.spec
 version=$(sed -n '/^Version:/{s,.*:\t,,g; p; q}' rpm/python-pgtoolkit.spec)
 rpm=dist/noarch/python3-pgtoolkit*${version}*$(rpm --eval '%dist').noarch.rpm
 ln -fs noarch/$(basename $rpm) dist/last_build.rpm
+
+chown -R $(id -nu):$(id -ng) dist
 
 # Test it
 sudo yum install -y $rpm
