@@ -67,9 +67,9 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
 
     """
     conf = Configuration()
-    with open_or_return(fo) as fo:
-        conf.parse(fo)
-        conf.path = getattr(fo, 'name', None)
+    with open_or_return(fo) as f:
+        conf.parse(f)
+        conf.path = getattr(f, 'name', None)
     return conf
 
 
