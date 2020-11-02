@@ -1,3 +1,4 @@
+import pathlib
 from datetime import timedelta
 from textwrap import dedent
 from io import StringIO
@@ -90,6 +91,74 @@ def test_parser():
 
     with pytest.raises(ValueError):
         parse(['bad_line'])
+
+
+def test_parser_includes_require_a_file_path():
+    from pgtoolkit.conf import parse
+
+    lines = ["include = 'foo.conf'\n"]
+    with pytest.raises(ValueError, match="try passing a file path"):
+        parse(lines)
+
+
+def test_parser_includes():
+    from pgtoolkit.conf import parse
+
+    fpath = pathlib.Path(__file__).parent.parent / "data" / "postgres.conf"
+    conf = parse(str(fpath))
+    assert conf.as_dict() == {
+        'autovacuum_work_mem': -1,
+        'bonjour': False,
+        'bonsoir': True,
+        'checkpoint_completion_target': 0.9,
+        'cluster_name': 'pgtoolkit',
+        'listen_addresses': '1.2.3.4',
+        'log_line_prefix': '%m %q@%d',
+        'log_rotation_age': timedelta(days=1),
+        'max_connections': 100,
+        'my': True,
+        'mymy': True,
+        'mymymy': True,
+        'pg_stat_statements.max': 10000,
+        'pg_stat_statements.track': 'all',
+        'port': 5432,
+        'shared_buffers': 260046848,
+        'shared_preload_libraries': 'pg_stat_statements',
+        'ssl': True,
+        'unix_socket_permissions': 511,
+        'wal_level': 'hot_standby',
+    }
+
+
+def test_parser_includes_loop(tmp_path):
+    from pgtoolkit.conf import parse
+
+    pgconf = tmp_path / "postgres.conf"
+    with pgconf.open("w") as f:
+        f.write(f"include = '{pgconf.absolute()}'\n")
+
+    with pytest.raises(RuntimeError, match="loop detected"):
+        parse(str(pgconf))
+
+
+def test_parser_includes_notfound(tmp_path):
+    from pgtoolkit.conf import parse
+
+    pgconf = tmp_path / "postgres.conf"
+    with pgconf.open("w") as f:
+        f.write("include = 'missing.conf'\n")
+    missing_conf = tmp_path / "missing.conf"
+    msg = f"file '{missing_conf}', included from '{pgconf}', not found"
+    with pytest.raises(FileNotFoundError, match=msg):
+        parse(str(pgconf))
+
+    pgconf = tmp_path / "postgres.conf"
+    with pgconf.open("w") as f:
+        f.write("include_dir = 'conf.d'\n")
+    missing_conf = tmp_path / "conf.d"
+    msg = f"directory '{missing_conf}', included from '{pgconf}', not found"
+    with pytest.raises(FileNotFoundError, match=msg):
+        parse(str(pgconf))
 
 
 def test_serialize_entry():

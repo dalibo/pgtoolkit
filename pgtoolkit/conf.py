@@ -38,16 +38,28 @@ You can use this module to dump a configuration file as JSON object
 """
 
 
+import enum
 import json
 from ast import literal_eval
 from collections import OrderedDict
+import pathlib
 import re
 import sys
 from datetime import timedelta
-from typing import Dict, IO, Iterable, List, Optional, Union
+from typing import Dict, IO, Iterable, List, Optional, Tuple, Union
 
 from ._helpers import JSONDateEncoder
 from ._helpers import open_or_return
+
+
+class IncludeType(enum.Enum):
+    """Include directive types.
+
+    https://www.postgresql.org/docs/13/config-setting.html#CONFIG-INCLUDES
+    """
+    include_dir = enum.auto()
+    include_if_exists = enum.auto()
+    include = enum.auto()
 
 
 def parse(fo: Union[str, IO[str]]) -> "Configuration":
@@ -62,14 +74,93 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
     In case of doubt, the value is kept as a string. It's up to you to enforce
     format.
 
+    Include directives are processed recursively, when 'fo' is a file path (not
+    a file object). If some included file is not found a FileNotFoundError
+    exception is raised. If a loop is detected in include directives, a
+    RuntimeError is raised.
+
     :param fo: A line iterator such as a file-like object or a path.
     :returns: A :class:`Configuration` containing parsed configuration.
 
     """
     conf = Configuration()
     with open_or_return(fo) as f:
-        conf.parse(f)
+        includes_top = conf.parse(f)
         conf.path = getattr(f, 'name', None)
+
+    if not includes_top:
+        return conf
+
+    if not isinstance(fo, str):
+        raise ValueError(
+            "cannot process include directives from a file argument; "
+            "try passing a file path"
+        )
+
+    def absolute(
+        path: pathlib.Path, relative_to: pathlib.Path
+    ) -> pathlib.Path:
+        """Make 'path' absolute by joining from 'relative_to' path."""
+        if path.is_absolute():
+            return path
+        assert relative_to.is_absolute()
+        if relative_to.is_file():
+            relative_to = relative_to.parent
+        return relative_to / path
+
+    def make_includes(
+        includes: List[Tuple[pathlib.Path, IncludeType]],
+        reference_path: pathlib.Path,
+    ) -> List[Tuple[pathlib.Path, pathlib.Path, IncludeType]]:
+        return [
+            (absolute(path, reference_path), reference_path, include_type)
+            for path, include_type in includes
+        ]
+
+    def parse_include(path: pathlib.Path) -> None:
+        with path.open() as f:
+            includes.extend(make_includes(conf.parse(f), path.parent))
+
+    def notfound(
+        path: pathlib.Path,
+        include_type: str,
+        reference_path: pathlib.Path
+    ) -> FileNotFoundError:
+        return FileNotFoundError(
+            f"{include_type} '{path}', included from '{reference_path}',"
+            " not found"
+        )
+
+    includes = make_includes(includes_top, pathlib.Path(fo).absolute())
+    processed = set()
+    while includes:
+        path, reference_path, include_type = includes.pop()
+
+        if path in processed:
+            raise RuntimeError(
+                f"loop detected in include directive about '{path}'"
+            )
+        processed.add(path)
+
+        if include_type == IncludeType.include_dir:
+            if not path.exists() or not path.is_dir():
+                raise notfound(path, "directory", reference_path)
+            for confpath in path.glob("*.conf"):
+                if not confpath.name.startswith("."):
+                    parse_include(confpath)
+
+        elif include_type == IncludeType.include_if_exists:
+            if path.exists():
+                parse_include(path)
+
+        elif include_type == IncludeType.include:
+            if not path.exists():
+                raise notfound(path, "file", reference_path)
+            parse_include(path)
+
+        else:
+            assert False, include_type  # pragma: nocover
+
     return conf
 
 
@@ -256,7 +347,10 @@ class Configuration:
             path=None,
         ))
 
-    def parse(self, fo: Iterable[str]) -> None:
+    def parse(
+        self, fo: Iterable[str]
+    ) -> List[Tuple[pathlib.Path, IncludeType]]:
+        includes = []
         for raw_line in fo:
             self.lines.append(raw_line)
             line = raw_line.strip()
@@ -267,9 +361,19 @@ class Configuration:
             if not m:
                 raise ValueError("Bad line: %r." % raw_line)
             kwargs = m.groupdict()
+            name = kwargs.pop('name')
             value = parse_value(kwargs.pop('value'))
-            entry = Entry(value=value, raw_line=raw_line, **kwargs)
-            self.entries[entry.name] = entry
+            try:
+                include_type = IncludeType[name]
+            except KeyError:
+                self.entries[name] = Entry(
+                    name=name, value=value, raw_line=raw_line, **kwargs
+                )
+            else:
+                assert isinstance(value, str), type(value)
+                includes.append((pathlib.Path(value), include_type))
+        includes.reverse()
+        return includes
 
     def __getattr__(self, name: str) -> Value:
         try:
