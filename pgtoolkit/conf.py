@@ -47,7 +47,6 @@ from datetime import timedelta
 from typing import Dict, IO, Iterable, List, Optional, Union
 
 from ._helpers import JSONDateEncoder
-from ._helpers import open_or_stdin
 from ._helpers import open_or_return
 
 
@@ -321,10 +320,8 @@ class Configuration:
 
 
 def _main(argv: List[str]) -> int:  # pragma: nocover
-    argv = argv or ['-']
     try:
-        with open_or_stdin(argv[0]) as fo:
-            conf = parse(fo)
+        conf = parse(argv[0] if argv else sys.stdin)
         print(json.dumps(conf.as_dict(), cls=JSONDateEncoder, indent=2))
         return 0
     except Exception as e:
