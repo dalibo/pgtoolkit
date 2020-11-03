@@ -161,6 +161,13 @@ def test_parser_includes_notfound(tmp_path):
         parse(str(pgconf))
 
 
+def test_invalid_entry():
+    from pgtoolkit.conf import Entry
+
+    with pytest.raises(ValueError, match="empty string value for 'foo' entry"):
+        Entry(name="foo", value="")
+
+
 def test_serialize_entry():
     from pgtoolkit.conf import Entry
 
