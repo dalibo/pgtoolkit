@@ -210,8 +210,10 @@ def test_edit():
     conf = Configuration()
 
     conf.listen_addresses = '*'
+    assert 'listen_addresses' in conf
     assert '*' == conf.listen_addresses
 
+    assert 'port' not in conf
     conf['port'] = 5432
     assert 5432 == conf.port
 

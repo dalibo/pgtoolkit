@@ -389,6 +389,9 @@ class Configuration:
         else:
             self[name] = value
 
+    def __contains__(self, key: str) -> bool:
+        return key in self.entries
+
     def __getitem__(self, key: str) -> Value:
         return self.entries[key].value
 
