@@ -276,7 +276,7 @@ class Entry:
             if unit:
                 value = "'%s %s'" % (value, unit)
         elif isinstance(value, str):
-            if ' ' in value or "'" in value:
+            if not value.startswith("'") and not value.endswith("'"):
                 value = "'%s'" % value.replace("'", r"\'")
         elif isinstance(value, timedelta):
             seconds = value.days * self._day + value.seconds

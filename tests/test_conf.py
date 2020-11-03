@@ -179,9 +179,11 @@ def test_serialize_entry():
     assert "'2 kB'" == Entry(name='var', value=2048).serialize()
     assert 'var = 15' == str(Entry(name='var', value=15))
     assert 'var = 0.1' == str(Entry(name='var', value=.1))
-    assert 'var = enum' == str(Entry(name='var', value='enum'))
+    assert "var = 'enum'" == str(Entry(name='var', value='enum'))
+    assert "addrs = '*'" == str(Entry(name='addrs', value="*"))
     assert "var = 'sp ced'" == str(Entry(name='var', value='sp ced'))
     assert r"var = 'quo\'ed'" == str(Entry(name='var', value="quo'ed"))
+    assert "var = 'quoted'" == str(Entry(name='var', value="'quoted'"))
 
     assert "'1d'" == Entry('var', value=timedelta(days=1)).serialize()
     assert "'1h'" == Entry('var', value=timedelta(minutes=60)).serialize()
@@ -221,3 +223,4 @@ def test_edit():
         out = fo.getvalue()
 
     assert 'port = 5433' in out
+    assert "listen_addresses = '*'" in out
