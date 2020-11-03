@@ -177,6 +177,7 @@ def test_serialize_entry():
     assert 'grp.setting = true' == str(e)
 
     assert "'2 kB'" == Entry(name='var', value=2048).serialize()
+    assert "var = 0" == str(Entry(name='var', value=0))
     assert 'var = 15' == str(Entry(name='var', value=15))
     assert 'var = 0.1' == str(Entry(name='var', value=.1))
     assert "var = 'enum'" == str(Entry(name='var', value='enum'))

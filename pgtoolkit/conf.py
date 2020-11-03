@@ -268,7 +268,7 @@ class Entry:
         value = self.value
         if isinstance(value, bool):
             value = 'true' if value else 'false'
-        elif isinstance(value, int):
+        elif isinstance(value, int) and value != 0:
             for unit in None, 'kB', 'MB', 'GB', 'TB':
                 if value % 1024:
                     break
