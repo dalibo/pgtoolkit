@@ -40,7 +40,6 @@ You can use this module to dump a configuration file as JSON object
 
 import enum
 import json
-from ast import literal_eval
 from collections import OrderedDict
 import pathlib
 import re
@@ -189,10 +188,10 @@ def parse_value(raw: str) -> Value:
     # https://www.postgresql.org/docs/current/static/config-setting.html#CONFIG-SETTING-NAMES-VALUES
 
     if raw.startswith("'"):
-        try:
-            raw = literal_eval(raw)
-        except SyntaxError as e:
-            raise ValueError(str(e))
+        if raw.endswith("'"):
+            raw = raw[1:-1]
+        else:
+            raise ValueError(raw)
 
     if raw.startswith('0'):
         try:

@@ -28,7 +28,8 @@ def test_parse_value():
     assert '/a/path/to/file.conf' == parse_value(r"/a/path/to/file.conf")
     assert '0755.log' == parse_value(r"0755.log")
     assert 'file_ending_with_B' == parse_value(r"file_ending_with_B")
-    assert 'esc\'aped string' == parse_value(r"'esc\'aped string'")
+    assert r'esc\'aped string' == parse_value(r"'esc\'aped string'")
+    assert "host=''127.0.0.1''" == parse_value("'host=''127.0.0.1'''")
     assert '%m [%p] %q%u@%d ' == parse_value(r"'%m [%p] %q%u@%d '")
     assert '124.7MB' == parse_value("124.7MB")
     assert '124.7ms' == parse_value("124.7ms")
@@ -68,6 +69,7 @@ def test_parser():
                             # defaults to 'localhost'; use '*' for all
                             # (change requires restart)
 
+    primary_conninfo = 'host=''example.com'' port=5432 dbname=mydb connect_timeout=10'
     port = 5432
     bonjour 'without equals'
     shared.buffers = 248MB
@@ -77,6 +79,10 @@ def test_parser():
 
     assert '*' == conf.listen_addresses
     assert 5432 == conf.port
+    assert (
+        conf.primary_conninfo ==
+        "host=''example.com'' port=5432 dbname=mydb connect_timeout=10"
+    )
     assert 'without equals' == conf.bonjour
     assert 248 * 1024 * 1024 == conf['shared.buffers']
 
