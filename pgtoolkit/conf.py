@@ -274,8 +274,13 @@ class Entry:
             if unit:
                 value = "'%s %s'" % (value, unit)
         elif isinstance(value, str):
+            # Only quote if not already quoted.
             if not value.startswith("'") and not value.endswith("'"):
-                value = "'%s'" % value.replace("'", "''")
+                # Only double quotes, if not already done; we assume this is
+                # done everywhere in the string or nowhere.
+                if "''" not in value and r"\'" not in value:
+                    value = value.replace("'", "''")
+                value = "'%s'" % value
         elif isinstance(value, timedelta):
             seconds = value.days * self._day + value.seconds
             if value.microseconds:

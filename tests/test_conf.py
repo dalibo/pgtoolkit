@@ -180,6 +180,12 @@ def test_serialize_entry():
     assert "var = 'quo''ed'' and space'" == str(
         Entry(name='var', value="quo'ed' and space")
     )
+
+    assert r"'quo\'ed'" == Entry(name='var', value=r"quo\'ed").serialize()
+    e = Entry(name='var', value="app=''foo'' host=192.168.0.8")
+    assert e.serialize() == "'app=''foo'' host=192.168.0.8'"
+    assert str(e) == "var = 'app=''foo'' host=192.168.0.8'"
+
     assert "var = 'quoted'" == str(Entry(name='var', value="'quoted'"))
 
     assert "'1d'" == Entry('var', value=timedelta(days=1)).serialize()
@@ -217,12 +223,16 @@ def test_edit():
     conf['port'] = 5433
     assert 5433 == conf.port
 
+    conf['primary_conninfo'] = "host=''example.com'' port=5432"
+    assert conf.primary_conninfo == "host=''example.com'' port=5432"
+
     with StringIO() as fo:
         conf.save(fo)
         out = fo.getvalue()
 
     assert 'port = 5433' in out
     assert "listen_addresses = '*'" in out
+    assert "primary_conninfo = 'host=''example.com'' port=5432'" in out
 
     with pytest.raises(ValueError, match="cannot add an include directive"):
         conf["include_if_exists"] = "file.conf"
