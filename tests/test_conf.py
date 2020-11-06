@@ -176,7 +176,7 @@ def test_serialize_entry():
     assert "var = 'enum'" == str(Entry(name='var', value='enum'))
     assert "addrs = '*'" == str(Entry(name='addrs', value="*"))
     assert "var = 'sp ced'" == str(Entry(name='var', value='sp ced'))
-    assert r"var = 'quo\'ed'" == str(Entry(name='var', value="quo'ed"))
+    assert "var = 'quo''ed'" == str(Entry(name='var', value="quo'ed"))
     assert "var = 'quoted'" == str(Entry(name='var', value="'quoted'"))
 
     assert "'1d'" == Entry('var', value=timedelta(days=1)).serialize()

@@ -275,7 +275,7 @@ class Entry:
                 value = "'%s %s'" % (value, unit)
         elif isinstance(value, str):
             if not value.startswith("'") and not value.endswith("'"):
-                value = "'%s'" % value.replace("'", r"\'")
+                value = "'%s'" % value.replace("'", "''")
         elif isinstance(value, timedelta):
             seconds = value.days * self._day + value.seconds
             if value.microseconds:
