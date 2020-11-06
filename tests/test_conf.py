@@ -229,8 +229,8 @@ def test_edit():
     conf['port'] = 5433
     assert 5433 == conf.port
 
-    conf['primary_conninfo'] = "host=''example.com'' port=5432"
-    assert conf.primary_conninfo == "host=''example.com'' port=5432"
+    conf['primary_conninfo'] = "port=5432 host=''example.com''"
+    assert conf.primary_conninfo == "port=5432 host=''example.com''"
 
     with StringIO() as fo:
         conf.save(fo)
@@ -238,7 +238,7 @@ def test_edit():
 
     assert 'port = 5433' in out
     assert "listen_addresses = '*'" in out
-    assert "primary_conninfo = 'host=''example.com'' port=5432'" in out
+    assert "primary_conninfo = 'port=5432 host=''example.com'''" in out
 
     with pytest.raises(ValueError, match="cannot add an include directive"):
         conf["include_if_exists"] = "file.conf"

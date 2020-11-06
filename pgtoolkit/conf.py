@@ -274,7 +274,7 @@ class Entry:
                 value = "'%s %s'" % (value, unit)
         elif isinstance(value, str):
             # Only quote if not already quoted.
-            if not value.startswith("'") and not value.endswith("'"):
+            if not (value.startswith("'") and value.endswith("'")):
                 # Only double quotes, if not already done; we assume this is
                 # done everywhere in the string or nowhere.
                 if "''" not in value and r"\'" not in value:
