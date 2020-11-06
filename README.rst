@@ -8,6 +8,7 @@
 ``pgtoolkit`` provides implementations to manage various file formats in Postgres
 cluster. Currently:
 
+- ``postgresql.conf``: read, edit, save.
 - ``pg_hba.conf``: render, validate and align columns.
 - ``.pgpass``: render, validate and sort lines.
 - ``pg_service.conf``: find, read, edit, render.
