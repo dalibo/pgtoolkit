@@ -223,3 +223,12 @@ def test_edit():
 
     with pytest.raises(ValueError, match="cannot add an include directive"):
         conf["include_if_exists"] = "file.conf"
+
+
+def test_configuration_iter():
+    from pgtoolkit.conf import Configuration
+
+    conf = Configuration()
+    conf.port = 5432
+    conf.log_timezone = "Europe/Paris"
+    assert [e.name for e in conf] == ["port", "log_timezone"]

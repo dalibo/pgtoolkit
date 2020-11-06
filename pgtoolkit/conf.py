@@ -46,7 +46,7 @@ import pathlib
 import re
 import sys
 from datetime import timedelta
-from typing import Dict, IO, Iterable, List, Optional, Tuple, Union
+from typing import Dict, IO, Iterable, Iterator, List, Optional, Tuple, Union
 
 from ._helpers import JSONDateEncoder
 from ._helpers import open_or_return
@@ -410,6 +410,9 @@ class Configuration:
             # Append serialized line.
             e.raw_line = str(e) + '\n'
             self.lines.append(e.raw_line)
+
+    def __iter__(self) -> Iterator[Entry]:
+        return iter(self.entries.values())
 
     def as_dict(self) -> Dict[str, Value]:
         return dict([(k, v.value) for k, v in self.entries.items()])
