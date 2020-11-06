@@ -220,3 +220,6 @@ def test_edit():
 
     assert 'port = 5433' in out
     assert "listen_addresses = '*'" in out
+
+    with pytest.raises(ValueError, match="cannot add an include directive"):
+        conf["include_if_exists"] = "file.conf"
