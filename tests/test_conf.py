@@ -242,6 +242,19 @@ def test_edit():
         "primary_conninfo = 'port=5432 host=''example.com'''",
     ]
 
+    conf["port"] = 5454
+    conf["log_line_prefix"] = "[%p]: [%l-1] db=%d,user=%u,app=%a,client=%h "
+    with StringIO() as fo:
+        conf.save(fo)
+        lines = fo.getvalue().splitlines()
+
+    assert lines == [
+        "listen_addresses = '*'",
+        "port = 5454",
+        "primary_conninfo = 'port=5432 host=''example.com'''",
+        "log_line_prefix = '[%p]: [%l-1] db=%d,user=%u,app=%a,client=%h '",
+    ]
+
     with pytest.raises(ValueError, match="cannot add an include directive"):
         conf["include_if_exists"] = "file.conf"
 
