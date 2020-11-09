@@ -234,11 +234,13 @@ def test_edit():
 
     with StringIO() as fo:
         conf.save(fo)
-        out = fo.getvalue()
+        lines = fo.getvalue().splitlines()
 
-    assert 'port = 5433' in out
-    assert "listen_addresses = '*'" in out
-    assert "primary_conninfo = 'port=5432 host=''example.com'''" in out
+    assert lines == [
+        "listen_addresses = '*'",
+        "port = 5433",
+        "primary_conninfo = 'port=5432 host=''example.com'''",
+    ]
 
     with pytest.raises(ValueError, match="cannot add an include directive"):
         conf["include_if_exists"] = "file.conf"
