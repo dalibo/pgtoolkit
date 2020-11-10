@@ -28,8 +28,30 @@ def test_parse_value():
     assert '/a/path/to/file.conf' == parse_value(r"/a/path/to/file.conf")
     assert '0755.log' == parse_value(r"0755.log")
     assert 'file_ending_with_B' == parse_value(r"file_ending_with_B")
-    assert r'esc\'aped string' == parse_value(r"'esc\'aped string'")
-    assert "host=''127.0.0.1''" == parse_value("'host=''127.0.0.1'''")
+
+    # Escaped quotes: double-quotes or backslash-quote are replaced by
+    # single-quotes.
+    assert "esc'aped string" == parse_value(r"'esc\'aped string'")
+    # Expected values in the following assertions should match what
+    # psycopg2.extensions.parse_dsn() (or libpq) recognizes.
+    assert "host='127.0.0.1'" == parse_value("'host=''127.0.0.1'''")
+    assert (
+        "user=foo password=se'cret"
+        == parse_value("'user=foo password=se''cret'")
+    )
+    assert (
+        "user=foo password=se''cret"
+        == parse_value("user=foo password=se''cret")
+    )
+    assert (
+        "user=foo password=secret'"
+        == parse_value("'user=foo password=secret'''")
+    )
+    assert (
+        # this one does not work in parse_dsn()
+        "user=foo password='secret"
+        == parse_value("'user=foo password=''secret'")
+    )
     assert '%m [%p] %q%u@%d ' == parse_value(r"'%m [%p] %q%u@%d '")
     assert '124.7MB' == parse_value("124.7MB")
     assert '124.7ms' == parse_value("124.7ms")
@@ -81,7 +103,7 @@ def test_parser():
     assert 5432 == conf.port
     assert (
         conf.primary_conninfo
-        == "host=''example.com'' port=5432 dbname=mydb connect_timeout=10"
+        == "host='example.com' port=5432 dbname=mydb connect_timeout=10"
     )
     assert 'without equals' == conf.bonjour
     assert 248 * 1024 * 1024 == conf['shared.buffers']
@@ -229,8 +251,8 @@ def test_edit():
     conf['port'] = '5433'
     assert 5433 == conf.port
 
-    conf['primary_conninfo'] = "port=5432 host=''example.com''"
-    assert conf.primary_conninfo == "port=5432 host=''example.com''"
+    conf['primary_conninfo'] = "'port=5432 host=''example.com'''"
+    assert conf.primary_conninfo == "port=5432 host='example.com'"
 
     with StringIO() as fo:
         conf.save(fo)

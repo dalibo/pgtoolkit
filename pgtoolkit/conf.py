@@ -188,10 +188,10 @@ def parse_value(raw: str) -> Value:
     # https://www.postgresql.org/docs/current/static/config-setting.html#CONFIG-SETTING-NAMES-VALUES
 
     if raw.startswith("'"):
-        if raw.endswith("'"):
-            raw = raw[1:-1]
-        else:
+        if not raw.endswith("'"):
             raise ValueError(raw)
+        # unquote value and unescape quotes
+        raw = raw[1:-1].replace("''", "'").replace(r"\'", "'")
 
     if raw.startswith('0'):
         try:
