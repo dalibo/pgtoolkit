@@ -214,6 +214,15 @@ def test_serialize_entry():
     assert e.serialize() == "'app=''foo'' host=192.168.0.8'"
     assert str(e) == "var = 'app=''foo'' host=192.168.0.8'"
 
+    e = Entry(
+        name="primary_conninfo",
+        value="port=5432 password=pa'sw0'd dbname=postgres",
+    )
+    assert (
+        str(e)
+        == "primary_conninfo = 'port=5432 password=pa''sw0''d dbname=postgres'"
+    )
+
     assert "var = 'quoted'" == str(Entry(name='var', value="'quoted'"))
 
     assert "'1d'" == Entry('var', value=timedelta(days=1)).serialize()
@@ -229,10 +238,12 @@ def test_save():
     from pgtoolkit.conf import parse
 
     conf = parse(['listen_addresses = *'])
+    conf["primary_conninfo"] = "user=repli password=pa'sw0'd"
     fo = StringIO()
     conf.save(fo)
     out = fo.getvalue()
     assert 'listen_addresses = *' in out
+    assert "primary_conninfo = 'user=repli password=pa''sw0''d'" in out
 
 
 def test_edit():
