@@ -100,6 +100,10 @@ def test_parser():
     conf = parse(lines)
 
     assert '*' == conf.listen_addresses
+    assert (
+        str(conf.entries['listen_addresses'])
+        == "listen_addresses = '*'  # comma-separated list of addresses;"
+    )
     assert 5432 == conf.port
     assert (
         conf.primary_conninfo

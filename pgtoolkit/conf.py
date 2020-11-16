@@ -367,6 +367,9 @@ class Configuration:
             kwargs = m.groupdict()
             name = kwargs.pop('name')
             value = parse_value(kwargs.pop('value'))
+            comment = kwargs['comment']
+            if comment is not None:
+                kwargs['comment'] = comment.lstrip('#').lstrip()
             try:
                 include_type = IncludeType[name]
             except KeyError:
