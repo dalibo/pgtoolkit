@@ -94,7 +94,9 @@ def test_parser():
     primary_conninfo = 'host=''example.com'' port=5432 dbname=mydb connect_timeout=10'
     port = 5432
     bonjour 'without equals'
+    # bonjour_name = ''		# defaults to the computer name
     shared.buffers = 248MB
+    #authentication_timeout = 1min		# 1s-600s
     """).splitlines(True)  # noqa
 
     conf = parse(lines)
@@ -111,6 +113,18 @@ def test_parser():
     )
     assert 'without equals' == conf.bonjour
     assert 248 * 1024 * 1024 == conf['shared.buffers']
+
+    assert conf.entries['bonjour_name'].commented
+    assert (
+        str(conf.entries['bonjour_name'])
+        == "#bonjour_name = ''  # defaults to the computer name"
+    )
+    assert conf.entries['authentication_timeout'].commented
+    assert conf.entries['authentication_timeout'].value == timedelta(minutes=1)
+    assert (
+        str(conf.entries['authentication_timeout'])
+        == "#authentication_timeout = '1 min'  # 1s-600s"
+    )
 
     dict_ = conf.as_dict()
     assert '*' == dict_['listen_addresses']
@@ -263,6 +277,7 @@ def test_edit():
     from pgtoolkit.conf import Configuration, Entry
 
     conf = Configuration()
+    conf.parse(["#bonjour_name = ''  # defaults to computer name\n"])
 
     conf.listen_addresses = '*'
     assert 'listen_addresses' in conf
@@ -283,6 +298,7 @@ def test_edit():
         lines = fo.getvalue().splitlines()
 
     assert lines == [
+        "#bonjour_name = ''  # defaults to computer name",
         "listen_addresses = '*'",
         "port = 5433",
         "primary_conninfo = 'port=5432 host=''example.com'''",
@@ -290,11 +306,13 @@ def test_edit():
 
     conf["port"] = 5454
     conf["log_line_prefix"] = "[%p]: [%l-1] db=%d,user=%u,app=%a,client=%h "
+    conf["bonjour_name"] = "pgserver"
     with StringIO() as fo:
         conf.save(fo)
         lines = fo.getvalue().splitlines()
 
     assert lines == [
+        "bonjour_name = 'pgserver'  # defaults to computer name",
         "listen_addresses = '*'",
         "port = 5454",
         "primary_conninfo = 'port=5432 host=''example.com'''",
@@ -318,6 +336,7 @@ def test_edit():
         lines = fo.getvalue().splitlines()
 
     expected_lines = [
+        "bonjour_name = 'pgserver'  # defaults to computer name",
         "listen_addresses = '*'",
         "port = 54",
         "primary_conninfo = 'port=5432 host=''example.com'''",

@@ -247,6 +247,7 @@ class Entry:
         self,
         name: str,
         value: Value,
+        commented: bool = False,
         comment: Optional[str] = None,
         raw_line: Optional[str] = None,
     ) -> None:
@@ -254,6 +255,7 @@ class Entry:
         if isinstance(value, str):
             value = parse_value(value)
         self._value = value
+        self.commented = commented
         self.comment = comment
         # Store the raw_line to track the position in the list of lines.
         self.raw_line = raw_line
@@ -279,6 +281,7 @@ class Entry:
             self.name == other.name
             and self.value == other.value
             and self.comment == other.comment
+            and self.commented == other.commented
         )
 
     def __repr__(self) -> str:
@@ -338,6 +341,8 @@ class Entry:
             name=self.name, value=self.serialize())
         if self.comment:
             line += '  # ' + self.comment
+        if self.commented:
+            line = '#' + line
         return line
 
 
@@ -395,27 +400,39 @@ class Configuration:
         for raw_line in fo:
             self.lines.append(raw_line)
             line = raw_line.strip()
-            if not line or line.startswith('#'):
+            if not line:
                 continue
-
-            m = self._parameter_re.match(line)
-            if not m:
-                raise ValueError("Bad line: %r." % raw_line)
+            commented = False
+            if line.startswith('#'):
+                # Try to parse the uncommented line.
+                line = line.lstrip('#').lstrip()
+                m = self._parameter_re.match(line)
+                if not m:
+                    # This is a real comment
+                    continue
+                commented = True
+            else:
+                m = self._parameter_re.match(line)
+                if not m:
+                    raise ValueError("Bad line: %r." % raw_line)
             kwargs = m.groupdict()
             name = kwargs.pop('name')
             value = parse_value(kwargs.pop('value'))
             comment = kwargs['comment']
             if comment is not None:
                 kwargs['comment'] = comment.lstrip('#').lstrip()
-            try:
+            if name in IncludeType.__members__ and not commented:
                 include_type = IncludeType[name]
-            except KeyError:
-                self.entries[name] = Entry(
-                    name=name, value=value, raw_line=raw_line, **kwargs
-                )
-            else:
                 assert isinstance(value, str), type(value)
                 includes.append((pathlib.Path(value), include_type))
+            else:
+                self.entries[name] = Entry(
+                    name=name,
+                    value=value,
+                    commented=commented,
+                    raw_line=raw_line,
+                    **kwargs
+                )
         includes.reverse()
         return includes
 
@@ -456,6 +473,11 @@ class Configuration:
 
     def _update_entry(self, entry: Entry) -> None:
         old_entry = self.entries[entry.name]
+        if entry.commented:
+            # If the entry was previously commented, we uncomment it (assuming
+            # that setting a value to a commented entry does not make much
+            # sense.)
+            entry.commented = False
         # Update serialized entry.
         assert old_entry.raw_line is not None
         old_line = old_entry.raw_line
@@ -467,7 +489,8 @@ class Configuration:
         return iter(self.entries.values())
 
     def as_dict(self) -> Dict[str, Value]:
-        return dict([(k, v.value) for k, v in self.entries.items()])
+        return dict([(k, v.value) for k, v in self.entries.items()
+                     if not v.commented])
 
     @contextlib.contextmanager
     def edit(self) -> Iterator[Dict[str, Entry]]:
@@ -491,6 +514,7 @@ class Configuration:
         >>> with cfg.edit() as entries:
         ...     entries["port"].value = 2345
         ...     entries["port"].comment = None
+        ...     entries["listen_addresses"].value = '*'
         ...     del entries["max_connections"]
         ...     entries["unix_socket_directories"] = Entry(
         ...         name="unix_socket_directories",
@@ -498,7 +522,7 @@ class Configuration:
         ...         comment="comma-separated list of directories",
         ...     )
         >>> cfg.save(sys.stdout)
-        #listen_addresses = 'localhost'  # what IP address(es) to listen on;
+        listen_addresses = '*'  # what IP address(es) to listen on;
                                          # comma-separated list of addresses;
         port = 2345
         unix_socket_directories = '/var/run/postgresql'  # comma-separated list of directories
