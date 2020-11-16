@@ -400,6 +400,8 @@ class Configuration:
     def __setitem__(self, key: str, value: Value) -> None:
         if key in IncludeType.__members__:
             raise ValueError("cannot add an include directive")
+        if isinstance(value, str):
+            value = parse_value(value)
         if key in self.entries:
             e = self.entries[key]
             e.value = value

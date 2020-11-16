@@ -226,7 +226,7 @@ def test_edit():
     conf['port'] = 5432
     assert 5432 == conf.port
 
-    conf['port'] = 5433
+    conf['port'] = '5433'
     assert 5433 == conf.port
 
     conf['primary_conninfo'] = "port=5432 host=''example.com''"
