@@ -260,7 +260,7 @@ def test_save():
 
 
 def test_edit():
-    from pgtoolkit.conf import Configuration
+    from pgtoolkit.conf import Configuration, Entry
 
     conf = Configuration()
 
@@ -303,6 +303,32 @@ def test_edit():
 
     with pytest.raises(ValueError, match="cannot add an include directive"):
         conf["include_if_exists"] = "file.conf"
+
+    with conf.edit() as entries:
+        entries["external_pid_file"] = Entry(
+            name="external_pid_file",
+            value="/tmp/11-main.pid",
+            comment="write an extra PID file",
+        )
+        del entries["log_line_prefix"]
+        entries["port"].value = "54"
+
+    with StringIO() as fo:
+        conf.save(fo)
+        lines = fo.getvalue().splitlines()
+
+    expected_lines = [
+        "listen_addresses = '*'",
+        "port = 54",
+        "primary_conninfo = 'port=5432 host=''example.com'''",
+        "external_pid_file = '/tmp/11-main.pid'  # write an extra PID file",
+    ]
+    assert lines == expected_lines
+
+    with pytest.raises(ValueError):
+        with conf.edit() as entries:
+            entries["port"].value = "'invalid"
+    assert lines == expected_lines
 
 
 def test_configuration_iter():

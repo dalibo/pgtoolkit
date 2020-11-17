@@ -38,6 +38,8 @@ You can use this module to dump a configuration file as JSON object
 """
 
 
+import contextlib
+import copy
 import enum
 import json
 from collections import OrderedDict
@@ -45,7 +47,17 @@ import pathlib
 import re
 import sys
 from datetime import timedelta
-from typing import Dict, IO, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import (
+    Any,
+    Dict,
+    IO,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from ._helpers import JSONDateEncoder
 from ._helpers import open_or_return
@@ -260,6 +272,15 @@ class Entry:
             value = parse_value(value)
         self._value = value
 
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Entry):
+            return NotImplemented  # pragma: nocover
+        return (
+            self.name == other.name
+            and self.value == other.value
+            and self.comment == other.comment
+        )
+
     def __repr__(self) -> str:
         return '<%s %s=%s>' % (self.__class__.__name__, self.name, self.value)
 
@@ -447,6 +468,60 @@ class Configuration:
 
     def as_dict(self) -> Dict[str, Value]:
         return dict([(k, v.value) for k, v in self.entries.items()])
+
+    @contextlib.contextmanager
+    def edit(self) -> Iterator[Dict[str, Entry]]:
+        r"""Context manager allowing edition of the Configuration instance.
+
+        >>> import sys
+
+        >>> cfg = Configuration()
+        >>> _ = cfg.parse([
+        ...     "#listen_addresses = 'localhost'  # what IP address(es) to listen on;\n",
+        ...     "                                 # comma-separated list of addresses;\n",
+        ...     "port = 5432				# (change requires restart)\n",
+        ...     "max_connections = 100			# (change requires restart)\n",
+        ... ])
+        >>> cfg.save(sys.stdout)
+        #listen_addresses = 'localhost'  # what IP address(es) to listen on;
+                                         # comma-separated list of addresses;
+        port = 5432                            # (change requires restart)
+        max_connections = 100                  # (change requires restart)
+
+        >>> with cfg.edit() as entries:
+        ...     entries["port"].value = 2345
+        ...     entries["port"].comment = None
+        ...     del entries["max_connections"]
+        ...     entries["unix_socket_directories"] = Entry(
+        ...         name="unix_socket_directories",
+        ...         value="'/var/run/postgresql'",
+        ...         comment="comma-separated list of directories",
+        ...     )
+        >>> cfg.save(sys.stdout)
+        #listen_addresses = 'localhost'  # what IP address(es) to listen on;
+                                         # comma-separated list of addresses;
+        port = 2345
+        unix_socket_directories = '/var/run/postgresql'  # comma-separated list of directories
+        """  # noqa: E501
+        entries = {k: copy.copy(v) for k, v in self.entries.items()}
+        try:
+            yield entries
+        except Exception:
+            raise
+        else:
+            # Add or update entries.
+            for k, entry in entries.items():
+                assert isinstance(entry, Entry), "expecting Entry values"
+                if k not in self:
+                    self._add_entry(entry)
+                elif self.entries[k] != entry:
+                    self._update_entry(entry)
+            # Discard removed entries.
+            for k, entry in list(self.entries.items()):
+                if k not in entries:
+                    del self.entries[k]
+                    if entry.raw_line is not None:
+                        self.lines.remove(entry.raw_line)
 
     def save(self, fo: Optional[Union[str, IO[str]]] = None) -> None:
         """Write configuration to a file.
