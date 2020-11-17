@@ -80,8 +80,8 @@ def test_parser():
     assert '*' == conf.listen_addresses
     assert 5432 == conf.port
     assert (
-        conf.primary_conninfo ==
-        "host=''example.com'' port=5432 dbname=mydb connect_timeout=10"
+        conf.primary_conninfo
+        == "host=''example.com'' port=5432 dbname=mydb connect_timeout=10"
     )
     assert 'without equals' == conf.bonjour
     assert 248 * 1024 * 1024 == conf['shared.buffers']

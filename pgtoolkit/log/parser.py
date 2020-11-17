@@ -138,8 +138,8 @@ def parse_isodatetime(raw: str) -> datetime:
 def parse_epoch(raw: str) -> datetime:
     epoch, ms = raw.split('.')
     return (
-        datetime.utcfromtimestamp(int(epoch)) +
-        timedelta(microseconds=int(ms))
+        datetime.utcfromtimestamp(int(epoch))
+        + timedelta(microseconds=int(ms))
     )
 
 
