@@ -238,13 +238,17 @@ class Entry:
         comment: Optional[str] = None,
         raw_line: Optional[str] = None,
     ) -> None:
-        self.name = name
+        self._name = name
         if isinstance(value, str):
             value = parse_value(value)
         self._value = value
         self.comment = comment
         # Store the raw_line to track the position in the list of lines.
         self.raw_line = raw_line
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     @property
     def value(self) -> Value:
