@@ -222,7 +222,7 @@ def test_serialize_entry():
     e = Entry(name='grp.setting', value=True)
 
     assert 'grp.setting' in repr(e)
-    assert 'grp.setting = true' == str(e)
+    assert 'grp.setting = on' == str(e)
 
     assert "'2 kB'" == Entry(name='var', value=2048).serialize()
     assert "var = 0" == str(Entry(name='var', value=0))

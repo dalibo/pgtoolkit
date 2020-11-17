@@ -304,7 +304,7 @@ class Entry:
         # This is the reverse of parse_value.
         value = self.value
         if isinstance(value, bool):
-            value = 'true' if value else 'false'
+            value = 'on' if value else 'off'
         elif isinstance(value, int) and value != 0:
             for unit in None, 'kB', 'MB', 'GB', 'TB':
                 if value % 1024:
