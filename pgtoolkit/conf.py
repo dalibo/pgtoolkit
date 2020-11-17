@@ -422,17 +422,25 @@ class Configuration:
         if key in self.entries:
             e = self.entries[key]
             e.value = value
-            # Update serialized entry.
-            assert e.raw_line is not None
-            old_line = e.raw_line
-            e.raw_line = str(e) + '\n'
-            lineno = self.lines.index(old_line)
-            self.lines[lineno:lineno+1] = [e.raw_line]
+            self._update_entry(e)
         else:
-            self.entries[key] = e = Entry(name=key, value=value)
-            # Append serialized line.
-            e.raw_line = str(e) + '\n'
-            self.lines.append(e.raw_line)
+            self._add_entry(Entry(name=key, value=value))
+
+    def _add_entry(self, entry: Entry) -> None:
+        assert entry.name not in self.entries
+        self.entries[entry.name] = entry
+        # Append serialized line.
+        entry.raw_line = str(entry) + '\n'
+        self.lines.append(entry.raw_line)
+
+    def _update_entry(self, entry: Entry) -> None:
+        old_entry = self.entries[entry.name]
+        # Update serialized entry.
+        assert old_entry.raw_line is not None
+        old_line = old_entry.raw_line
+        entry.raw_line = str(entry) + '\n'
+        lineno = self.lines.index(old_line)
+        self.lines[lineno:lineno+1] = [entry.raw_line]
 
     def __iter__(self) -> Iterator[Entry]:
         return iter(self.entries.values())
