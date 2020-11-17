@@ -239,10 +239,22 @@ class Entry:
         raw_line: Optional[str] = None,
     ) -> None:
         self.name = name
-        self.value = value
+        if isinstance(value, str):
+            value = parse_value(value)
+        self._value = value
         self.comment = comment
         # Store the raw_line to track the position in the list of lines.
         self.raw_line = raw_line
+
+    @property
+    def value(self) -> Value:
+        return self._value
+
+    @value.setter
+    def value(self, value: Union[str, Value]) -> None:
+        if isinstance(value, str):
+            value = parse_value(value)
+        self._value = value
 
     def __repr__(self) -> str:
         return '<%s %s=%s>' % (self.__class__.__name__, self.name, self.value)
@@ -403,8 +415,6 @@ class Configuration:
     def __setitem__(self, key: str, value: Value) -> None:
         if key in IncludeType.__members__:
             raise ValueError("cannot add an include directive")
-        if isinstance(value, str):
-            value = parse_value(value)
         if key in self.entries:
             e = self.entries[key]
             e.value = value

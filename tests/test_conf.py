@@ -193,6 +193,15 @@ def test_parser_includes_notfound(tmp_path):
         parse(str(pgconf))
 
 
+def test_entry_edit():
+    from pgtoolkit.conf import Entry
+
+    entry = Entry(name="port", value="1234")
+    assert entry.value == 1234
+    entry.value = "9876"
+    assert entry.value == 9876
+
+
 def test_serialize_entry():
     from pgtoolkit.conf import Entry
 
