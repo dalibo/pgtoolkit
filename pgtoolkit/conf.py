@@ -311,7 +311,7 @@ class Entry:
                     break
                 value = value // 1024
             if unit:
-                value = "'%s %s'" % (value, unit)
+                value = "%s%s" % (value, unit)
         elif isinstance(value, str):
             # Only quote if not already quoted.
             if not (value.startswith("'") and value.endswith("'")):
