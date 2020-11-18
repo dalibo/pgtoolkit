@@ -258,6 +258,8 @@ class Entry:
         self.commented = commented
         self.comment = comment
         # Store the raw_line to track the position in the list of lines.
+        if raw_line is None:
+            raw_line = str(self) + '\n'
         self.raw_line = raw_line
 
     @property
@@ -479,7 +481,6 @@ class Configuration:
             # sense.)
             entry.commented = False
         # Update serialized entry.
-        assert old_entry.raw_line is not None
         old_line = old_entry.raw_line
         entry.raw_line = str(entry) + '\n'
         lineno = self.lines.index(old_line)
