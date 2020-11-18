@@ -274,7 +274,7 @@ def test_save():
 
 
 def test_edit():
-    from pgtoolkit.conf import Configuration, Entry
+    from pgtoolkit.conf import Configuration
 
     conf = Configuration()
     conf.parse(["#bonjour_name = ''  # defaults to computer name\n"])
@@ -323,9 +323,9 @@ def test_edit():
         conf["include_if_exists"] = "file.conf"
 
     with conf.edit() as entries:
-        entries["external_pid_file"] = Entry(
-            name="external_pid_file",
-            value="/tmp/11-main.pid",
+        entries.add(
+            "external_pid_file",
+            "/tmp/11-main.pid",
             comment="write an extra PID file",
         )
         del entries["log_line_prefix"]

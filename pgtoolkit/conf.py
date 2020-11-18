@@ -54,6 +54,7 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    NoReturn,
     Optional,
     Tuple,
     Union,
@@ -348,6 +349,58 @@ class Entry:
         return line
 
 
+class EntriesProxy(Dict[str, Entry]):
+    """Proxy object used during Configuration edition.
+
+    >>> p = EntriesProxy(port=Entry('port', '5432'),
+    ...                  shared_buffers=Entry('shared_buffers', '1GB'))
+
+    Existing entries can be edited:
+
+    >>> p['port'].value = '5433'
+
+    New entries can be added as:
+
+    >>> p.add('listen_addresses', '*', commented=True, comment='IP address')
+    >>> p  # doctest: +NORMALIZE_WHITESPACE
+    {'port': <Entry port=5433>,
+     'shared_buffers': <Entry shared_buffers=1073741824>,
+     'listen_addresses': <Entry listen_addresses=*>}
+    >>> del p['shared_buffers']
+    >>> p
+    {'port': <Entry port=5433>, 'listen_addresses': <Entry listen_addresses=*>}
+
+    Adding an existing entry fails:
+    >>> p.add('port', 5433)
+    Traceback (most recent call last):
+        ...
+    ValueError: 'port' key already present
+
+    So does adding a value to the underlying dict:
+    >>> p['bonjour_name'] = 'pgserver'
+    Traceback (most recent call last):
+        ...
+    TypeError: cannot set a key
+    """
+
+    def __setitem__(self, key: str, value: Any) -> NoReturn:
+        raise TypeError("cannot set a key")
+
+    def add(
+        self,
+        name: str,
+        value: Value,
+        *,
+        commented: bool = False,
+        comment: Optional[str] = None,
+    ) -> None:
+        """Add a new entry."""
+        if name in self:
+            raise ValueError(f"'{name}' key already present")
+        entry = Entry(name, value, commented=commented, comment=comment)
+        super().__setitem__(name, entry)
+
+
 class Configuration:
     r"""Holds a parsed configuration.
 
@@ -494,7 +547,7 @@ class Configuration:
                      if not v.commented])
 
     @contextlib.contextmanager
-    def edit(self) -> Iterator[Dict[str, Entry]]:
+    def edit(self) -> Iterator[EntriesProxy]:
         r"""Context manager allowing edition of the Configuration instance.
 
         >>> import sys
@@ -517,9 +570,9 @@ class Configuration:
         ...     entries["port"].comment = None
         ...     entries["listen_addresses"].value = '*'
         ...     del entries["max_connections"]
-        ...     entries["unix_socket_directories"] = Entry(
-        ...         name="unix_socket_directories",
-        ...         value="'/var/run/postgresql'",
+        ...     entries.add(
+        ...         "unix_socket_directories",
+        ...         "'/var/run/postgresql'",
         ...         comment="comma-separated list of directories",
         ...     )
         >>> cfg.save(sys.stdout)
@@ -528,7 +581,9 @@ class Configuration:
         port = 2345
         unix_socket_directories = '/var/run/postgresql'  # comma-separated list of directories
         """  # noqa: E501
-        entries = {k: copy.copy(v) for k, v in self.entries.items()}
+        entries = EntriesProxy(
+            {k: copy.copy(v) for k, v in self.entries.items()}
+        )
         try:
             yield entries
         except Exception:
