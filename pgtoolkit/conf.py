@@ -214,9 +214,7 @@ def parse_value(raw: str) -> Value:
 
     m = _memory_re.match(raw)
     if m:
-        unit = m.group('unit')
-        mul = MEMORY_MULTIPLIERS[unit]
-        return int(m.group('number')) * mul
+        return raw.strip()
 
     m = _timedelta_re.match(raw)
     if m:
@@ -303,18 +301,11 @@ class Entry:
         ('s', 1),
     ]
 
-    def serialize(self) -> Union[int, str]:
+    def serialize(self) -> str:
         # This is the reverse of parse_value.
         value = self.value
         if isinstance(value, bool):
             value = 'on' if value else 'off'
-        elif isinstance(value, int) and value != 0:
-            for unit in None, 'kB', 'MB', 'GB', 'TB':
-                if value % 1024:
-                    break
-                value = value // 1024
-            if unit:
-                value = "%s%s" % (value, unit)
         elif isinstance(value, str):
             # Only quote if not already quoted.
             if not (value.startswith("'") and value.endswith("'")):
@@ -364,7 +355,7 @@ class EntriesProxy(Dict[str, Entry]):
     >>> p.add('listen_addresses', '*', commented=True, comment='IP address')
     >>> p  # doctest: +NORMALIZE_WHITESPACE
     {'port': <Entry port=5433>,
-     'shared_buffers': <Entry shared_buffers=1073741824>,
+     'shared_buffers': <Entry shared_buffers=1GB>,
      'listen_addresses': <Entry listen_addresses=*>}
     >>> del p['shared_buffers']
     >>> p

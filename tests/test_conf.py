@@ -57,10 +57,10 @@ def test_parse_value():
     assert '124.7ms' == parse_value("124.7ms")
 
     # Memory
-    assert 1024 == parse_value('1kB')
-    assert 1024 * 1024 * 512 == parse_value('512MB')
-    assert 1024 * 1024 * 1024 * 64 == parse_value(' 64 GB ')
-    assert 1024 * 1024 * 1024 * 1024 * 5 == parse_value('5TB')
+    assert '1kB' == parse_value('1kB')
+    assert '512MB' == parse_value('512MB')
+    assert '64 GB' == parse_value(' 64 GB ')
+    assert '5TB' == parse_value('5TB')
 
     # Time
     delta = parse_value('150 ms')
@@ -112,7 +112,7 @@ def test_parser():
         == "host='example.com' port=5432 dbname=mydb connect_timeout=10"
     )
     assert 'without equals' == conf.bonjour
-    assert 248 * 1024 * 1024 == conf['shared.buffers']
+    assert '248MB' == conf['shared.buffers']
 
     assert conf.entries['bonjour_name'].commented
     assert (
@@ -168,7 +168,7 @@ def test_parser_includes():
         'pg_stat_statements.max': 10000,
         'pg_stat_statements.track': 'all',
         'port': 5432,
-        'shared_buffers': 260046848,
+        'shared_buffers': '248MB',
         'shared_preload_libraries': 'pg_stat_statements',
         'ssl': True,
         'unix_socket_permissions': 511,
@@ -224,7 +224,8 @@ def test_serialize_entry():
     assert 'grp.setting' in repr(e)
     assert 'grp.setting = on' == str(e)
 
-    assert "2kB" == Entry(name='var', value=2048).serialize()
+    assert "'2kB'" == Entry(name='var', value='2kB').serialize()
+    assert "2048" == Entry(name='var', value=2048).serialize()
     assert "var = 0" == str(Entry(name='var', value=0))
     assert 'var = 15' == str(Entry(name='var', value=15))
     assert 'var = 0.1' == str(Entry(name='var', value=.1))
@@ -307,6 +308,7 @@ def test_edit():
     conf["port"] = 5454
     conf["log_line_prefix"] = "[%p]: [%l-1] db=%d,user=%u,app=%a,client=%h "
     conf["bonjour_name"] = "pgserver"
+    conf["track_activity_query_size"] = 32768
     with StringIO() as fo:
         conf.save(fo)
         lines = fo.getvalue().splitlines()
@@ -317,6 +319,7 @@ def test_edit():
         "port = 5454",
         "primary_conninfo = 'port=5432 host=''example.com'''",
         "log_line_prefix = '[%p]: [%l-1] db=%d,user=%u,app=%a,client=%h '",
+        "track_activity_query_size = 32768",
     ]
 
     with pytest.raises(ValueError, match="cannot add an include directive"):
@@ -340,6 +343,7 @@ def test_edit():
         "listen_addresses = '*'",
         "port = 54",
         "primary_conninfo = 'port=5432 host=''example.com'''",
+        "track_activity_query_size = 32768",
         "external_pid_file = '/tmp/11-main.pid'  # write an extra PID file",
     ]
     assert lines == expected_lines
