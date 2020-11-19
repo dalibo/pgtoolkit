@@ -414,6 +414,7 @@ class Configuration:
         Path to a file. Automatically set when calling :func:`parse` with a path
         to a file. This is default target for :meth:`save`.
 
+    .. automethod:: edit
     .. automethod:: save
 
     """  # noqa
