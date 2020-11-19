@@ -68,7 +68,7 @@ fit pseudo-column width. If filename is ``-``, stdin is read instead.
 """  # noqa
 
 import os
-import shlex
+import re
 import sys
 from typing import (
     Any,
@@ -90,6 +90,22 @@ from ._helpers import (
     open_or_return,
     open_or_stdin,
 )
+
+
+class Constant(object):
+    def __str__(self):
+        return self.__name__.lower()
+
+    def __repr__(self):
+        return '<%s>' % self.__class__.__name__
+
+
+class ALL(Constant):
+    pass
+
+
+class REPLICATION(Constant):
+    pass
 
 
 class HBAComment(str):
@@ -125,6 +141,7 @@ class HBARecord:
         'conntype', 'databases', 'users', 'address', 'netmask', 'method',
     ]
     CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
+    _token_re = re.compile("""((?:[^ ]+=)?(?:"[^"]+"|[^ ]+))""")
 
     @classmethod
     def parse(cls, line: str) -> "HBARecord":
@@ -137,7 +154,7 @@ class HBARecord:
         """
         line = line.strip()
         record_fields = ['conntype', 'databases', 'users']
-        values = shlex.split(line, comments=False)
+        values = cls._token_re.findall(line)
         # Split databases and users lists.
         values[1] = values[1].split(',')  # type: ignore
         values[2] = values[2].split(',')  # type: ignore
