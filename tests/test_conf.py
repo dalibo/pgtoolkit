@@ -7,7 +7,7 @@ import pytest
 
 
 def test_parse_value():
-    from pgtoolkit.conf import parse_value
+    from pgtoolkit.conf import MemoryUnit, MemoryValue, parse_value
 
     # Booleans
     assert parse_value('on') is True
@@ -23,6 +23,7 @@ def test_parse_value():
     assert 8 == parse_value("'010'")
     assert 1.4 == parse_value('1.4')
     assert -2 == parse_value('-2')
+    assert 32768 == parse_value('32768')
 
     # Strings
     assert '/a/path/to/file.conf' == parse_value(r"/a/path/to/file.conf")
@@ -57,10 +58,11 @@ def test_parse_value():
     assert '124.7ms' == parse_value("124.7ms")
 
     # Memory
-    assert '1kB' == parse_value('1kB')
-    assert '512MB' == parse_value('512MB')
-    assert '64 GB' == parse_value(' 64 GB ')
-    assert '5TB' == parse_value('5TB')
+    assert MemoryValue(3, MemoryUnit.B) == parse_value('3B')
+    assert MemoryValue(1, MemoryUnit.kB) == parse_value('1kB')
+    assert MemoryValue(512, MemoryUnit.MB) == parse_value('512MB')
+    assert MemoryValue(64, MemoryUnit.GB) == parse_value(' 64 GB ')
+    assert MemoryValue(5, MemoryUnit.TB) == parse_value('5TB')
 
     # Time
     delta = parse_value('150 ms')
@@ -83,7 +85,7 @@ def test_parse_value():
 
 
 def test_parser():
-    from pgtoolkit.conf import parse
+    from pgtoolkit.conf import MemoryUnit, MemoryValue, parse
 
     lines = dedent("""\
     # - Connection Settings -
@@ -112,7 +114,7 @@ def test_parser():
         == "host='example.com' port=5432 dbname=mydb connect_timeout=10"
     )
     assert 'without equals' == conf.bonjour
-    assert '248MB' == conf['shared.buffers']
+    assert MemoryValue(248, MemoryUnit.MB) == conf['shared.buffers']
 
     assert conf.entries['bonjour_name'].commented
     assert (
@@ -148,7 +150,7 @@ def test_parser_includes_require_a_file_path():
 
 
 def test_parser_includes():
-    from pgtoolkit.conf import parse
+    from pgtoolkit.conf import parse, MemoryValue
 
     fpath = pathlib.Path(__file__).parent.parent / "data" / "postgres.conf"
     conf = parse(str(fpath))
@@ -168,7 +170,7 @@ def test_parser_includes():
         'pg_stat_statements.max': 10000,
         'pg_stat_statements.track': 'all',
         'port': 5432,
-        'shared_buffers': '248MB',
+        'shared_buffers': MemoryValue(248, 'MB'),
         'shared_preload_libraries': 'pg_stat_statements',
         'ssl': True,
         'unix_socket_permissions': 511,
@@ -224,7 +226,7 @@ def test_serialize_entry():
     assert 'grp.setting' in repr(e)
     assert 'grp.setting = on' == str(e)
 
-    assert "'2kB'" == Entry(name='var', value='2kB').serialize()
+    assert "2kB" == Entry(name='var', value='2kB').serialize()
     assert "2048" == Entry(name='var', value=2048).serialize()
     assert "var = 0" == str(Entry(name='var', value=0))
     assert 'var = 15' == str(Entry(name='var', value=15))

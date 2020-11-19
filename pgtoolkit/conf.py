@@ -176,13 +176,16 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
     return conf
 
 
-MEMORY_MULTIPLIERS = {
-    'kB': 1024,
-    'MB': 1024 * 1024,
-    'GB': 1024 * 1024 * 1024,
-    'TB': 1024 * 1024 * 1024 * 1024,
-}
-_memory_re = re.compile(r'^\s*(?P<number>\d+)\s*(?P<unit>[kMGT]B)\s*$')
+@enum.unique
+class MemoryUnit(enum.IntEnum):
+    B = 1
+    kB = 1024
+    MB = 1024 * 1024
+    GB = 1024 * 1024 * 1024
+    TB = 1024 * 1024 * 1024 * 1024
+
+
+_memory_re = re.compile(r'^\s*(?P<number>\d+)\s*(?P<unit>[kMGT]?B)\s*$')
 TIMEDELTA_ARGNAME = {
     'ms': 'milliseconds',
     's': 'seconds',
@@ -193,7 +196,47 @@ TIMEDELTA_ARGNAME = {
 _timedelta_re = re.compile(r'^\s*(?P<number>\d+)\s*(?P<unit>ms|s|min|h|d)\s*$')
 
 
-Value = Union[str, bool, float, int, timedelta]
+class MemoryValue:
+    """A memory value.
+
+    >>> v = MemoryValue(12, 'kB')
+    >>> v *= 2
+    >>> v
+    <MemoryValue 24kB>
+    >>> print(v * 3)
+    72kB
+    """
+
+    def __init__(self, value: int, unit: Union[str, MemoryUnit]) -> None:
+        self.value = value
+        if isinstance(unit, str):
+            unit = MemoryUnit[unit]
+        self.unit = unit
+
+    def __mul__(self, other: Any) -> "MemoryValue":
+        if not isinstance(other, int):
+            return NotImplemented  # pragma: nocover
+        return self.__class__(self.value * other, self.unit)
+
+    def __imul__(self, other: Any) -> "MemoryValue":
+        if not isinstance(other, int):
+            return NotImplemented  # pragma: nocover
+        self.value *= other
+        return self
+
+    def __str__(self) -> str:
+        return f"{self.value}{self.unit.name}"
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} {str(self)}>"
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented  # pragma: nocover
+        return self.value == other.value and self.unit == other.unit
+
+
+Value = Union[str, bool, float, int, timedelta, MemoryValue]
 
 
 def parse_value(raw: str) -> Value:
@@ -214,7 +257,8 @@ def parse_value(raw: str) -> Value:
 
     m = _memory_re.match(raw)
     if m:
-        return raw.strip()
+        unit = m.group('unit')
+        return MemoryValue(int(m.group('number')), unit)
 
     m = _timedelta_re.match(raw)
     if m:
@@ -609,9 +653,15 @@ class Configuration:
 
 
 def _main(argv: List[str]) -> int:  # pragma: nocover
+    class Encoder(JSONDateEncoder):
+        def default(self, obj: Any) -> Any:
+            if isinstance(obj, MemoryValue):
+                return str(obj)
+            return super().default(obj)
+
     try:
         conf = parse(argv[0] if argv else sys.stdin)
-        print(json.dumps(conf.as_dict(), cls=JSONDateEncoder, indent=2))
+        print(json.dumps(conf.as_dict(), cls=Encoder, indent=2))
         return 0
     except Exception as e:
         print(str(e), file=sys.stderr)
