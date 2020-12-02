@@ -124,7 +124,14 @@ class HBARecord:
     COMMON_FIELDS = [
         'conntype', 'databases', 'users', 'address', 'netmask', 'method',
     ]
-    CONNECTION_TYPES = ['local', 'host', 'hostssl', 'hostnossl']
+    CONNECTION_TYPES = [
+        'local',
+        'host',
+        'hostssl',
+        'hostnossl',
+        'hostgssenc',
+        'hostnogssenc',
+    ]
 
     @classmethod
     def parse(cls, line: str) -> "HBARecord":
