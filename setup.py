@@ -4,7 +4,7 @@ from setuptools import setup
 metadatas = dict(
     name='pgtoolkit',
     description='Postgres Support from Python',
-    version='0.10.1',
+    version='0.11.0',
     author='Dalibo',
     author_email='contact@dalibo.com',
     url='https://github.com/dalibo/pgtoolkit',
