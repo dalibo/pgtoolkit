@@ -100,6 +100,13 @@ def test_parse_record_with_comment():
     assert ['local', 'all', 'all', 'trust', '#', 'My', 'comment'] == fields
 
 
+def test_parse_invalid_connection_type():
+    from pgtoolkit.hba import HBARecord
+
+    with pytest.raises(ValueError, match="Unknown connection type 'pif'"):
+        HBARecord.parse("pif    all     all")
+
+
 def test_hba(mocker):
     from pgtoolkit.hba import parse
 

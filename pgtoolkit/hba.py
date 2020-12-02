@@ -150,7 +150,7 @@ class HBARecord:
             comment = ' '.join(comments[1:])
 
         if values[0] not in cls.CONNECTION_TYPES:
-            raise ValueError("Unknown connection types %s" % values[0])
+            raise ValueError("Unknown connection type '%s'" % values[0])
         if 'local' != values[0]:
             record_fields.append('address')
         common_values = [v for v in values if '=' not in v]
