@@ -139,6 +139,18 @@ def test_parser():
         parse(['bad_line'])
 
 
+def test_configuration_multiple_entries():
+    from pgtoolkit.conf import Configuration
+
+    conf = Configuration()
+    conf.parse(["port=5432", "port=5433  # the real one!!"])
+    assert conf["port"] == 5433
+    fo = StringIO()
+    conf.save(fo)
+    out = fo.getvalue().strip()
+    assert out == "port=5433  # the real one!!"
+
+
 def test_parser_includes_require_a_file_path():
     from pgtoolkit.conf import parse
 
