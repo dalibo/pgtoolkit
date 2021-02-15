@@ -138,12 +138,14 @@ def test_configuration_multiple_entries():
     from pgtoolkit.conf import Configuration
 
     conf = Configuration()
-    conf.parse(
-        [
-            "port=5432\n",
-            "# port=5423\n",
-            "port=5433  # the real one!!\n",
-        ]
+    list(
+        conf.parse(
+            [
+                "port=5432\n",
+                "# port=5423\n",
+                "port=5433  # the real one!!\n",
+            ]
+        )
     )
     assert conf["port"] == 5433
     fo = StringIO()
@@ -297,7 +299,7 @@ def test_edit():
     from pgtoolkit.conf import Configuration
 
     conf = Configuration()
-    conf.parse(["#bonjour_name = ''  # defaults to computer name\n"])
+    list(conf.parse(["#bonjour_name = ''  # defaults to computer name\n"]))
 
     conf.listen_addresses = "*"
     assert "listen_addresses" in conf

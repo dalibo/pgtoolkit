@@ -96,9 +96,13 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
     :returns: A :class:`Configuration` containing parsed configuration.
 
     """
+    includes_top = []
     with open_or_return(fo) as f:
         conf = Configuration(getattr(f, "name", None))
-        includes_top = conf.parse(f)
+        for include_path, include_type in conf.parse(f):
+            includes_top.append((include_path, include_type))
+
+    includes_top.reverse()
 
     if includes_top:
         if not isinstance(fo, str):
@@ -126,7 +130,7 @@ def parse_includes(
         return relative_to / path
 
     def make_includes(
-        includes: List[Tuple[pathlib.Path, IncludeType]],
+        includes: Iterable[Tuple[pathlib.Path, IncludeType]],
         reference_path: pathlib.Path,
     ) -> List[Tuple[pathlib.Path, pathlib.Path, IncludeType]]:
         return [
@@ -136,7 +140,7 @@ def parse_includes(
 
     def parse_include(path: pathlib.Path) -> None:
         with path.open() as f:
-            includes.extend(make_includes(conf.parse(f), path.parent))
+            includes.extend(make_includes(reversed(list(conf.parse(f))), path.parent))
 
     def notfound(
         path: pathlib.Path, include_type: str, reference_path: pathlib.Path
@@ -445,8 +449,7 @@ class Configuration:
             )
         )
 
-    def parse(self, fo: Iterable[str]) -> List[Tuple[pathlib.Path, IncludeType]]:
-        includes = []
+    def parse(self, fo: Iterable[str]) -> Iterator[Tuple[pathlib.Path, IncludeType]]:
         for raw_line in fo:
             self.lines.append(raw_line)
             line = raw_line.strip()
@@ -472,7 +475,7 @@ class Configuration:
                 if not commented:
                     include_type = IncludeType[name]
                     assert isinstance(value, str), type(value)
-                    includes.append((pathlib.Path(value), include_type))
+                    yield (pathlib.Path(value), include_type)
             else:
                 comment = kwargs["comment"]
                 if comment is not None:
@@ -484,8 +487,6 @@ class Configuration:
                     raw_line=raw_line,
                     **kwargs,
                 )
-        includes.reverse()
-        return includes
 
     def __getattr__(self, name: str) -> Value:
         try:
@@ -548,12 +549,14 @@ class Configuration:
         >>> import sys
 
         >>> cfg = Configuration()
-        >>> _ = cfg.parse([
+        >>> includes = cfg.parse([
         ...     "#listen_addresses = 'localhost'  # what IP address(es) to listen on;\n",
         ...     "                                 # comma-separated list of addresses;\n",
         ...     "port = 5432                      # (change requires restart)\n",
         ...     "max_connections = 100            # (change requires restart)\n",
         ... ])
+        >>> list(includes)
+        []
         >>> cfg.save(sys.stdout)
         #listen_addresses = 'localhost'  # what IP address(es) to listen on;
                                          # comma-separated list of addresses;
