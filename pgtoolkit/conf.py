@@ -100,15 +100,22 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
         conf = Configuration(getattr(f, "name", None))
         includes_top = conf.parse(f)
 
-    if not includes_top:
-        return conf
+    if includes_top:
+        if not isinstance(fo, str):
+            raise ValueError(
+                "cannot process include directives from a file argument; "
+                "try passing a file path"
+            )
+        parse_includes(conf, includes_top, pathlib.Path(fo).absolute())
 
-    if not isinstance(fo, str):
-        raise ValueError(
-            "cannot process include directives from a file argument; "
-            "try passing a file path"
-        )
+    return conf
 
+
+def parse_includes(
+    conf: "Configuration",
+    raw_includes: List[Tuple[pathlib.Path, IncludeType]],
+    from_path: pathlib.Path,
+) -> None:
     def absolute(path: pathlib.Path, relative_to: pathlib.Path) -> pathlib.Path:
         """Make 'path' absolute by joining from 'relative_to' path."""
         if path.is_absolute():
@@ -138,7 +145,7 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
             f"{include_type} '{path}', included from '{reference_path}'," " not found"
         )
 
-    includes = make_includes(includes_top, pathlib.Path(fo).absolute())
+    includes = make_includes(raw_includes, from_path)
     processed = set()
     while includes:
         path, reference_path, include_type = includes.pop()
@@ -165,8 +172,6 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
 
         else:
             assert False, include_type  # pragma: nocover
-
-    return conf
 
 
 MEMORY_MULTIPLIERS = {
