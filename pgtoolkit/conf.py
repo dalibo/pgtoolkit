@@ -468,14 +468,15 @@ class Configuration:
             kwargs = m.groupdict()
             name = kwargs.pop("name")
             value = parse_value(kwargs.pop("value"))
-            comment = kwargs["comment"]
-            if comment is not None:
-                kwargs["comment"] = comment.lstrip("#").lstrip()
-            if name in IncludeType.__members__ and not commented:
-                include_type = IncludeType[name]
-                assert isinstance(value, str), type(value)
-                includes.append((pathlib.Path(value), include_type))
+            if name in IncludeType.__members__:
+                if not commented:
+                    include_type = IncludeType[name]
+                    assert isinstance(value, str), type(value)
+                    includes.append((pathlib.Path(value), include_type))
             else:
+                comment = kwargs["comment"]
+                if comment is not None:
+                    kwargs["comment"] = comment.lstrip("#").lstrip()
                 self.entries[name] = Entry(
                     name=name,
                     value=value,

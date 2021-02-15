@@ -191,6 +191,9 @@ def test_parser_includes():
         "unix_socket_permissions": 511,
         "wal_level": "hot_standby",
     }
+    assert "include" not in conf
+    assert "include_if_exists" not in conf
+    assert "include_dir" not in conf
 
 
 def test_parser_includes_loop(tmp_path):
