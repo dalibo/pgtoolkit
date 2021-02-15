@@ -96,10 +96,9 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
     :returns: A :class:`Configuration` containing parsed configuration.
 
     """
-    conf = Configuration()
     with open_or_return(fo) as f:
+        conf = Configuration(getattr(f, "name", None))
         includes_top = conf.parse(f)
-        conf.path = getattr(f, "name", None)
 
     if not includes_top:
         return conf
@@ -432,12 +431,12 @@ class Configuration:
     # the serialized line is updated accordingly. This allows to keep comments
     # and serialize only what's needed. Other lines are just written as-is.
 
-    def __init__(self) -> None:
+    def __init__(self, path: Optional[str] = None) -> None:
         self.__dict__.update(
             dict(
                 lines=[],
                 entries=OrderedDict(),
-                path=None,
+                path=path,
             )
         )
 
