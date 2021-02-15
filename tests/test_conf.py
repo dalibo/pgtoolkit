@@ -138,12 +138,22 @@ def test_configuration_multiple_entries():
     from pgtoolkit.conf import Configuration
 
     conf = Configuration()
-    conf.parse(["port=5432", "port=5433  # the real one!!"])
+    conf.parse(
+        [
+            "port=5432\n",
+            "# port=5423\n",
+            "port=5433  # the real one!!\n",
+        ]
+    )
     assert conf["port"] == 5433
     fo = StringIO()
     conf.save(fo)
-    out = fo.getvalue().strip()
-    assert out == "port=5433  # the real one!!"
+    out = fo.getvalue().strip().splitlines()
+    assert out == [
+        "port=5432",
+        "# port=5423",
+        "port=5433  # the real one!!",
+    ]
 
 
 def test_parser_includes_require_a_file_path():

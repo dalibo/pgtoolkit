@@ -472,9 +472,6 @@ class Configuration:
                 assert isinstance(value, str), type(value)
                 includes.append((pathlib.Path(value), include_type))
             else:
-                if name in self:
-                    entry = self.entries[name]
-                    self.lines.remove(entry.raw_line)
                 self.entries[name] = Entry(
                     name=name,
                     value=value,
