@@ -280,7 +280,12 @@ class Entry:
         )
 
     def __repr__(self) -> str:
-        return "<%s %s=%s>" % (self.__class__.__name__, self.name, self.value)
+        return "<%s %s=%s%s>" % (
+            self.__class__.__name__,
+            self.name,
+            self.value,
+            " (commented)" if self.commented else "",
+        )
 
     _minute = 60
     _hour = 60 * _minute
@@ -349,10 +354,11 @@ class EntriesProxy(Dict[str, Entry]):
     >>> p  # doctest: +NORMALIZE_WHITESPACE
     {'port': <Entry port=5433>,
      'shared_buffers': <Entry shared_buffers=1GB>,
-     'listen_addresses': <Entry listen_addresses=*>}
+     'listen_addresses': <Entry listen_addresses=* (commented)>}
     >>> del p['shared_buffers']
-    >>> p
-    {'port': <Entry port=5433>, 'listen_addresses': <Entry listen_addresses=*>}
+    >>> p  # doctest: +NORMALIZE_WHITESPACE
+    {'port': <Entry port=5433>,
+     'listen_addresses': <Entry listen_addresses=* (commented)>}
 
     Adding an existing entry fails:
     >>> p.add('port', 5433)
