@@ -137,7 +137,7 @@ class Service(Dict[str, Parameter]):
         self.update(extra)
 
     def __repr__(self) -> str:
-        return '<%s %s>' % (self.__class__.__name__, self.name)
+        return "<%s %s>" % (self.__class__.__name__, self.name)
 
     def __getattr__(self, name: str) -> Parameter:
         return self[name]
@@ -165,24 +165,23 @@ class ServiceFile:
     path: Optional[str]
 
     _CONVERTERS = {
-        'port': int,
+        "port": int,
     }
 
     def __init__(self) -> None:
         self.path = None
         self.config = ConfigParser(
-            comment_prefixes=('#',),
-            delimiters=('=',),
+            comment_prefixes=("#",),
+            delimiters=("=",),
         )
 
     def __repr__(self) -> str:
-        return '<%s>' % (self.__class__.__name__)
+        return "<%s>" % (self.__class__.__name__)
 
     def __getitem__(self, key: str) -> Service:
-        parameters = dict([
-            (k, self._CONVERTERS.get(k, str)(v))
-            for k, v in self.config.items(key)
-        ])
+        parameters = dict(
+            [(k, self._CONVERTERS.get(k, str)(v)) for k, v in self.config.items(key)]
+        )
         return Service(key, parameters)
 
     def __len__(self) -> int:
@@ -218,22 +217,22 @@ class ServiceFile:
         if fo:
             _write(fo)
         elif self.path:
-            with open(self.path, 'w') as fo:
+            with open(self.path, "w") as fo:
                 _write(fo)
         else:
-            raise ValueError('No file-like object nor path provided')
+            raise ValueError("No file-like object nor path provided")
 
 
 def guess_sysconfdir(environ: MutableMapping[str, str] = os.environ) -> str:
-    fromenv = environ.get('PGSYSCONFDIR')
+    fromenv = environ.get("PGSYSCONFDIR")
     if fromenv:
         candidates = [fromenv]
     else:
         candidates = [
             # From PGDG APT packages.
-            '/etc/postgresql-common',
+            "/etc/postgresql-common",
             # From PGDG RPM packages.
-            '/etc/sysconfig/pgsql',
+            "/etc/sysconfig/pgsql",
         ]
 
     for candidate in candidates:
@@ -266,7 +265,7 @@ def find(environ: Optional[MutableMapping[str, str]] = None) -> str:
     if environ is None:
         environ = os.environ
 
-    fromenv = environ.get('PGSERVICEFILE')
+    fromenv = environ.get("PGSERVICEFILE")
     if fromenv:
         candidates = [fromenv]
     else:
@@ -276,7 +275,7 @@ def find(environ: Optional[MutableMapping[str, str]] = None) -> str:
         except Exception:
             pass
         else:
-            candidates.append(os.path.join(sysconfdir, 'pg_service.conf'))
+            candidates.append(os.path.join(sysconfdir, "pg_service.conf"))
 
     for candidate in candidates:
         if os.path.exists(candidate):
@@ -284,9 +283,7 @@ def find(environ: Optional[MutableMapping[str, str]] = None) -> str:
     raise Exception("Can't find pg_service file.")
 
 
-def parse(
-    file: Union[str, Iterable[str]], source: Optional[str] = None
-) -> ServiceFile:
+def parse(file: Union[str, Iterable[str]], source: Optional[str] = None) -> ServiceFile:
     """Parse a service file.
 
     :param file: a file-object as returned by open or a string corresponding to
@@ -313,8 +310,8 @@ def parse(
     return services
 
 
-if __name__ == '__main__':  # pragma: nocover
-    argv = sys.argv[1:] + ['-']
+if __name__ == "__main__":  # pragma: nocover
+    argv = sys.argv[1:] + ["-"]
     try:
         with open_or_stdin(argv[0]) as fo:
             services = parse(fo)

@@ -107,11 +107,14 @@ from .parser import (
 )
 
 
-__all__ = [o.__name__ for o in [  # type: ignore
-    LogParser,
-    NoopFilters,
-    PrefixParser,
-    Record,
-    UnknownData,
-    parse,
-]]
+__all__ = [
+    o.__name__  # type: ignore
+    for o in [
+        LogParser,
+        NoopFilters,
+        PrefixParser,
+        Record,
+        UnknownData,
+        parse,
+    ]
+]

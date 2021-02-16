@@ -69,6 +69,7 @@ class IncludeType(enum.Enum):
 
     https://www.postgresql.org/docs/13/config-setting.html#CONFIG-INCLUDES
     """
+
     include_dir = enum.auto()
     include_if_exists = enum.auto()
     include = enum.auto()
@@ -98,7 +99,7 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
     conf = Configuration()
     with open_or_return(fo) as f:
         includes_top = conf.parse(f)
-        conf.path = getattr(f, 'name', None)
+        conf.path = getattr(f, "name", None)
 
     if not includes_top:
         return conf
@@ -109,9 +110,7 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
             "try passing a file path"
         )
 
-    def absolute(
-        path: pathlib.Path, relative_to: pathlib.Path
-    ) -> pathlib.Path:
+    def absolute(path: pathlib.Path, relative_to: pathlib.Path) -> pathlib.Path:
         """Make 'path' absolute by joining from 'relative_to' path."""
         if path.is_absolute():
             return path
@@ -134,13 +133,10 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
             includes.extend(make_includes(conf.parse(f), path.parent))
 
     def notfound(
-        path: pathlib.Path,
-        include_type: str,
-        reference_path: pathlib.Path
+        path: pathlib.Path, include_type: str, reference_path: pathlib.Path
     ) -> FileNotFoundError:
         return FileNotFoundError(
-            f"{include_type} '{path}', included from '{reference_path}',"
-            " not found"
+            f"{include_type} '{path}', included from '{reference_path}'," " not found"
         )
 
     includes = make_includes(includes_top, pathlib.Path(fo).absolute())
@@ -149,9 +145,7 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
         path, reference_path, include_type = includes.pop()
 
         if path in processed:
-            raise RuntimeError(
-                f"loop detected in include directive about '{path}'"
-            )
+            raise RuntimeError(f"loop detected in include directive about '{path}'")
         processed.add(path)
 
         if include_type == IncludeType.include_dir:
@@ -177,20 +171,20 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
 
 
 MEMORY_MULTIPLIERS = {
-    'kB': 1024,
-    'MB': 1024 * 1024,
-    'GB': 1024 * 1024 * 1024,
-    'TB': 1024 * 1024 * 1024 * 1024,
+    "kB": 1024,
+    "MB": 1024 * 1024,
+    "GB": 1024 * 1024 * 1024,
+    "TB": 1024 * 1024 * 1024 * 1024,
 }
-_memory_re = re.compile(r'^\s*(?P<number>\d+)\s*(?P<unit>[kMGT]B)\s*$')
+_memory_re = re.compile(r"^\s*(?P<number>\d+)\s*(?P<unit>[kMGT]B)\s*$")
 TIMEDELTA_ARGNAME = {
-    'ms': 'milliseconds',
-    's': 'seconds',
-    'min': 'minutes',
-    'h': 'hours',
-    'd': 'days',
+    "ms": "milliseconds",
+    "s": "seconds",
+    "min": "minutes",
+    "h": "hours",
+    "d": "days",
 }
-_timedelta_re = re.compile(r'^\s*(?P<number>\d+)\s*(?P<unit>ms|s|min|h|d)\s*$')
+_timedelta_re = re.compile(r"^\s*(?P<number>\d+)\s*(?P<unit>ms|s|min|h|d)\s*$")
 
 
 Value = Union[str, bool, float, int, timedelta]
@@ -206,7 +200,7 @@ def parse_value(raw: str) -> Value:
         # unquote value and unescape quotes
         raw = raw[1:-1].replace("''", "'").replace(r"\'", "'")
 
-    if raw.startswith('0'):
+    if raw.startswith("0"):
         try:
             return int(raw, base=8)
         except ValueError:
@@ -218,14 +212,14 @@ def parse_value(raw: str) -> Value:
 
     m = _timedelta_re.match(raw)
     if m:
-        unit = m.group('unit')
+        unit = m.group("unit")
         arg = TIMEDELTA_ARGNAME[unit]
-        kwargs = {arg: int(m.group('number'))}
+        kwargs = {arg: int(m.group("number"))}
         return timedelta(**kwargs)
 
-    elif raw in ('true', 'yes', 'on'):
+    elif raw in ("true", "yes", "on"):
         return True
-    elif raw in ('false', 'no', 'off'):
+    elif raw in ("false", "no", "off"):
         return False
     else:
         try:
@@ -258,7 +252,7 @@ class Entry:
         self.comment = comment
         # Store the raw_line to track the position in the list of lines.
         if raw_line is None:
-            raw_line = str(self) + '\n'
+            raw_line = str(self) + "\n"
         self.raw_line = raw_line
 
     @property
@@ -286,26 +280,26 @@ class Entry:
         )
 
     def __repr__(self) -> str:
-        return '<%s %s=%s>' % (self.__class__.__name__, self.name, self.value)
+        return "<%s %s=%s>" % (self.__class__.__name__, self.name, self.value)
 
     _minute = 60
     _hour = 60 * _minute
     _day = 24 * _hour
 
     _timedelta_unit_map = [
-        ('d', _day),
-        ('h', _hour),
+        ("d", _day),
+        ("h", _hour),
         # The space before 'min' is intentionnal. I find '1 min' more readable
         # than '1min'.
-        (' min', _minute),
-        ('s', 1),
+        (" min", _minute),
+        ("s", 1),
     ]
 
     def serialize(self) -> str:
         # This is the reverse of parse_value.
         value = self.value
         if isinstance(value, bool):
-            value = 'on' if value else 'off'
+            value = "on" if value else "off"
         elif isinstance(value, str):
             # Only quote if not already quoted.
             if not (value.startswith("'") and value.endswith("'")):
@@ -317,7 +311,7 @@ class Entry:
         elif isinstance(value, timedelta):
             seconds = value.days * self._day + value.seconds
             if value.microseconds:
-                unit = ' ms'
+                unit = " ms"
                 value = seconds * 1000 + value.microseconds // 1000
             else:
                 for unit, mod in self._timedelta_unit_map:
@@ -331,12 +325,11 @@ class Entry:
         return value
 
     def __str__(self) -> str:
-        line = '%(name)s = %(value)s' % dict(
-            name=self.name, value=self.serialize())
+        line = "%(name)s = %(value)s" % dict(name=self.name, value=self.serialize())
         if self.comment:
-            line += '  # ' + self.comment
+            line += "  # " + self.comment
         if self.commented:
-            line = '#' + line
+            line = "#" + line
         return line
 
 
@@ -423,9 +416,9 @@ class Configuration:
     path: Optional[str]
 
     _parameter_re = re.compile(
-        r'^(?P<name>[a-z_.]+)(?: +(?!=)| *= *)(?P<value>.*?)'
-        '[\\s\t]*'
-        r'(?P<comment>#.*)?$'
+        r"^(?P<name>[a-z_.]+)(?: +(?!=)| *= *)(?P<value>.*?)"
+        "[\\s\t]*"
+        r"(?P<comment>#.*)?$"
     )
 
     # Internally, lines property contains an updated list of all comments and
@@ -434,15 +427,15 @@ class Configuration:
     # and serialize only what's needed. Other lines are just written as-is.
 
     def __init__(self) -> None:
-        self.__dict__.update(dict(
-            lines=[],
-            entries=OrderedDict(),
-            path=None,
-        ))
+        self.__dict__.update(
+            dict(
+                lines=[],
+                entries=OrderedDict(),
+                path=None,
+            )
+        )
 
-    def parse(
-        self, fo: Iterable[str]
-    ) -> List[Tuple[pathlib.Path, IncludeType]]:
+    def parse(self, fo: Iterable[str]) -> List[Tuple[pathlib.Path, IncludeType]]:
         includes = []
         for raw_line in fo:
             self.lines.append(raw_line)
@@ -450,9 +443,9 @@ class Configuration:
             if not line:
                 continue
             commented = False
-            if line.startswith('#'):
+            if line.startswith("#"):
                 # Try to parse the uncommented line.
-                line = line.lstrip('#').lstrip()
+                line = line.lstrip("#").lstrip()
                 m = self._parameter_re.match(line)
                 if not m:
                     # This is a real comment
@@ -463,11 +456,11 @@ class Configuration:
                 if not m:
                     raise ValueError("Bad line: %r." % raw_line)
             kwargs = m.groupdict()
-            name = kwargs.pop('name')
-            value = parse_value(kwargs.pop('value'))
-            comment = kwargs['comment']
+            name = kwargs.pop("name")
+            value = parse_value(kwargs.pop("value"))
+            comment = kwargs["comment"]
             if comment is not None:
-                kwargs['comment'] = comment.lstrip('#').lstrip()
+                kwargs["comment"] = comment.lstrip("#").lstrip()
             if name in IncludeType.__members__ and not commented:
                 include_type = IncludeType[name]
                 assert isinstance(value, str), type(value)
@@ -481,7 +474,7 @@ class Configuration:
                     value=value,
                     commented=commented,
                     raw_line=raw_line,
-                    **kwargs
+                    **kwargs,
                 )
         includes.reverse()
         return includes
@@ -518,7 +511,7 @@ class Configuration:
         assert entry.name not in self.entries
         self.entries[entry.name] = entry
         # Append serialized line.
-        entry.raw_line = str(entry) + '\n'
+        entry.raw_line = str(entry) + "\n"
         self.lines.append(entry.raw_line)
 
     def _update_entry(self, entry: Entry) -> None:
@@ -530,16 +523,15 @@ class Configuration:
             entry.commented = False
         # Update serialized entry.
         old_line = old_entry.raw_line
-        entry.raw_line = str(entry) + '\n'
+        entry.raw_line = str(entry) + "\n"
         lineno = self.lines.index(old_line)
-        self.lines[lineno:lineno+1] = [entry.raw_line]
+        self.lines[lineno : lineno + 1] = [entry.raw_line]
 
     def __iter__(self) -> Iterator[Entry]:
         return iter(self.entries.values())
 
     def as_dict(self) -> Dict[str, Value]:
-        return dict([(k, v.value) for k, v in self.entries.items()
-                     if not v.commented])
+        return dict([(k, v.value) for k, v in self.entries.items() if not v.commented])
 
     @contextlib.contextmanager
     def edit(self) -> Iterator[EntriesProxy]:
@@ -576,9 +568,7 @@ class Configuration:
         port = 2345
         unix_socket_directories = '/var/run/postgresql'  # comma-separated list of directories
         """  # noqa: E501
-        entries = EntriesProxy(
-            {k: copy.copy(v) for k, v in self.entries.items()}
-        )
+        entries = EntriesProxy({k: copy.copy(v) for k, v in self.entries.items()})
         try:
             yield entries
         except Exception:
@@ -607,7 +597,7 @@ class Configuration:
             None.
 
         """
-        with open_or_return(fo or self.path, mode='w') as fo:
+        with open_or_return(fo or self.path, mode="w") as fo:
             for line in self.lines:
                 fo.write(line)
 
@@ -622,5 +612,5 @@ def _main(argv: List[str]) -> int:  # pragma: nocover
         return 1
 
 
-if __name__ == '__main__':  # pragma: nocover
+if __name__ == "__main__":  # pragma: nocover
     exit(_main(sys.argv[1:]))

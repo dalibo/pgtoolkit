@@ -5,10 +5,15 @@ class ParseError(Exception):
         self.line = line
 
     def __repr__(self) -> str:
-        return '<%s at line %d: %.32s>' % (
-            self.__class__.__name__, self.lineno, self.args[0])
+        return "<%s at line %d: %.32s>" % (
+            self.__class__.__name__,
+            self.lineno,
+            self.args[0],
+        )
 
     def __str__(self) -> str:
         return "Bad line #%s '%.32s': %s" % (
-            self.lineno, self.line.strip(), self.args[0],
+            self.lineno,
+            self.line.strip(),
+            self.args[0],
         )

@@ -10,24 +10,24 @@ def test_parse_value():
     from pgtoolkit.conf import parse_value
 
     # Booleans
-    assert parse_value('on') is True
-    assert parse_value('off') is False
-    assert parse_value('true') is True
-    assert parse_value('false') is False
-    assert parse_value('yes') is True
+    assert parse_value("on") is True
+    assert parse_value("off") is False
+    assert parse_value("true") is True
+    assert parse_value("false") is False
+    assert parse_value("yes") is True
     assert parse_value("'no'") is False
 
     # Numbers
-    assert 10 == parse_value('10')
-    assert 8 == parse_value('010')
+    assert 10 == parse_value("10")
+    assert 8 == parse_value("010")
     assert 8 == parse_value("'010'")
-    assert 1.4 == parse_value('1.4')
-    assert -2 == parse_value('-2')
+    assert 1.4 == parse_value("1.4")
+    assert -2 == parse_value("-2")
 
     # Strings
-    assert '/a/path/to/file.conf' == parse_value(r"/a/path/to/file.conf")
-    assert '0755.log' == parse_value(r"0755.log")
-    assert 'file_ending_with_B' == parse_value(r"file_ending_with_B")
+    assert "/a/path/to/file.conf" == parse_value(r"/a/path/to/file.conf")
+    assert "0755.log" == parse_value(r"0755.log")
+    assert "file_ending_with_B" == parse_value(r"file_ending_with_B")
 
     # Escaped quotes: double-quotes or backslash-quote are replaced by
     # single-quotes.
@@ -35,47 +35,38 @@ def test_parse_value():
     # Expected values in the following assertions should match what
     # psycopg2.extensions.parse_dsn() (or libpq) recognizes.
     assert "host='127.0.0.1'" == parse_value("'host=''127.0.0.1'''")
-    assert (
-        "user=foo password=se'cret"
-        == parse_value("'user=foo password=se''cret'")
-    )
-    assert (
-        "user=foo password=se''cret"
-        == parse_value("user=foo password=se''cret")
-    )
-    assert (
-        "user=foo password=secret'"
-        == parse_value("'user=foo password=secret'''")
-    )
+    assert "user=foo password=se'cret" == parse_value("'user=foo password=se''cret'")
+    assert "user=foo password=se''cret" == parse_value("user=foo password=se''cret")
+    assert "user=foo password=secret'" == parse_value("'user=foo password=secret'''")
     assert (
         # this one does not work in parse_dsn()
         "user=foo password='secret"
         == parse_value("'user=foo password=''secret'")
     )
-    assert '%m [%p] %q%u@%d ' == parse_value(r"'%m [%p] %q%u@%d '")
-    assert '124.7MB' == parse_value("124.7MB")
-    assert '124.7ms' == parse_value("124.7ms")
+    assert "%m [%p] %q%u@%d " == parse_value(r"'%m [%p] %q%u@%d '")
+    assert "124.7MB" == parse_value("124.7MB")
+    assert "124.7ms" == parse_value("124.7ms")
 
     # Memory
-    assert '1kB' == parse_value('1kB')
-    assert '512MB' == parse_value('512MB')
-    assert '64 GB' == parse_value(' 64 GB ')
-    assert '5TB' == parse_value('5TB')
+    assert "1kB" == parse_value("1kB")
+    assert "512MB" == parse_value("512MB")
+    assert "64 GB" == parse_value(" 64 GB ")
+    assert "5TB" == parse_value("5TB")
 
     # Time
-    delta = parse_value('150 ms')
+    delta = parse_value("150 ms")
     assert 150000 == delta.microseconds
-    delta = parse_value('24s ')
+    delta = parse_value("24s ")
     assert 24 == delta.seconds
     delta = parse_value("' 5 min'")
     assert 300 == delta.seconds
-    delta = parse_value('2 h')
+    delta = parse_value("2 h")
     assert 7200 == delta.seconds
-    delta = parse_value('5d')
+    delta = parse_value("5d")
     assert 5 == delta.days
 
     # Enums
-    assert 'md5' == parse_value('md5')
+    assert "md5" == parse_value("md5")
 
     # Errors
     with pytest.raises(ValueError):
@@ -85,7 +76,8 @@ def test_parse_value():
 def test_parser():
     from pgtoolkit.conf import parse
 
-    lines = dedent("""\
+    lines = dedent(
+        """\
     # - Connection Settings -
     listen_addresses = '*'                  # comma-separated list of addresses;
                             # defaults to 'localhost'; use '*' for all
@@ -97,13 +89,16 @@ def test_parser():
     # bonjour_name = ''		# defaults to the computer name
     shared.buffers = 248MB
     #authentication_timeout = 1min		# 1s-600s
-    """).splitlines(True)  # noqa
+    """
+    ).splitlines(
+        True
+    )  # noqa
 
     conf = parse(lines)
 
-    assert '*' == conf.listen_addresses
+    assert "*" == conf.listen_addresses
     assert (
-        str(conf.entries['listen_addresses'])
+        str(conf.entries["listen_addresses"])
         == "listen_addresses = '*'  # comma-separated list of addresses;"
     )
     assert 5432 == conf.port
@@ -111,32 +106,32 @@ def test_parser():
         conf.primary_conninfo
         == "host='example.com' port=5432 dbname=mydb connect_timeout=10"
     )
-    assert 'without equals' == conf.bonjour
-    assert '248MB' == conf['shared.buffers']
+    assert "without equals" == conf.bonjour
+    assert "248MB" == conf["shared.buffers"]
 
-    assert conf.entries['bonjour_name'].commented
+    assert conf.entries["bonjour_name"].commented
     assert (
-        str(conf.entries['bonjour_name'])
+        str(conf.entries["bonjour_name"])
         == "#bonjour_name = ''  # defaults to the computer name"
     )
-    assert conf.entries['authentication_timeout'].commented
-    assert conf.entries['authentication_timeout'].value == timedelta(minutes=1)
+    assert conf.entries["authentication_timeout"].commented
+    assert conf.entries["authentication_timeout"].value == timedelta(minutes=1)
     assert (
-        str(conf.entries['authentication_timeout'])
+        str(conf.entries["authentication_timeout"])
         == "#authentication_timeout = '1 min'  # 1s-600s"
     )
 
     dict_ = conf.as_dict()
-    assert '*' == dict_['listen_addresses']
+    assert "*" == dict_["listen_addresses"]
 
     with pytest.raises(AttributeError):
         conf.inexistant
 
     with pytest.raises(KeyError):
-        conf['inexistant']
+        conf["inexistant"]
 
     with pytest.raises(ValueError):
-        parse(['bad_line'])
+        parse(["bad_line"])
 
 
 def test_configuration_multiple_entries():
@@ -165,26 +160,26 @@ def test_parser_includes():
     fpath = pathlib.Path(__file__).parent.parent / "data" / "postgres.conf"
     conf = parse(str(fpath))
     assert conf.as_dict() == {
-        'autovacuum_work_mem': -1,
-        'bonjour': False,
-        'bonsoir': True,
-        'checkpoint_completion_target': 0.9,
-        'cluster_name': 'pgtoolkit',
-        'listen_addresses': '1.2.3.4',
-        'log_line_prefix': '%m %q@%d',
-        'log_rotation_age': timedelta(days=1),
-        'max_connections': 100,
-        'my': True,
-        'mymy': True,
-        'mymymy': True,
-        'pg_stat_statements.max': 10000,
-        'pg_stat_statements.track': 'all',
-        'port': 5432,
-        'shared_buffers': '248MB',
-        'shared_preload_libraries': 'pg_stat_statements',
-        'ssl': True,
-        'unix_socket_permissions': 511,
-        'wal_level': 'hot_standby',
+        "autovacuum_work_mem": -1,
+        "bonjour": False,
+        "bonsoir": True,
+        "checkpoint_completion_target": 0.9,
+        "cluster_name": "pgtoolkit",
+        "listen_addresses": "1.2.3.4",
+        "log_line_prefix": "%m %q@%d",
+        "log_rotation_age": timedelta(days=1),
+        "max_connections": 100,
+        "my": True,
+        "mymy": True,
+        "mymymy": True,
+        "pg_stat_statements.max": 10000,
+        "pg_stat_statements.track": "all",
+        "port": 5432,
+        "shared_buffers": "248MB",
+        "shared_preload_libraries": "pg_stat_statements",
+        "ssl": True,
+        "unix_socket_permissions": 511,
+        "wal_level": "hot_standby",
     }
 
 
@@ -231,26 +226,26 @@ def test_entry_edit():
 def test_serialize_entry():
     from pgtoolkit.conf import Entry
 
-    e = Entry(name='grp.setting', value=True)
+    e = Entry(name="grp.setting", value=True)
 
-    assert 'grp.setting' in repr(e)
-    assert 'grp.setting = on' == str(e)
+    assert "grp.setting" in repr(e)
+    assert "grp.setting = on" == str(e)
 
-    assert "'2kB'" == Entry(name='var', value='2kB').serialize()
-    assert "2048" == Entry(name='var', value=2048).serialize()
-    assert "var = 0" == str(Entry(name='var', value=0))
-    assert 'var = 15' == str(Entry(name='var', value=15))
-    assert 'var = 0.1' == str(Entry(name='var', value=.1))
-    assert "var = 'enum'" == str(Entry(name='var', value='enum'))
-    assert "addrs = '*'" == str(Entry(name='addrs', value="*"))
-    assert "var = 'sp ced'" == str(Entry(name='var', value='sp ced'))
-    assert "var = 'quo''ed'" == str(Entry(name='var', value="quo'ed"))
+    assert "'2kB'" == Entry(name="var", value="2kB").serialize()
+    assert "2048" == Entry(name="var", value=2048).serialize()
+    assert "var = 0" == str(Entry(name="var", value=0))
+    assert "var = 15" == str(Entry(name="var", value=15))
+    assert "var = 0.1" == str(Entry(name="var", value=0.1))
+    assert "var = 'enum'" == str(Entry(name="var", value="enum"))
+    assert "addrs = '*'" == str(Entry(name="addrs", value="*"))
+    assert "var = 'sp ced'" == str(Entry(name="var", value="sp ced"))
+    assert "var = 'quo''ed'" == str(Entry(name="var", value="quo'ed"))
     assert "var = 'quo''ed'' and space'" == str(
-        Entry(name='var', value="quo'ed' and space")
+        Entry(name="var", value="quo'ed' and space")
     )
 
-    assert r"'quo\'ed'" == Entry(name='var', value=r"quo\'ed").serialize()
-    e = Entry(name='var', value="app=''foo'' host=192.168.0.8")
+    assert r"'quo\'ed'" == Entry(name="var", value=r"quo\'ed").serialize()
+    e = Entry(name="var", value="app=''foo'' host=192.168.0.8")
     assert e.serialize() == "'app=''foo'' host=192.168.0.8'"
     assert str(e) == "var = 'app=''foo'' host=192.168.0.8'"
 
@@ -259,30 +254,29 @@ def test_serialize_entry():
         value="port=5432 password=pa'sw0'd dbname=postgres",
     )
     assert (
-        str(e)
-        == "primary_conninfo = 'port=5432 password=pa''sw0''d dbname=postgres'"
+        str(e) == "primary_conninfo = 'port=5432 password=pa''sw0''d dbname=postgres'"
     )
 
-    assert "var = 'quoted'" == str(Entry(name='var', value="'quoted'"))
+    assert "var = 'quoted'" == str(Entry(name="var", value="'quoted'"))
 
-    assert "'1d'" == Entry('var', value=timedelta(days=1)).serialize()
-    assert "'1h'" == Entry('var', value=timedelta(minutes=60)).serialize()
-    assert "'61 min'" == Entry('var', value=timedelta(minutes=61)).serialize()
-    e = Entry('var', value=timedelta(microseconds=12000))
+    assert "'1d'" == Entry("var", value=timedelta(days=1)).serialize()
+    assert "'1h'" == Entry("var", value=timedelta(minutes=60)).serialize()
+    assert "'61 min'" == Entry("var", value=timedelta(minutes=61)).serialize()
+    e = Entry("var", value=timedelta(microseconds=12000))
     assert "'12 ms'" == e.serialize()
 
-    assert '  # Comment' in str(Entry('var', 1, comment='Comment'))
+    assert "  # Comment" in str(Entry("var", 1, comment="Comment"))
 
 
 def test_save():
     from pgtoolkit.conf import parse
 
-    conf = parse(['listen_addresses = *'])
+    conf = parse(["listen_addresses = *"])
     conf["primary_conninfo"] = "user=repli password=pa'sw0'd"
     fo = StringIO()
     conf.save(fo)
     out = fo.getvalue()
-    assert 'listen_addresses = *' in out
+    assert "listen_addresses = *" in out
     assert "primary_conninfo = 'user=repli password=pa''sw0''d'" in out
 
 
@@ -292,18 +286,18 @@ def test_edit():
     conf = Configuration()
     conf.parse(["#bonjour_name = ''  # defaults to computer name\n"])
 
-    conf.listen_addresses = '*'
-    assert 'listen_addresses' in conf
-    assert '*' == conf.listen_addresses
+    conf.listen_addresses = "*"
+    assert "listen_addresses" in conf
+    assert "*" == conf.listen_addresses
 
-    assert 'port' not in conf
-    conf['port'] = 5432
+    assert "port" not in conf
+    conf["port"] = 5432
     assert 5432 == conf.port
 
-    conf['port'] = '5433'
+    conf["port"] = "5433"
     assert 5433 == conf.port
 
-    conf['primary_conninfo'] = "'port=5432 host=''example.com'''"
+    conf["primary_conninfo"] = "'port=5432 host=''example.com'''"
     assert conf.primary_conninfo == "port=5432 host='example.com'"
 
     with StringIO() as fo:

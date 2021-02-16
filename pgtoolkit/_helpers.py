@@ -15,15 +15,15 @@ from typing import (
 
 def format_timedelta(delta: timedelta) -> str:
     values = [
-        (delta.days, 'd'),
-        (delta.seconds, 's'),
-        (delta.microseconds, 'us'),
+        (delta.days, "d"),
+        (delta.seconds, "s"),
+        (delta.microseconds, "us"),
     ]
-    values = ['%d%s' % v for v in values if v[0]]
+    values = ["%d%s" % v for v in values if v[0]]
     if values:
-        return ' '.join(values)
+        return " ".join(values)
     else:
-        return '0s'
+        return "0s"
 
 
 class JSONDateEncoder(json.JSONEncoder):
@@ -36,7 +36,7 @@ class JSONDateEncoder(json.JSONEncoder):
 
 
 def open_or_stdin(filename: str, stdin: IO[str] = sys.stdin) -> IO[str]:
-    if filename == '-':
+    if filename == "-":
         fo = stdin
     else:
         fo = open(filename)
@@ -58,24 +58,22 @@ class PassthroughManager(Generic[T]):
 
 
 @overload
-def open_or_return(fo_or_path: None, mode: str = 'r') -> NoReturn:
+def open_or_return(fo_or_path: None, mode: str = "r") -> NoReturn:
     ...
 
 
 @overload
-def open_or_return(fo_or_path: str, mode: str = 'r') -> IO[str]:
+def open_or_return(fo_or_path: str, mode: str = "r") -> IO[str]:
     ...
 
 
 @overload
-def open_or_return(
-    fo_or_path: IO[str], mode: str = 'r'
-) -> PassthroughManager[IO[str]]:
+def open_or_return(fo_or_path: IO[str], mode: str = "r") -> PassthroughManager[IO[str]]:
     ...
 
 
 def open_or_return(
-    fo_or_path: Optional[Union[str, IO[str]]], mode: str = 'r'
+    fo_or_path: Optional[Union[str, IO[str]]], mode: str = "r"
 ) -> Union[IO[str], PassthroughManager[IO[str]]]:
     # Returns a context manager around a file-object for fo_or_path. If
     # fo_or_path is a file-object, the context manager keeps it open. If it's a
@@ -83,7 +81,7 @@ def open_or_return(
     # If fo_or_path is None, a ValueError is raised.
 
     if fo_or_path is None:
-        raise ValueError('No file-like object nor path provided')
+        raise ValueError("No file-like object nor path provided")
     if isinstance(fo_or_path, str):
         return open(fo_or_path, mode)
 

@@ -28,42 +28,44 @@ host all all all trust
 def test_comment():
     from pgtoolkit.hba import HBAComment
 
-    comment = HBAComment('# toto')
-    assert 'toto' in repr(comment)
-    assert '# toto' == str(comment)
+    comment = HBAComment("# toto")
+    assert "toto" in repr(comment)
+    assert "# toto" == str(comment)
 
 
 def test_parse_host_line():
     from pgtoolkit.hba import HBARecord
 
     record = HBARecord.parse("host    replication   all   ::1/128       trust")
-    assert 'host' in repr(record)
-    assert 'host' == record.conntype
-    assert 'replication' == record.database
-    assert ['replication'] == record.databases
-    assert 'all' == record.user
-    assert ['all'] == record.users
-    assert '::1/128' == record.address
-    assert 'trust' == record.method
+    assert "host" in repr(record)
+    assert "host" == record.conntype
+    assert "replication" == record.database
+    assert ["replication"] == record.databases
+    assert "all" == record.user
+    assert ["all"] == record.users
+    assert "::1/128" == record.address
+    assert "trust" == record.method
 
     # This is not actually a public API. But let's keep it stable.
     values = record.common_values
-    assert 'trust' in values
+    assert "trust" in values
 
 
 def test_parse_local_line():
     from pgtoolkit.hba import HBARecord
 
     record = HBARecord.parse("local    all     all     trust")
-    assert 'local' == record.conntype
-    assert 'all' == record.database
-    assert ['all'] == record.users
-    assert 'trust' == record.method
+    assert "local" == record.conntype
+    assert "all" == record.database
+    assert ["all"] == record.users
+    assert "trust" == record.method
 
     with pytest.raises(AttributeError):
         record.address
 
-    wanted = 'local   all             all                                     trust'  # noqa
+    wanted = (
+        "local   all             all                                     trust"  # noqa
+    )
     assert wanted == str(record)
 
 
@@ -73,14 +75,17 @@ def test_parse_auth_option():
     record = HBARecord.parse(
         "local veryverylongdatabasenamethatdonotfit all ident map=omicron",
     )
-    assert 'local' == record.conntype
-    assert 'veryverylongdatabasenamethatdonotfit' == record.database
-    assert ['all'] == record.users
-    assert 'ident' == record.method
-    assert 'omicron' == record.map
+    assert "local" == record.conntype
+    assert "veryverylongdatabasenamethatdonotfit" == record.database
+    assert ["all"] == record.users
+    assert "ident" == record.method
+    assert "omicron" == record.map
 
     wanted = [
-        'local', 'veryverylongdatabasenamethatdonotfit', 'all', 'ident',
+        "local",
+        "veryverylongdatabasenamethatdonotfit",
+        "all",
+        "ident",
         'map="omicron"',
     ]
     assert wanted == str(record).split()
@@ -90,14 +95,14 @@ def test_parse_record_with_comment():
     from pgtoolkit.hba import HBARecord
 
     record = HBARecord.parse("local    all     all     trust  # My  comment")
-    assert 'local' == record.conntype
-    assert 'all' == record.database
-    assert ['all'] == record.users
-    assert 'trust' == record.method
-    assert 'My comment' == record.comment
+    assert "local" == record.conntype
+    assert "all" == record.database
+    assert ["all"] == record.users
+    assert "trust" == record.method
+    assert "My comment" == record.comment
 
     fields = str(record).split()
-    assert ['local', 'all', 'all', 'trust', '#', 'My', 'comment'] == fields
+    assert ["local", "all", "all", "trust", "#", "My", "comment"] == fields
 
 
 def test_parse_invalid_connection_type():
@@ -116,26 +121,31 @@ def test_hba(mocker):
 
     assert 7 == len(entries)
 
-    hba.save(mocker.Mock(name='file'))
+    hba.save(mocker.Mock(name="file"))
 
 
 def test_hba_create():
     from pgtoolkit.hba import HBA, HBAComment, HBARecord
 
-    hba = HBA([
-        HBAComment('# a comment'),
-        HBARecord(
-            conntype='local', database='all', user='all', method='trust',
-        ),
-    ])
+    hba = HBA(
+        [
+            HBAComment("# a comment"),
+            HBARecord(
+                conntype="local",
+                database="all",
+                user="all",
+                method="trust",
+            ),
+        ]
+    )
     assert 2 == len(hba.lines)
 
     r = hba.lines[1]
-    assert ['all'] == r.databases
+    assert ["all"] == r.databases
 
     # Should be a list
     with pytest.raises(ValueError):
-        HBA('blah')
+        HBA("blah")
 
 
 def test_parse_file(mocker):
@@ -143,21 +153,21 @@ def test_parse_file(mocker):
 
     m = mocker.mock_open()
     try:
-        mocker.patch('builtins.open', m)
+        mocker.patch("builtins.open", m)
     except Exception:
-        mocker.patch('__builtin__.open', m)
-    pgpass = parse('filename')
-    pgpass.lines.append(HBAComment('# Something'))
+        mocker.patch("__builtin__.open", m)
+    pgpass = parse("filename")
+    pgpass.lines.append(HBAComment("# Something"))
 
     assert m.called
     pgpass.save()
     handle = m()
-    handle.write.assert_called_with('# Something\n')
+    handle.write.assert_called_with("# Something\n")
 
     # Also works for other string types
     m.reset_mock()
-    pgpass = parse(u'filename')
-    pgpass.lines.append(HBAComment('# Something'))
+    pgpass = parse(u"filename")
+    pgpass.lines.append(HBAComment("# Something"))
     assert m.called
 
 
@@ -167,7 +177,7 @@ def test_hba_error(mocker):
     with pytest.raises(ParseError) as ei:
         parse(["lcal all all\n"])
     e = ei.value
-    assert 'line #1' in str(e)
+    assert "line #1" in str(e)
     assert repr(e)
 
     with pytest.raises(ParseError) as ei:
@@ -184,29 +194,30 @@ def test_remove():
     with pytest.raises(ValueError):
         hba.remove()
 
-    hba.remove(database='replication')
+    hba.remove(database="replication")
     entries = list(iter(hba))
     assert 4 == len(entries)
 
     hba = parse(lines)
-    hba.remove(filter=lambda r: r.database == 'replication')
+    hba.remove(filter=lambda r: r.database == "replication")
     entries = list(iter(hba))
     assert 4 == len(entries)
 
     hba = parse(lines)
-    hba.remove(conntype='host', database='replication')
+    hba.remove(conntype="host", database="replication")
     entries = list(iter(hba))
     assert 5 == len(entries)
 
     # Works even for fields that may not be valid for all records
     # `address` is not valid for `local` connection type
     hba = parse(lines)
-    hba.remove(address='127.0.0.1/32')
+    hba.remove(address="127.0.0.1/32")
     entries = list(iter(hba))
     assert 6 == len(entries)
 
     def filter(r):
-        return r.conntype == 'host' and r.database == 'replication'
+        return r.conntype == "host" and r.database == "replication"
+
     hba = parse(lines)
     hba.remove(filter=filter)
     entries = list(iter(hba))
@@ -215,14 +226,14 @@ def test_remove():
     # Only filter is taken into account
     hba = parse(lines)
     with pytest.warns(UserWarning):
-        hba.remove(filter=filter, database='replication')
+        hba.remove(filter=filter, database="replication")
     entries = list(iter(hba))
     assert 5 == len(entries)
 
     # Error if attribute name is not valid
     hba = parse(lines)
     with pytest.raises(AttributeError):
-        hba.remove(foo='postgres')
+        hba.remove(foo="postgres")
 
 
 def test_merge():
@@ -271,4 +282,5 @@ def test_merge():
 
     def r(hba):
         return os.linesep.join([str(line) for line in hba.lines])
+
     assert r(hba) == r(expected_hba)

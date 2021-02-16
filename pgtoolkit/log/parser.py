@@ -31,18 +31,15 @@ class LogParser:
     :param filters: An instance of :class:`NoopFilters`
 
     """
+
     def __init__(
-        self,
-        prefix_parser: "PrefixParser",
-        filters: Optional["NoopFilters"] = None
+        self, prefix_parser: "PrefixParser", filters: Optional["NoopFilters"] = None
     ) -> None:
         self.prefix_parser = prefix_parser
         self.filters = filters or NoopFilters()
 
-    def parse(
-        self, fo: Iterable[str]
-    ) -> Iterator[Union["Record", "UnknownData"]]:
-        """ Yield records and unparsed data from file-like object ``fo``
+    def parse(self, fo: Iterable[str]) -> Iterator[Union["Record", "UnknownData"]]:
+        """Yield records and unparsed data from file-like object ``fo``
 
         :param fo: A line iterator such as a file object.
         :rtype: Iterator[Union[:class:`Record`, :class:`UnknownData`]]
@@ -74,9 +71,7 @@ class LogParser:
 
 
 def parse(
-    fo: Iterable[str],
-    prefix_fmt: str,
-    filters: Optional["NoopFilters"] = None
+    fo: Iterable[str], prefix_fmt: str, filters: Optional["NoopFilters"] = None
 ) -> Iterator[Union["Record", "UnknownData"]]:
     """Parses log lines and yield :class:`Record` or :class:`UnknownData` objects.
 
@@ -99,7 +94,7 @@ def parse(
         yield item
 
 
-def group_lines(lines: Iterable[str], cont: str = '\t') -> Iterator[List[str]]:
+def group_lines(lines: Iterable[str], cont: str = "\t") -> Iterator[List[str]]:
     # Group continuation lines according to continuation prefix. Yield a list
     # on lines supposed to belong to the same log record.
 
@@ -123,12 +118,12 @@ def parse_isodatetime(raw: str) -> datetime:
             int(raw[11:13]),
             int(raw[14:16]),
             int(raw[17:19]),
-            int(raw[20:23]) if raw[19] == '.' else 0,
+            int(raw[20:23]) if raw[19] == "." else 0,
         )
     except ValueError:
         raise ValueError("%s is not a known date" % raw)
 
-    if raw[-3:] != 'UTC':
+    if raw[-3:] != "UTC":
         # We need tzdata for that.
         raise ValueError("%s not in UTC." % raw)
 
@@ -136,11 +131,8 @@ def parse_isodatetime(raw: str) -> datetime:
 
 
 def parse_epoch(raw: str) -> datetime:
-    epoch, ms = raw.split('.')
-    return (
-        datetime.utcfromtimestamp(int(epoch))
-        + timedelta(microseconds=int(ms))
-    )
+    epoch, ms = raw.split(".")
+    return datetime.utcfromtimestamp(int(epoch)) + timedelta(microseconds=int(ms))
 
 
 class UnknownData(Exception):
@@ -152,17 +144,18 @@ class UnknownData(Exception):
 
         The list of unparseable strings.
     """
+
     # UnknownData object is an exception to be throwable.
 
     def __init__(self, lines: Sequence[str]) -> None:
         self.lines = lines
 
     def __repr__(self) -> str:
-        summary = str(self)[:32].replace('\n', '')
+        summary = str(self)[:32].replace("\n", "")
         return "<%s %s...>" % (self.__class__.__name__, summary)
 
     def __str__(self) -> str:
-        return ''.join(self.lines)
+        return "".join(self.lines)
 
 
 class NoopFilters:
@@ -213,63 +206,64 @@ class NoopFilters:
 
 
 class PrefixParser:
-    """ Extract record metadata from PostgreSQL log line prefix.
+    """Extract record metadata from PostgreSQL log line prefix.
 
     .. automethod:: from_configuration
     """
+
     # cf.
     # https://www.postgresql.org/docs/current/static/runtime-config-logging.html#GUC-LOG-LINE-PREFIX
 
-    _datetime_pat = r'\d{4}-[01]\d-[0-3]\d [012]\d:[0-6]\d:[0-6]\d'
+    _datetime_pat = r"\d{4}-[01]\d-[0-3]\d [012]\d:[0-6]\d:[0-6]\d"
     # Pattern map of Status informations.
     _status_pat = dict(
         # Application name
-        a=r'(?P<application>\[unknown\]|\w+)?',
+        a=r"(?P<application>\[unknown\]|\w+)?",
         # Session ID
-        c=r'(?P<session>\[unknown\]|[0-9a-f.]+)',
+        c=r"(?P<session>\[unknown\]|[0-9a-f.]+)",
         # Database name
-        d=r'(?P<database>\[unknown\]|\w+)?',
+        d=r"(?P<database>\[unknown\]|\w+)?",
         # SQLSTATE error code
-        e=r'(?P<error>\d+)',
+        e=r"(?P<error>\d+)",
         # Remote host name or IP address
-        h=r'(?P<remote_host>\[local\]|\[unknown\]|[a-z0-9_-]+|[0-9.:]+)?',
+        h=r"(?P<remote_host>\[local\]|\[unknown\]|[a-z0-9_-]+|[0-9.:]+)?",
         # Command tag: type of session's current command
-        i=r'(?P<command_tag>\w+)',
+        i=r"(?P<command_tag>\w+)",
         # Number of the log line for each session or process, starting at 1.
-        l=r'(?P<line_num>\d+)',  # noqa
+        l=r"(?P<line_num>\d+)",  # noqa
         # Time stamp with milliseconds
-        m=r'(?P<timestamp_ms>' + _datetime_pat + r'.\d{3} [A-Z]{2,5})',
+        m=r"(?P<timestamp_ms>" + _datetime_pat + r".\d{3} [A-Z]{2,5})",
         # Time stamp with milliseconds (as a Unix epoch)
-        n=r'(?P<epoch>\d+\.\d+)',
+        n=r"(?P<epoch>\d+\.\d+)",
         # Process ID
-        p=r'(?P<pid>\d+)',
+        p=r"(?P<pid>\d+)",
         # Remote host name or IP address, and remote port
-        r=r'(?P<remote_host_r>\[local\]|\[unknown\]|[a-z0-9_-]+|[0-9.:]+\((?P<remote_port>\d+)\))?',  # noqa
+        r=r"(?P<remote_host_r>\[local\]|\[unknown\]|[a-z0-9_-]+|[0-9.:]+\((?P<remote_port>\d+)\))?",  # noqa
         # Process start time stamp
-        s=r'(?P<start>' + _datetime_pat + ' [A-Z]{2,5})',
+        s=r"(?P<start>" + _datetime_pat + " [A-Z]{2,5})",
         # Time stamp without milliseconds
-        t=r'(?P<timestamp>' + _datetime_pat + ' [A-Z]{2,5})',
+        t=r"(?P<timestamp>" + _datetime_pat + " [A-Z]{2,5})",
         # User name
-        u=r'(?P<user>\[unknown\]|\w+)?',
+        u=r"(?P<user>\[unknown\]|\w+)?",
         # Virtual transaction ID (backendID/localXID)
-        v=r'(?P<virtual_xid>\d+/\d+)',
+        v=r"(?P<virtual_xid>\d+/\d+)",
         # Transaction ID (0 if none is assigned)
-        x=r'(?P<xid>\d+)',
+        x=r"(?P<xid>\d+)",
     )
     # re to search for %… in log_line_prefix.
-    _format_re = re.compile(r'%([' + ''.join(_status_pat.keys()) + '])')
+    _format_re = re.compile(r"%([" + "".join(_status_pat.keys()) + "])")
     # re to find %q separator in log_line_prefix.
-    _q_re = re.compile(r'(?<!%)%q')
+    _q_re = re.compile(r"(?<!%)%q")
 
     _casts: Dict[str, Callable[[str], Union[int, datetime]]] = {
-        'epoch': parse_epoch,
-        'line_num': int,
-        'pid': int,
-        'remote_port': int,
-        'start': parse_isodatetime,
-        'timestamp': parse_isodatetime,
-        'timestamp_ms': parse_isodatetime,
-        'xid': int,
+        "epoch": parse_epoch,
+        "line_num": int,
+        "pid": int,
+        "remote_port": int,
+        "start": parse_isodatetime,
+        "timestamp": parse_isodatetime,
+        "timestamp_ms": parse_isodatetime,
+        "xid": int,
     }
 
     @classmethod
@@ -281,7 +275,7 @@ class PrefixParser:
                 segments[i] = cls._status_pat[segment]
             else:
                 segments[i] = re.escape(segment)
-        return ''.join(segments)
+        return "".join(segments)
 
     @classmethod
     def from_configuration(cls, log_line_prefix: str) -> "PrefixParser":
@@ -301,21 +295,17 @@ class PrefixParser:
 
         pattern = cls.mkpattern(fixed)
         if optionnal:
-            pattern += r'(?:' + cls.mkpattern(optionnal) + ')?'
+            pattern += r"(?:" + cls.mkpattern(optionnal) + ")?"
         return cls(re.compile(pattern), log_line_prefix)
 
-    def __init__(
-        self, re_: Pattern[str], prefix_fmt: Optional[str] = None
-    ) -> None:
+    def __init__(self, re_: Pattern[str], prefix_fmt: Optional[str] = None) -> None:
         self.re_ = re_
         self.prefix_fmt = prefix_fmt
 
     def __repr__(self) -> str:
-        return '<%s \'%s\'>' % (self.__class__.__name__, self.prefix_fmt)
+        return "<%s '%s'>" % (self.__class__.__name__, self.prefix_fmt)
 
-    def parse(
-        self, prefix: str
-    ) -> MutableMapping[str, Any]:
+    def parse(self, prefix: str) -> MutableMapping[str, Any]:
         # Parses the prefix line according to the inner regular expression. If
         # prefix does not match, raises an UnknownData.
 
@@ -327,14 +317,14 @@ class PrefixParser:
         self.cast_fields(fields)
 
         # Ensure remote_host is fed either by %h or %r.
-        remote_host = fields.pop('remote_host_r', None)
+        remote_host = fields.pop("remote_host_r", None)
         if remote_host:
-            fields.setdefault('remote_host', remote_host)
+            fields.setdefault("remote_host", remote_host)
 
         # Ensure timestamp field is fed eiter by %m or %t.
-        timestamp_ms = fields.pop('timestamp_ms', None)
+        timestamp_ms = fields.pop("timestamp_ms", None)
         if timestamp_ms:
-            fields.setdefault('timestamp', timestamp_ms)
+            fields.setdefault("timestamp", timestamp_ms)
 
         return fields
 
@@ -448,55 +438,54 @@ class Record:
     """
 
     __slots__ = (
-        '__dict__',
-        'message_lines',
-        'prefix',
-        'raw_lines',
+        "__dict__",
+        "message_lines",
+        "prefix",
+        "raw_lines",
     )
 
     # This actually mix severities and message types since they are in the same
     # field.
     _severities = [
-        'CONTEXT',
-        'DETAIL',
-        'ERROR',
-        'FATAL',
-        'HINT',
-        'INFO',
-        'LOG',
-        'NOTICE',
-        'PANIC',
-        'QUERY',
-        'STATEMENT',
-        'WARNING',
+        "CONTEXT",
+        "DETAIL",
+        "ERROR",
+        "FATAL",
+        "HINT",
+        "INFO",
+        "LOG",
+        "NOTICE",
+        "PANIC",
+        "QUERY",
+        "STATEMENT",
+        "WARNING",
     ]
-    _stage1_re = re.compile('(DEBUG[1-5]|' + '|'.join(_severities) + '):  ')
+    _stage1_re = re.compile("(DEBUG[1-5]|" + "|".join(_severities) + "):  ")
 
     _types_prefixes = {
-        'duration: ': 'duration',
-        'connection ': 'connection',
-        'disconnection': 'connection',
-        'automatic analyze': 'analyze',
-        'checkpoint ': 'checkpoint',
+        "duration: ": "duration",
+        "connection ": "connection",
+        "disconnection": "connection",
+        "automatic analyze": "analyze",
+        "checkpoint ": "checkpoint",
     }
 
     @classmethod
     def guess_type(cls, severity: str, message_start: str) -> str:
         # Guess message type from severity and the first line of the message.
 
-        if severity in ('HINT', 'STATEMENT'):
+        if severity in ("HINT", "STATEMENT"):
             return severity.lower()
         for prefix in cls._types_prefixes:
             if message_start.startswith(prefix):
                 return cls._types_prefixes[prefix]
-        return 'unknown'
+        return "unknown"
 
     @classmethod
     def parse_stage1(cls, lines: List[str]) -> "Record":
         # Stage1: split prefix, severity and message.
         try:
-            prefix, severity, message0 = cls._stage1_re.split(
-                lines[0], maxsplit=1)
+            prefix, severity, message0 = cls._stage1_re.split(lines[0], maxsplit=1)
         except ValueError:
             raise UnknownData(lines)
 
@@ -512,7 +501,7 @@ class Record:
         self,
         prefix: str,
         severity: str,
-        message_type: str = 'unknown',
+        message_type: str = "unknown",
         message_lines: Optional[List[str]] = None,
         raw_lines: Optional[List[str]] = None,
         **fields: str,
@@ -525,14 +514,13 @@ class Record:
         self.__dict__.update(fields)
 
     def __repr__(self) -> str:
-        return '<%s %s: %.32s...>' % (
-            self.__class__.__name__, self.severity,
-            self.message_lines[0].replace('\n', ''),
+        return "<%s %s: %.32s...>" % (
+            self.__class__.__name__,
+            self.severity,
+            self.message_lines[0].replace("\n", ""),
         )
 
-    def parse_stage2(
-        self, parse_prefix: Callable[[str], Mapping[str, Any]]
-    ) -> None:
+    def parse_stage2(self, parse_prefix: Callable[[str], Mapping[str, Any]]) -> None:
         # Stage 2. Analyze prefix fields
 
         self.__dict__.update(parse_prefix(self.prefix))
@@ -540,13 +528,10 @@ class Record:
     def parse_stage3(self) -> None:
         # Stage 3. Analyze message lines.
 
-        self.message = ''.join([
-            line.lstrip('\t').rstrip('\n') for line in self.message_lines
-        ])
+        self.message = "".join(
+            [line.lstrip("\t").rstrip("\n") for line in self.message_lines]
+        )
 
     def as_dict(self) -> Dict[str, Union[str, object, datetime]]:
         """Returns record fields as a :class:`dict`."""
-        return dict([
-            (k, v)
-            for k, v in self.__dict__.items()
-        ])
+        return dict([(k, v) for k, v in self.__dict__.items()])

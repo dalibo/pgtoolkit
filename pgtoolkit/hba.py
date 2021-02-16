@@ -94,7 +94,7 @@ from ._helpers import (
 
 class HBAComment(str):
     def __repr__(self) -> str:
-        return '<%s %.32s>' % (self.__class__.__name__, self)
+        return "<%s %.32s>" % (self.__class__.__name__, self)
 
 
 class HBARecord:
@@ -122,15 +122,20 @@ class HBARecord:
     """
 
     COMMON_FIELDS = [
-        'conntype', 'databases', 'users', 'address', 'netmask', 'method',
+        "conntype",
+        "databases",
+        "users",
+        "address",
+        "netmask",
+        "method",
     ]
     CONNECTION_TYPES = [
-        'local',
-        'host',
-        'hostssl',
-        'hostnossl',
-        'hostgssenc',
-        'hostnogssenc',
+        "local",
+        "host",
+        "hostssl",
+        "hostnossl",
+        "hostgssenc",
+        "hostnogssenc",
     ]
 
     @classmethod
@@ -143,29 +148,29 @@ class HBARecord:
 
         """
         line = line.strip()
-        record_fields = ['conntype', 'databases', 'users']
+        record_fields = ["conntype", "databases", "users"]
         values = shlex.split(line, comments=False)
         # Split databases and users lists.
-        values[1] = values[1].split(',')  # type: ignore
-        values[2] = values[2].split(',')  # type: ignore
+        values[1] = values[1].split(",")  # type: ignore
+        values[2] = values[2].split(",")  # type: ignore
         try:
-            hash_pos = values.index('#')
+            hash_pos = values.index("#")
         except ValueError:
             comment = None
         else:
             values, comments = values[:hash_pos], values[hash_pos:]
-            comment = ' '.join(comments[1:])
+            comment = " ".join(comments[1:])
 
         if values[0] not in cls.CONNECTION_TYPES:
             raise ValueError("Unknown connection type '%s'" % values[0])
-        if 'local' != values[0]:
-            record_fields.append('address')
-        common_values = [v for v in values if '=' not in v]
+        if "local" != values[0]:
+            record_fields.append("address")
+        common_values = [v for v in values if "=" not in v]
         if len(common_values) >= 6:
-            record_fields.append('netmask')
-        record_fields.append('method')
-        base_options = list(zip(record_fields, values[:len(record_fields)]))
-        auth_options = [o.split('=', 1) for o in values[len(record_fields):]]
+            record_fields.append("netmask")
+        record_fields.append("method")
+        base_options = list(zip(record_fields, values[: len(record_fields)]))
+        auth_options = [o.split("=", 1) for o in values[len(record_fields) :]]
         options = base_options + auth_options  # type: ignore
         return cls(options, comment=comment)
 
@@ -175,9 +180,7 @@ class HBARecord:
 
     def __init__(
         self,
-        values: Optional[
-            Union[Iterable[Tuple[str, str]], Dict[str, Any]]
-        ] = None,
+        values: Optional[Union[Iterable[Tuple[str, str]], Dict[str, Any]]] = None,
         comment: Optional[str] = None,
         **kw_values: Union[str, Sequence[str]],
     ) -> None:
@@ -187,19 +190,19 @@ class HBARecord:
         :param comment:  Comment at the end of the line.
         """
         values: Dict[str, Any] = dict(values or {}, **kw_values)
-        if 'database' in values:
-            values['databases'] = [values.pop('database')]
-        if 'user' in values:
-            values['users'] = [values.pop('user')]
+        if "database" in values:
+            values["databases"] = [values.pop("database")]
+        if "user" in values:
+            values["users"] = [values.pop("user")]
         self.__dict__.update(values)
         self.fields = [k for k, _ in values.items()]
         self.comment = comment
 
     def __repr__(self) -> str:
-        return '<%s %s%s>' % (
+        return "<%s %s%s>" % (
             self.__class__.__name__,
-            ' '.join(self.common_values),
-            '...' if self.auth_options else ''
+            " ".join(self.common_values),
+            "..." if self.auth_options else "",
         )
 
     def __str__(self) -> str:
@@ -207,7 +210,7 @@ class HBARecord:
         # Stolen from default pg_hba.conf
         widths = [8, 16, 16, 16, 8]
 
-        fmt = ''
+        fmt = ""
         for i, field in enumerate(self.COMMON_FIELDS):
             try:
                 width = widths[i]
@@ -215,23 +218,23 @@ class HBARecord:
                 width = 0
 
             if field not in self.fields:
-                fmt += ' ' * width
+                fmt += " " * width
                 continue
 
             if width:
-                fmt += '%%(%s)-%ds ' % (field, width - 1)
+                fmt += "%%(%s)-%ds " % (field, width - 1)
             else:
-                fmt += '%%(%s)s ' % (field,)
+                fmt += "%%(%s)s " % (field,)
         # Serialize database and user list using property.
         values = dict(self.__dict__, databases=self.database, users=self.user)
         line = fmt.rstrip() % values
 
         auth_options = ['%s="%s"' % i for i in self.auth_options]
         if auth_options:
-            line += ' ' + ' '.join(auth_options)
+            line += " " + " ".join(auth_options)
 
         if self.comment is not None:
-            line += '  # ' + self.comment
+            line += "  # " + self.comment
         else:
             line = line.rstrip()
 
@@ -241,19 +244,13 @@ class HBARecord:
     def common_values(self) -> List[str]:
         str_fields = self.COMMON_FIELDS[:]
         # Use serialized variant.
-        str_fields[1:3] = ['database', 'user']
-        return [
-            getattr(self, f)
-            for f in str_fields
-            if f in self.fields
-        ]
+        str_fields[1:3] = ["database", "user"]
+        return [getattr(self, f) for f in str_fields if f in self.fields]
 
     @property
     def auth_options(self) -> List[Tuple[str, str]]:
         return [
-            (f, getattr(self, f))
-            for f in self.fields
-            if f not in self.COMMON_FIELDS
+            (f, getattr(self, f)) for f in self.fields if f not in self.COMMON_FIELDS
         ]
 
     @property
@@ -264,7 +261,7 @@ class HBARecord:
         guaranteed to be a string.
 
         """
-        return ','.join(self.databases)
+        return ",".join(self.databases)
 
     @property
     def user(self) -> str:
@@ -274,7 +271,7 @@ class HBARecord:
         to be a string.
 
         """
-        return ','.join(self.users)
+        return ",".join(self.users)
 
     def matches(self, **attrs: str) -> bool:
         """Tells if the current record is matching provided attributes.
@@ -285,8 +282,8 @@ class HBARecord:
 
         # Provided attributes should be comparable to HBARecord attributes
         for k in attrs.keys():
-            if k not in self.COMMON_FIELDS + ['database', 'user']:
-                raise AttributeError('%s is not a valid attribute' % k)
+            if k not in self.COMMON_FIELDS + ["database", "user"]:
+                raise AttributeError("%s is not a valid attribute" % k)
 
         for k, v in attrs.items():
             if getattr(self, k, None) != v:
@@ -324,7 +321,7 @@ class HBA:
         :param entries: A list of HBAComment or HBARecord. Optional.
         """
         if entries and not isinstance(entries, list):
-            raise ValueError('%s should be a list' % entries)
+            raise ValueError("%s should be a list" % entries)
         self.lines = list(entries) if entries is not None else []
         self.path = None
 
@@ -342,8 +339,8 @@ class HBA:
         for i, line in enumerate(fo):
             stripped = line.lstrip()
             record: Union[HBARecord, HBAComment]
-            if not stripped or stripped.startswith('#'):
-                record = HBAComment(line.replace(os.linesep, ''))
+            if not stripped or stripped.startswith("#"):
+                record = HBAComment(line.replace(os.linesep, ""))
             else:
                 try:
                     record = HBARecord.parse(line)
@@ -364,7 +361,7 @@ class HBA:
             # TYPE  DATABASE        USER            ADDRESS                 METHOD
             local   all             all                                     trust
         """  # noqa
-        with open_or_return(fo or self.path, mode='w') as fo:
+        with open_or_return(fo or self.path, mode="w") as fo:
             for line in self.lines:
                 fo.write(str(line) + os.linesep)
 
@@ -392,16 +389,17 @@ class HBA:
 
         """
         if filter is not None and len(attrs.keys()):
-            warnings.warn('Only filter will be taken into account')
+            warnings.warn("Only filter will be taken into account")
 
         # Attributes list to look for must not be empty
         if filter is None and not len(attrs.keys()):
-            raise ValueError('Attributes dict cannot be empty')
+            raise ValueError("Attributes dict cannot be empty")
 
         filter = filter or (lambda line: line.matches(**attrs))
 
         self.lines = [
-            line for line in self.lines
+            line
+            for line in self.lines
             if not (isinstance(line, HBARecord) and filter(line))
         ]
 
@@ -427,12 +425,12 @@ class HBA:
                     other_comments.append(new_line)
                 else:
                     kwargs = dict()
-                    for a in ['conntype', 'database', 'user', 'address']:
+                    for a in ["conntype", "database", "user", "address"]:
                         if hasattr(new_line, a):
                             kwargs[a] = getattr(new_line, a)
                     if line.matches(**kwargs):
                         # replace matched line with comments + record
-                        self.lines[i:i+1] = other_comments + [new_line]  # type: ignore  # noqa: E501
+                        self.lines[i : i + 1] = other_comments + [new_line]  # type: ignore  # noqa: E501
                         for c in other_comments:
                             new_lines.remove(c)
                         new_lines.remove(new_line)
@@ -459,8 +457,8 @@ def parse(file: Union[str, Iterable[str]]) -> HBA:
     return hba
 
 
-if __name__ == '__main__':  # pragma: nocover
-    argv = sys.argv[1:] + ['-']
+if __name__ == "__main__":  # pragma: nocover
+    argv = sys.argv[1:] + ["-"]
     try:
         with open_or_stdin(argv[0]) as fo:
             hba = parse(fo)

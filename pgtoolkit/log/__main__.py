@@ -21,21 +21,26 @@ def main(
     argv: List[str] = sys.argv[1:],
     environ: MutableMapping[str, str] = os.environ,
 ) -> int:
-    debug = strtobool(environ.get('DEBUG', 'n'))
+    debug = strtobool(environ.get("DEBUG", "n"))
     logging.basicConfig(
         level=logging.DEBUG if debug else logging.INFO,
-        format='%(asctime)s %(levelname).1s: %(message)s',
+        format="%(asctime)s %(levelname).1s: %(message)s",
     )
     parser = ArgumentParser()
     # Default comes from PostgreSQL documentation.
     parser.add_argument(
-        "log_line_prefix", default="%m [%p] ",
+        "log_line_prefix",
+        default="%m [%p] ",
         metavar="LOG_LINE_PREFIX",
-        help="log_line_prefix as configured in PostgreSQL. "
-        "default: '%(default)s'")
+        help="log_line_prefix as configured in PostgreSQL. " "default: '%(default)s'",
+    )
     parser.add_argument(
-        "filename", nargs="?", default="-", metavar="FILENAME",
-        help="Log filename or - for stdin. default: %(default)s")
+        "filename",
+        nargs="?",
+        default="-",
+        metavar="FILENAME",
+        help="Log filename or - for stdin. default: %(default)s",
+    )
     args = parser.parse_args(argv)
 
     counter = 0
@@ -47,8 +52,7 @@ def main(
                         logger.warning("%s", record)
                     else:
                         counter += 1
-                        print(
-                            json.dumps(record.as_dict(), cls=JSONDateEncoder))
+                        print(json.dumps(record.as_dict(), cls=JSONDateEncoder))
         logger.info("Parsed %d records in %s.", counter, timer.delta)
     except (KeyboardInterrupt, bdb.BdbQuit):  # pragma: nocover
         logger.info("Interrupted.")
@@ -61,5 +65,5 @@ def main(
     return 0
 
 
-if '__main__' == __name__:  # pragma: nocover
+if "__main__" == __name__:  # pragma: nocover
     sys.exit(main(argv=sys.argv[1:], environ=os.environ))
