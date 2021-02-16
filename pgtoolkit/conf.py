@@ -551,14 +551,14 @@ class Configuration:
         >>> _ = cfg.parse([
         ...     "#listen_addresses = 'localhost'  # what IP address(es) to listen on;\n",
         ...     "                                 # comma-separated list of addresses;\n",
-        ...     "port = 5432				# (change requires restart)\n",
-        ...     "max_connections = 100			# (change requires restart)\n",
+        ...     "port = 5432                      # (change requires restart)\n",
+        ...     "max_connections = 100            # (change requires restart)\n",
         ... ])
         >>> cfg.save(sys.stdout)
         #listen_addresses = 'localhost'  # what IP address(es) to listen on;
                                          # comma-separated list of addresses;
-        port = 5432                            # (change requires restart)
-        max_connections = 100                  # (change requires restart)
+        port = 5432                      # (change requires restart)
+        max_connections = 100            # (change requires restart)
 
         >>> with cfg.edit() as entries:
         ...     entries["port"].value = 2345
