@@ -196,7 +196,7 @@ class PassEntry:
         if len(fields) != 5:
             raise ValueError("Invalid line.")
         if fields[1] != "*":
-            fields[1] = int(fields[1])  # type: ignore
+            fields[1] = int(fields[1])  # type: ignore[call-overload]
         return cls(*fields)
 
     def __init__(
@@ -264,7 +264,7 @@ class PassEntry:
         # Compute precision from * occurences.
         precision = len([x for x in tpl if x == "*"])
         # More specific entries comes first.
-        return (precision,) + tuple(chr(0xFF) if x == "*" else x for x in tpl)  # type: ignore  # noqa: E501
+        return (precision,) + tuple(chr(0xFF) if x == "*" else x for x in tpl)  # type: ignore[return-value]
 
     def matches(self, **attrs: Union[int, str]) -> bool:
         """Tells if the current entry is matching provided attributes.
@@ -437,11 +437,11 @@ class PassFile:
             def filter_(line: Union[PassComment, PassEntry]) -> bool:
                 if isinstance(line, PassComment):
                     try:
-                        return filter(line.entry)  # type: ignore
+                        return filter(line.entry)  # type: ignore[misc]
                     except ValueError:
                         return False
                 else:
-                    return filter(line)  # type: ignore
+                    return filter(line)  # type: ignore[misc]
 
         else:
 

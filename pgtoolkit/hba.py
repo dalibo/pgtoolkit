@@ -151,8 +151,8 @@ class HBARecord:
         record_fields = ["conntype", "databases", "users"]
         values = shlex.split(line, comments=False)
         # Split databases and users lists.
-        values[1] = values[1].split(",")  # type: ignore
-        values[2] = values[2].split(",")  # type: ignore
+        values[1] = values[1].split(",")  # type: ignore[call-overload]
+        values[2] = values[2].split(",")  # type: ignore[call-overload]
         try:
             hash_pos = values.index("#")
         except ValueError:
@@ -171,7 +171,7 @@ class HBARecord:
         record_fields.append("method")
         base_options = list(zip(record_fields, values[: len(record_fields)]))
         auth_options = [o.split("=", 1) for o in values[len(record_fields) :]]
-        options = base_options + auth_options  # type: ignore
+        options = base_options + auth_options  # type: ignore[operator]
         return cls(options, comment=comment)
 
     conntype: Optional[str]
@@ -430,7 +430,7 @@ class HBA:
                             kwargs[a] = getattr(new_line, a)
                     if line.matches(**kwargs):
                         # replace matched line with comments + record
-                        self.lines[i : i + 1] = other_comments + [new_line]  # type: ignore  # noqa: E501
+                        self.lines[i : i + 1] = other_comments + [new_line]  # type: ignore[list-item]
                         for c in other_comments:
                             new_lines.remove(c)
                         new_lines.remove(new_line)

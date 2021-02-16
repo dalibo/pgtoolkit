@@ -108,7 +108,7 @@ from .parser import (
 
 
 __all__ = [
-    o.__name__  # type: ignore
+    o.__name__  # type: ignore[attr-defined]
     for o in [
         LogParser,
         NoopFilters,
