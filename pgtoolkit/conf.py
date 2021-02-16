@@ -424,6 +424,31 @@ class Configuration:
     >>> conf['pg_stat_statement.min_duration'].total_seconds()
     3.0
 
+    Configuration instances can be merged:
+
+    >>> otherconf = parse(["listen_addresses='*'\n", "port = 5454\n"])
+    >>> sumconf = conf + otherconf
+    >>> print(json.dumps(sumconf.as_dict(), cls=JSONDateEncoder, indent=2))
+    {
+      "port": 5454,
+      "pg_stat_statement.min_duration": "3s",
+      "listen_addresses": "*"
+    }
+
+    though, lines are discarded in the operation:
+    >>> sumconf.lines
+    []
+
+    >>> conf += otherconf
+    >>> print(json.dumps(conf.as_dict(), cls=JSONDateEncoder, indent=2))
+    {
+      "port": 5454,
+      "pg_stat_statement.min_duration": "3s",
+      "listen_addresses": "*"
+    }
+    >>> conf.lines
+    []
+
     .. attribute:: path
 
         Path to a file. Automatically set when calling :func:`parse` with a path
@@ -495,6 +520,23 @@ class Configuration:
                     raw_line=raw_line,
                     **kwargs,
                 )
+
+    def __add__(self, other: Any) -> "Configuration":
+        cls = self.__class__
+        if not isinstance(other, cls):
+            return NotImplemented
+        s = cls()
+        s.entries.update(self.entries)
+        s.entries.update(other.entries)
+        return s
+
+    def __iadd__(self, other: Any) -> "Configuration":
+        cls = self.__class__
+        if not isinstance(other, cls):
+            return NotImplemented
+        self.lines[:] = []
+        self.entries.update(other.entries)
+        return self
 
     def __getattr__(self, name: str) -> Value:
         try:
