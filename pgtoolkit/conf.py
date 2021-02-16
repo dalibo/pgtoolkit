@@ -139,8 +139,12 @@ def parse_includes(
         ]
 
     def parse_include(path: pathlib.Path) -> None:
+        subconf = Configuration(path=str(path))
         with path.open() as f:
-            includes.extend(make_includes(reversed(list(conf.parse(f))), path.parent))
+            includes.extend(
+                make_includes(reversed(list(subconf.parse(f))), path.parent)
+            )
+        conf.entries.update(subconf.entries)
 
     def notfound(
         path: pathlib.Path, include_type: str, reference_path: pathlib.Path

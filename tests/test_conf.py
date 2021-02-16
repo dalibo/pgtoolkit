@@ -197,6 +197,27 @@ def test_parser_includes():
     assert "include_if_exists" not in conf
     assert "include_dir" not in conf
 
+    # Make sure original file is preserved on save (i.e. includes do not
+    # interfere).
+    fo = StringIO()
+    conf.save(fo)
+    lines = fo.getvalue().strip().splitlines()
+    assert lines[:8] == [
+        "include_dir = 'conf.d'",
+        "#include_dir = 'conf.11.d'",
+        "include = 'postgres-my.conf'",
+        "#------------------------------------------------------------------------------",
+        "# CONNECTIONS AND AUTHENTICATION",
+        "#------------------------------------------------------------------------------",
+        "# - Connection Settings -",
+        "listen_addresses = '*'                  # comma-separated list of addresses;",
+    ]
+    assert lines[-3:] == [
+        "# Add settings for extensions here",
+        "pg_stat_statements.max = 10000",
+        "pg_stat_statements.track = all",
+    ]
+
 
 def test_parser_includes_loop(tmp_path):
     from pgtoolkit.conf import parse
