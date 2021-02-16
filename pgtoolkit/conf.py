@@ -56,6 +56,7 @@ from typing import (
     List,
     NoReturn,
     Optional,
+    Set,
     Tuple,
     Union,
 )
@@ -96,55 +97,37 @@ def parse(fo: Union[str, IO[str]]) -> "Configuration":
     :returns: A :class:`Configuration` containing parsed configuration.
 
     """
-    includes_top = []
+
+    def consume(conf: Configuration) -> Iterator[None]:
+        for include_path, include_type in conf.parse(f):
+            if not conf.path:
+                raise ValueError(
+                    "cannot process include directives from a file argument; "
+                    "try passing a file path"
+                )
+            from_path = pathlib.Path(conf.path).absolute()
+            yield from parse_include(conf, include_path, include_type, from_path)
+
     with open_or_return(fo) as f:
         conf = Configuration(getattr(f, "name", None))
-        for include_path, include_type in conf.parse(f):
-            includes_top.append((include_path, include_type))
-
-    includes_top.reverse()
-
-    if includes_top:
-        if not isinstance(fo, str):
-            raise ValueError(
-                "cannot process include directives from a file argument; "
-                "try passing a file path"
-            )
-        parse_includes(conf, includes_top, pathlib.Path(fo).absolute())
+        list(consume(conf))
 
     return conf
 
 
-def parse_includes(
+def parse_include(
     conf: "Configuration",
-    raw_includes: List[Tuple[pathlib.Path, IncludeType]],
+    path: pathlib.Path,
+    include_type: IncludeType,
     from_path: pathlib.Path,
-) -> None:
-    def absolute(path: pathlib.Path, relative_to: pathlib.Path) -> pathlib.Path:
-        """Make 'path' absolute by joining from 'relative_to' path."""
-        if path.is_absolute():
-            return path
-        assert relative_to.is_absolute()
-        if relative_to.is_file():
-            relative_to = relative_to.parent
-        return relative_to / path
-
-    def make_includes(
-        includes: Iterable[Tuple[pathlib.Path, IncludeType]],
-        reference_path: pathlib.Path,
-    ) -> List[Tuple[pathlib.Path, pathlib.Path, IncludeType]]:
-        return [
-            (absolute(path, reference_path), reference_path, include_type)
-            for path, include_type in includes
-        ]
-
-    def parse_include(path: pathlib.Path) -> None:
-        subconf = Configuration(path=str(path))
-        with path.open() as f:
-            includes.extend(
-                make_includes(reversed(list(subconf.parse(f))), path.parent)
-            )
-        conf.entries.update(subconf.entries)
+    *,
+    _processed: Optional[Set[pathlib.Path]] = None,
+) -> Iterator[None]:
+    """Parse on include directive with 'path' value of type 'include_type' into
+    'conf' object.
+    """
+    if _processed is None:
+        _processed = set()
 
     def notfound(
         path: pathlib.Path, include_type: str, reference_path: pathlib.Path
@@ -153,33 +136,54 @@ def parse_includes(
             f"{include_type} '{path}', included from '{reference_path}'," " not found"
         )
 
-    includes = make_includes(raw_includes, from_path)
-    processed = set()
-    while includes:
-        path, reference_path, include_type = includes.pop()
+    if not path.is_absolute():
+        relative_to = from_path
+        assert relative_to.is_absolute()
+        if relative_to.is_file():
+            relative_to = relative_to.parent
+        path = relative_to / path
 
-        if path in processed:
+    if include_type == IncludeType.include_dir:
+        if not path.exists() or not path.is_dir():
+            raise notfound(path, "directory", from_path)
+        for confpath in path.glob("*.conf"):
+            if not confpath.name.startswith("."):
+                yield from parse_include(
+                    conf,
+                    confpath,
+                    IncludeType.include,
+                    from_path,
+                    _processed=_processed,
+                )
+
+    elif include_type == IncludeType.include_if_exists:
+        if path.exists():
+            yield from parse_include(
+                conf, path, IncludeType.include, from_path, _processed=_processed
+            )
+
+    elif include_type == IncludeType.include:
+        if not path.exists():
+            raise notfound(path, "file", from_path)
+
+        if path in _processed:
             raise RuntimeError(f"loop detected in include directive about '{path}'")
-        processed.add(path)
+        _processed.add(path)
 
-        if include_type == IncludeType.include_dir:
-            if not path.exists() or not path.is_dir():
-                raise notfound(path, "directory", reference_path)
-            for confpath in path.glob("*.conf"):
-                if not confpath.name.startswith("."):
-                    parse_include(confpath)
+        subconf = Configuration(path=str(path))
+        with path.open() as f:
+            for sub_include_path, sub_include_type in subconf.parse(f):
+                yield from parse_include(
+                    subconf,
+                    sub_include_path,
+                    sub_include_type,
+                    path,
+                    _processed=_processed,
+                )
+        conf.entries.update(subconf.entries)
 
-        elif include_type == IncludeType.include_if_exists:
-            if path.exists():
-                parse_include(path)
-
-        elif include_type == IncludeType.include:
-            if not path.exists():
-                raise notfound(path, "file", reference_path)
-            parse_include(path)
-
-        else:
-            assert False, include_type  # pragma: nocover
+    else:
+        assert False, include_type  # pragma: nocover
 
 
 MEMORY_MULTIPLIERS = {
