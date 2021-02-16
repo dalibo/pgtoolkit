@@ -177,12 +177,12 @@ def test_parser_includes():
         "bonsoir": True,
         "checkpoint_completion_target": 0.9,
         "cluster_name": "pgtoolkit",
-        "listen_addresses": "1.2.3.4",
+        "listen_addresses": "1.2.3.4",  # XXX: should be "*"
         "log_line_prefix": "%m %q@%d",
         "log_rotation_age": timedelta(days=1),
         "max_connections": 100,
         "my": True,
-        "mymy": True,
+        "mymy": True,  # XXX: should be False
         "mymymy": True,
         "pg_stat_statements.max": 10000,
         "pg_stat_statements.track": "all",
