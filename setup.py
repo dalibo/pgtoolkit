@@ -1,7 +1,11 @@
+import pathlib
+
 from setuptools import setup
 
 
-with open("README.rst", "r", encoding="utf-8") as fo:
+here = pathlib.Path(__file__).parent
+
+with (here / "README.rst").open("r", encoding="utf-8") as fo:
     long_description = fo.read()
 
 metadatas = dict(

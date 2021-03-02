@@ -12,7 +12,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
+import pathlib
 import pkg_resources
 
 # import sys
@@ -20,9 +20,9 @@ import pkg_resources
 
 # -- Project information -----------------------------------------------------
 
-setup_py = os.path.realpath(__file__ + "../../../setup.py")
-setup_vars = dict()
-exec(open(setup_py).read(), setup_vars, setup_vars)
+setup_py = pathlib.Path(__file__).parent.parent / "setup.py"
+setup_vars = {"__file__": str(setup_py)}
+exec(setup_py.read_text(), setup_vars, setup_vars)
 metadatas = setup_vars["metadatas"]
 del setup_py
 del setup_vars
