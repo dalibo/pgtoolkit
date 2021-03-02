@@ -1,0 +1,30 @@
+Source: pgtoolkit
+Section: python
+Priority: optional
+Maintainer: Dalibo <contact@dalibo.com>
+Uploaders:
+  Denis Laxalde <denis.laxalde@dalibo.com>,
+Build-Depends:
+  debhelper (>= 11),
+  dh-python,
+  python3-all,
+  python3-setuptools,
+  python3-pytest,
+  python3-pytest-mock,
+Standards-Version: 4.1.3
+Homepage: https://github.com/dalibo/pgtoolkit
+X-Python3-Version: >= 3.6
+#Testsuite: autopkgtest-pkg-python
+
+Package: python3-pgtoolkit
+Architecture: all
+Depends:
+  ${python3:Depends},
+  ${misc:Depends},
+Suggests: python-pgtoolkit-doc
+Description: PostgreSQL toolkit for Python
+ pgtoolkit manages various file formats in a PostgreSQL cluster such as:
+ server configuration ('postgresql.conf'), host-based authentication
+ ('pg_hba.conf'), password files ('.pgpass'), etc.
+ .
+ This package installs the library for Python 3.

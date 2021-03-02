@@ -25,6 +25,22 @@ jobs:
     - store_artifacts:
         path: ~/workspace/dist/
 
+  deb-buster:
+    docker:
+      - image: debian:buster
+    steps:
+      - checkout
+      - run: |
+          apt-get update -qq
+          apt-get install -qq devscripts equivs
+          apt-get -qq build-dep .
+      - run: |
+          python3 setup.py sdist
+          version=$(python3 setup.py --version)
+          mk-origtargz dist/pgtoolkit-$version.tar.gz
+      - run: dpkg-buildpackage
+      - run: debc
+
   unit-py36:
     docker:
     - image: python:3.6
@@ -79,3 +95,4 @@ workflows:
     - unit-py36
     - rpm-centos7
     - rpm-centos8
+    - deb-buster

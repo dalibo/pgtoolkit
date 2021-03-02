@@ -1,7 +1,9 @@
 *.egg-info/
 *.pyc
 .coverage
+.pybuild
 .pytest_cache/
 __pycache__/
 build/
+debian/.debhelper/
 dist/

@@ -10,4 +10,5 @@ exclude .editorconfig
 exclude Makefile
 prune .circleci
 prune rpm
+prune debian
 prune scripts
