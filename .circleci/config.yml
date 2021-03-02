@@ -60,7 +60,7 @@ jobs:
       - run: &unit_tests
           name: Unit tests
           command: |
-            pytest pgtoolkit/ tests/
+            pytest --cov --cov-report=term-missing pgtoolkit/ tests/
             codecov -F ${CIRCLE_JOB/unit-/}
       - run:
           name: Check documentation
