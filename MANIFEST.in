@@ -1,0 +1,18 @@
+include *.md
+include *.txt
+include LICENSE
+recursive-include data *.conf
+recursive-include data *.includeme
+recursive-include data *.log pgpass*
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs Makefile
+recursive-include pgtoolkit *.py
+recursive-include tests *.py
+recursive-include tests *.sh
+
+exclude .editorconfig
+exclude Makefile
+prune .circleci
+prune rpm
+prune scripts

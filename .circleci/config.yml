@@ -52,6 +52,7 @@ jobs:
             git diff --check $(git merge-base origin/master $CIRCLE_SHA1)..$CIRCLE_SHA1
             flake8 .
             black --check --diff .
+            check-manifest .
       - run:
           name: Type check
           command: |

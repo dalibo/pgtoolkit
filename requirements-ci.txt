@@ -1,4 +1,5 @@
 black
+check-manifest
 codecov
 docutils
 flake8
