@@ -14,7 +14,7 @@ def generate_lines(lines, count=20000):
 
 def main():
     log_line_prefix = '%m [%p]: [%l-1] app=%a,db=%d%q,client=%h,user=%u '  # noqa
-    filename = 'data/postgresql.log'
+    filename = 'tests/data/postgresql.log'
     with open(filename) as fo:
         lines = fo.readlines()
     lines = generate_lines(lines)

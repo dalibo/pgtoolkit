@@ -169,7 +169,7 @@ def test_parser_includes_require_a_file_path():
 def test_parser_includes():
     from pgtoolkit.conf import parse
 
-    fpath = pathlib.Path(__file__).parent.parent / "data" / "postgres.conf"
+    fpath = pathlib.Path(__file__).parent / "data" / "postgres.conf"
     conf = parse(str(fpath))
     assert conf.as_dict() == {
         "autovacuum_work_mem": -1,

@@ -1,15 +1,10 @@
 include *.md
 include *.txt
 include LICENSE
-recursive-include data *.conf
-recursive-include data *.includeme
-recursive-include data *.log pgpass*
-recursive-include docs *.py
-recursive-include docs *.rst
-recursive-include docs Makefile
+recursive-include docs *.py *.rst Makefile
 recursive-include pgtoolkit *.py
-recursive-include tests *.py
-recursive-include tests *.sh
+recursive-include tests *.py *.sh
+recursive-include tests/data *.conf *.includeme *.log pgpass*
 
 exclude .editorconfig
 exclude Makefile
