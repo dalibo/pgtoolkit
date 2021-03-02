@@ -1,6 +1,6 @@
 import pathlib
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 
 here = pathlib.Path(__file__).parent
@@ -31,7 +31,7 @@ metadatas = dict(
 
 if __name__ == "__main__":
     setup(
-        packages=["pgtoolkit"],
+        packages=find_packages("."),
         package_data={"pgtoolkit": ["py.typed"]},
         python_requires=">=3.6",
         **metadatas
