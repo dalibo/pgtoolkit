@@ -26,6 +26,9 @@ metadatas = dict(
         "Programming Language :: Python :: 3",
         "Topic :: Database",
     ],
+    install_requires=[
+        "typing_extensions",
+    ],
 )
 
 

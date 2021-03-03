@@ -11,6 +11,10 @@ file formats, offline. Namely:
 * :mod:`pg_service.conf <pgtoolkit.service>`
 * :mod:`logs <pgtoolkit.log>`
 
+It also provides a Python API for calling pg_ctl_ commands in :mod:`ctl
+<pgtoolkit.ctl>` module.
+
+.. _pg_ctl: https://www.postgresql.org/docs/current/app-pg-ctl.html
 
 Quick installation
 ------------------

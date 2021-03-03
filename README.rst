@@ -14,6 +14,10 @@ cluster. Currently:
 - ``pg_service.conf``: find, read, edit, render.
 - Cluster logs.
 
+It also provides a Python API for calling pg_ctl_ commands.
+
+.. _pg_ctl: https://www.postgresql.org/docs/current/app-pg-ctl.html
+
 
 .. code::
 

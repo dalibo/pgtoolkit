@@ -11,3 +11,4 @@
    log
    pgpass
    service
+   ctl
