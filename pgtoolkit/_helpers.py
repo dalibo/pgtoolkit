@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import json
 import sys
+from pathlib import Path
 from typing import (
     Any,
     Generic,
@@ -68,12 +69,17 @@ def open_or_return(fo_or_path: str, mode: str = "r") -> IO[str]:
 
 
 @overload
+def open_or_return(fo_or_path: Path, mode: str = "r") -> IO[str]:
+    ...
+
+
+@overload
 def open_or_return(fo_or_path: IO[str], mode: str = "r") -> PassthroughManager[IO[str]]:
     ...
 
 
 def open_or_return(
-    fo_or_path: Optional[Union[str, IO[str]]], mode: str = "r"
+    fo_or_path: Optional[Union[str, Path, IO[str]]], mode: str = "r"
 ) -> Union[IO[str], PassthroughManager[IO[str]]]:
     # Returns a context manager around a file-object for fo_or_path. If
     # fo_or_path is a file-object, the context manager keeps it open. If it's a
@@ -84,6 +90,8 @@ def open_or_return(
         raise ValueError("No file-like object nor path provided")
     if isinstance(fo_or_path, str):
         return open(fo_or_path, mode)
+    if isinstance(fo_or_path, Path):
+        return fo_or_path.open(mode)
 
     # Skip default file context manager. This allows to always use with
     # statement and don't care about closing the file. If the file is opened

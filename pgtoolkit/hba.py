@@ -70,6 +70,7 @@ fit pseudo-column width. If filename is ``-``, stdin is read instead.
 import os
 import shlex
 import sys
+from pathlib import Path
 from typing import (
     Any,
     Callable,
@@ -348,7 +349,7 @@ class HBA:
                     raise ParseError(1 + i, line, str(e))
             self.lines.append(record)
 
-    def save(self, fo: Optional[Union[str, IO[str]]] = None) -> None:
+    def save(self, fo: Optional[Union[str, Path, IO[str]]] = None) -> None:
         """Write records and comments in a file
 
         :param fo: a file-like object. Is not required if :attr:`path` is set.

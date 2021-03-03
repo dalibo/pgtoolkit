@@ -76,7 +76,7 @@ class IncludeType(enum.Enum):
     include = enum.auto()
 
 
-def parse(fo: Union[str, IO[str]]) -> "Configuration":
+def parse(fo: Union[str, pathlib.Path, IO[str]]) -> "Configuration":
     """Parse a configuration file.
 
     The parser tries to return Python object corresponding to value, based on
@@ -649,7 +649,7 @@ class Configuration:
                     if entry.raw_line is not None:
                         self.lines.remove(entry.raw_line)
 
-    def save(self, fo: Optional[Union[str, IO[str]]] = None) -> None:
+    def save(self, fo: Optional[Union[str, pathlib.Path, IO[str]]] = None) -> None:
         """Write configuration to a file.
 
         Configuration entries order and comments are preserved.
