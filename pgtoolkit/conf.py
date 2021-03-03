@@ -423,6 +423,9 @@ class Configuration:
     5434
     >>> conf['pg_stat_statement.min_duration'].total_seconds()
     3.0
+    >>> conf.get("ssl")
+    >>> conf.get("ssl", False)
+    False
 
     Configuration instances can be merged:
 
@@ -574,6 +577,12 @@ class Configuration:
             self._update_entry(e)
         else:
             self._add_entry(Entry(name=key, value=value))
+
+    def get(self, key: str, default: Optional[Value] = None) -> Optional[Value]:
+        try:
+            return self[key]
+        except KeyError:
+            return default
 
     def _add_entry(self, entry: Entry) -> None:
         assert entry.name not in self.entries
