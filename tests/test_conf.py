@@ -88,7 +88,9 @@ def test_parser():
     bonjour 'without equals'
     # bonjour_name = ''		# defaults to the computer name
     shared.buffers = 248MB
+    #authentication_timeout = 2min      # will be overwritten by the one below
     #authentication_timeout = 1min		# 1s-600s
+    # port = 5454  # commented value does not override previous (uncommented) one
     """
     ).splitlines(
         True
@@ -172,6 +174,7 @@ def test_parser_includes():
     fpath = pathlib.Path(__file__).parent / "data" / "postgres.conf"
     conf = parse(str(fpath))
     assert conf.as_dict() == {
+        "authentication_timeout": timedelta(seconds=120),
         "autovacuum_work_mem": -1,
         "bonjour": False,
         "bonsoir": True,

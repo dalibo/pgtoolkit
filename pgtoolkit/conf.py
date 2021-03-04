@@ -513,6 +513,15 @@ class Configuration:
                 comment = kwargs["comment"]
                 if comment is not None:
                     kwargs["comment"] = comment.lstrip("#").lstrip()
+                if commented:
+                    # Only overwrite a previous entry if it is commented.
+                    try:
+                        existing_entry = self.entries[name]
+                    except KeyError:
+                        pass
+                    else:
+                        if not existing_entry.commented:
+                            continue
                 self.entries[name] = Entry(
                     name=name,
                     value=value,
