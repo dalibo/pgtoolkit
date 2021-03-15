@@ -10,7 +10,7 @@ with (here / "README.rst").open("r", encoding="utf-8") as fo:
 
 metadatas = dict(
     name="pgtoolkit",
-    version="0.14.0",
+    version="0.15.0",
     description="PostgreSQL Support from Python",
     long_description=long_description,
     long_description_content_type="text/x-rst",
