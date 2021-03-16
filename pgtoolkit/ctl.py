@@ -14,6 +14,7 @@ API Reference
 """
 
 import enum
+import re
 import shutil
 import subprocess
 import sys
@@ -148,6 +149,13 @@ class PGCtl:
 
         self.run_command = run_command
 
+        cmd = [str(self.pg_ctl), "--version"]
+        text_version = self.run_command(
+            cmd, check=True, capture_output=True
+        ).stdout.strip()
+        self.version = num_version(text_version)
+        """Integer representing the server version."""
+
     def init(
         self, datadir: Union[Path, str], **opts: Union[str, Literal[True]]
     ) -> CompletedProcess:
@@ -246,3 +254,59 @@ class PGCtl:
         """
         cmd = [str(self.pg_ctl), "status"] + ["-D", str(datadir)]
         return Status(self.run_command(cmd).returncode)
+
+
+def num_version(text_version: str) -> int:
+    """Return PostgreSQL numeric version as defined by LibPQ PQserverVersion
+
+    >>> num_version('pg_ctl (PostgreSQL) 9.6.3')
+    90603
+    >>> num_version('pg_ctl (PostgreSQL) 9.2.0')
+    90200
+    >>> num_version('pg_ctl (PostgreSQL) 11.10')
+    110010
+    >>> num_version('pg_ctl (PostgreSQL) 11.1')
+    110001
+    """
+    res = re.match(
+        r"pg_ctl \(\w+\) ([0-9]+)\.([0-9]+)(?:\.([0-9]+))?",
+        text_version,
+    )
+    if res is not None:
+        rmatch = res.group(1)
+        if int(res.group(1)) < 10:
+            rmatch += res.group(2).rjust(2, "0")
+            if res.group(3) is not None:
+                rmatch += res.group(3).rjust(2, "0")
+        else:
+            rmatch += res.group(2).rjust(4, "0")
+        pg_num_version = int(rmatch)
+        return pg_num_version
+    return num_dev_version(text_version)
+
+
+def num_dev_version(text_version: str) -> int:
+    """Return PostgreSQL numeric version as defined by LibPQ PQserverVersion
+
+    >>> num_dev_version("pg_ctl (PostgreSQL) 14devel")
+    140000
+    >>> num_dev_version("pg_ctl (PostgreSQL) 13beta1")
+    130000
+    >>> num_dev_version("pg_ctl (PostgreSQL) 13rc1")
+    130000
+    >>> num_dev_version("pg_ctl (PostgreSQL) 9.6devel")
+    90600
+    """
+    res = re.match(
+        r"pg_ctl \(\w+\) ([0-9]+)(?:\.([0-9]+))?(devel|beta[0-9]+|rc[0-9]+)",
+        text_version,
+    )
+    if not res:
+        raise Exception(f"Undefined PostgreSQL version: {text_version}")
+    rmatch = res.group(1)
+    if res.group(2) is not None:
+        rmatch += res.group(2).rjust(2, "0") + "00"
+    else:
+        rmatch += "0000"
+    pg_num_version = int(rmatch)
+    return pg_num_version

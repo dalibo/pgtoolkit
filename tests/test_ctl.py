@@ -34,7 +34,9 @@ def test__wait_args_to_opts():
 
 @pytest.fixture
 def fake_pgctl(tmp_path):
-    (tmp_path / "pg_ctl").touch()
+    (tmp_path / "pg_ctl").touch(mode=0o777)
+    with open(tmp_path / "pg_ctl", "w") as f:
+        f.write("#!/bin/sh\necho 'pg_ctl (PostgreSQL) 11.10'")
     c = ctl.PGCtl(tmp_path)
 
     def run_command(args, **kwargs):
@@ -160,6 +162,8 @@ def test_func_init(initdb):
 
 
 def test_func_start_stop_status_restart_reload(initdb, pg_ctl):
+    from psycopg2 import connect
+
     datadir, __, pidpath = initdb
     assert pg_ctl.status("invalid") == ctl.Status.unspecified_datadir
     assert pg_ctl.status(str(datadir)) == ctl.Status.not_running
@@ -167,6 +171,10 @@ def test_func_start_stop_status_restart_reload(initdb, pg_ctl):
     pg_ctl.start(str(datadir), logfile=datadir / "logs")
     assert pidpath.exists()
     pid1 = pidpath.read_text()
+
+    connection = connect(dbname="postgres", host="0.0.0.0")
+    assert connection.info.server_version == pg_ctl.version
+
     assert pg_ctl.status(str(datadir)) == ctl.Status.running
     pg_ctl.restart(str(datadir), mode="immediate", wait=2)
     pid2 = pidpath.read_text()
