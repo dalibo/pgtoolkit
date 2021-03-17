@@ -267,6 +267,12 @@ def num_version(text_version: str) -> int:
     110010
     >>> num_version('pg_ctl (PostgreSQL) 11.1')
     110001
+    >>> num_version("pg_ctl (PostgreSQL) 14devel")
+    140000
+    >>> num_version("pg_ctl (PostgreSQL) 9.6devel")
+    90600
+    >>> num_version("pg_ctl (PostgreSQL) 9.6rc1")
+    90600
     """
     res = re.match(
         r"pg_ctl \(\w+\) ([0-9]+)\.([0-9]+)(?:\.([0-9]+))?",
@@ -278,6 +284,8 @@ def num_version(text_version: str) -> int:
             rmatch += res.group(2).rjust(2, "0")
             if res.group(3) is not None:
                 rmatch += res.group(3).rjust(2, "0")
+            else:
+                return num_dev_version(text_version)
         else:
             rmatch += res.group(2).rjust(4, "0")
         pg_num_version = int(rmatch)
