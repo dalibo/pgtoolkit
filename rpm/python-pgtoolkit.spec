@@ -9,6 +9,7 @@ Name:		python3-%{sname}
 # Must point to a released version on PyPI.
 Version:	0.15.2
 Release:	1%{?dist}
+Epoch:		1
 Summary:	Manage Postgres cluster files from Python
 
 License:	PostgreSQL
@@ -38,8 +39,6 @@ CFLAGS="%{optflags}" %{__ospython3} setup.py build
 %{python3_sitelib}/%{sname}/*
 
 %changelog
-* Fri Mar 19 2021 Denis Laxalde <denis.laxalde@dalibo.com> - 0:0.15.2-1
-- Drop useless Epoch
 * Tue Jul 28 2020 Denis Laxalde <denis.laxalde@dalibo.com> - 1:0.8.0-1
 - Only build the Python3 version.
 * Tue Aug 28 2018 Étienne BERSAC <etienne.bersac@dalibo.com> - 1:0.0.1b1-1
