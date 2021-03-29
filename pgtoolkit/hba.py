@@ -45,7 +45,7 @@ Creating a ``pg_hba.conf`` file from scratch :
     hba.lines.append(record)
 
     with open('pg_hba.conf', 'w') as fo:
-        hba.write(fo)
+        hba.save(fo)
 
 
 Using as a script
