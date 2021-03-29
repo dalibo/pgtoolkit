@@ -143,6 +143,7 @@ class PGCtl:
         pg_ctl = bindir / "pg_ctl"
         if not pg_ctl.exists():
             raise EnvironmentError("pg_ctl executable not found")
+        self.bindir = bindir
 
         self.pg_ctl = pg_ctl
         """Path to ``pg_ctl`` executable."""
