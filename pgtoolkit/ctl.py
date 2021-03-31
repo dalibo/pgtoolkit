@@ -182,6 +182,7 @@ class PGCtl:
         *,
         wait: Union[bool, int] = True,
         logfile: Optional[Union[Path, str]] = None,
+        **opts: Union[str, Literal[True]],
     ) -> CompletedProcess:
         """Start a PostgreSQL cluster.
 
@@ -189,11 +190,19 @@ class PGCtl:
         :param wait: Wait until operation completes, if an integer value is
             passed, this will be used as --timeout value.
         :param logfile: Optional log file path
+        :param opts: extra options passed to ``postgres`` command.
+
+        Options name passed as `opts` should be underscore'd instead of dash'ed
+        and flag options should be passed a boolean ``True`` value; e.g.
+        ``F=True, work_mem=123`` for ``pg_ctl start -o '-F --work-mem=123'``.
         """
         cmd = [str(self.pg_ctl), "start"] + ["-D", str(datadir)]
         cmd.extend(_wait_args_to_opts(wait))
         if logfile:
             cmd.append(f"--log={logfile}")
+        options = _args_to_opts(opts)
+        if options:
+            cmd.extend(["-o", " ".join(options)])
         return self.run_command(cmd, check=True)
 
     def stop(
@@ -222,6 +231,7 @@ class PGCtl:
         *,
         mode: Optional[str] = None,
         wait: Union[bool, int] = True,
+        **opts: Union[str, Literal[True]],
     ) -> CompletedProcess:
         """Restart a PostgreSQL cluster.
 
@@ -229,11 +239,19 @@ class PGCtl:
         :param mode: Shutdown mode, can be "smart", "fast", or "immediate"
         :param wait: Wait until operation completes, if an integer value is
             passed, this will be used as --timeout value.
+        :param opts: extra options passed to ``postgres`` command.
+
+        Options name passed as `opts` should be underscore'd instead of dash'ed
+        and flag options should be passed a boolean ``True`` value; e.g.
+        ``F=True, work_mem=123`` for ``pg_ctl restart -o '-F --work-mem=123'``.
         """
         cmd = [str(self.pg_ctl), "restart"] + ["-D", str(datadir)]
         cmd.extend(_wait_args_to_opts(wait))
         if mode:
             cmd.append(f"--mode={mode}")
+        options = _args_to_opts(opts)
+        if options:
+            cmd.extend(["-o", " ".join(options)])
         return self.run_command(cmd, check=True)
 
     def reload(
