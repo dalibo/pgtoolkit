@@ -593,13 +593,15 @@ class Configuration:
 
     def _update_entry(self, entry: Entry) -> None:
         old_entry = self.entries[entry.name]
+        old_line = old_entry.raw_line
+        if old_line not in self.lines:
+            return
         if entry.commented:
             # If the entry was previously commented, we uncomment it (assuming
             # that setting a value to a commented entry does not make much
             # sense.)
             entry.commented = False
         # Update serialized entry.
-        old_line = old_entry.raw_line
         entry.raw_line = str(entry) + "\n"
         lineno = self.lines.index(old_line)
         self.lines[lineno : lineno + 1] = [entry.raw_line]

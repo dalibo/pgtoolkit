@@ -399,6 +399,38 @@ def test_edit():
     assert lines == expected_lines
 
 
+def test_edit_with_include(tmp_path):
+    from pgtoolkit.conf import parse
+
+    content = "a = 1\n"
+    include_conf = tmp_path / "included.conf"
+    with include_conf.open("w") as f:
+        f.write(content)
+
+    main_conf = tmp_path / "somefile.conf"
+    content = "include 'included.conf'\n"
+    content += "#a = 2\n"
+    with main_conf.open("w") as f:
+        f.write(content)
+
+    conf = parse(str(main_conf))
+
+    with conf.edit() as entries:
+        entries["a"].value = 3
+
+    expected_lines = [
+        "include 'included.conf'",
+        "#a = 2",
+    ]
+
+    with StringIO() as fo:
+        conf.save(fo)
+        lines = fo.getvalue().splitlines()
+    assert (
+        lines == expected_lines
+    ), "edit() tried to update an entry which is from included file"
+
+
 def test_configuration_iter():
     from pgtoolkit.conf import Configuration
 
