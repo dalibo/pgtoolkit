@@ -1,1 +1,1 @@
-extend-diff-ignore = "(^[^/]*[.]egg-info/|.circleci|.coverage|.editorconfig|.mypy_cache|.pytest_cache|.venv|Makefile|docs/_build|dist|rpm|setup.cfg|scripts)"
+extend-diff-ignore = "(^[^/]*[.]egg-info/|.circleci|.coverage|.editorconfig|.github|.mypy_cache|.pytest_cache|.venv|Makefile|docs/_build|dist|rpm|setup.cfg|scripts)"

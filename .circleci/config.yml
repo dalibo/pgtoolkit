@@ -41,58 +41,10 @@ jobs:
       - run: dpkg-buildpackage
       - run: debc
 
-  unit-py36:
-    docker:
-    - image: python:3.6
-      environment:
-        TERM: linux
-        TERMINFO: /etc/terminfo
-    working_directory: /workspace
-    steps:
-      - checkout
-      - restore_cache: &restore_cache
-          keys:
-            - pgtoolkit-{{ .Branch }}
-            - pgtoolkit-master
-      - run: &deps
-          name: Install dependencies
-          command: |
-            pip install --upgrade --requirement requirements-ci.txt --editable .
-      - save_cache: &save_cache
-          key: pgtoolkit-{{ .Branch }}
-          paths:
-            - "~/.cache/pip/"
-      - run:
-          name: Lint check
-          command: |
-            git diff --check $(git merge-base origin/master $CIRCLE_SHA1)..$CIRCLE_SHA1
-            flake8 .
-            black --check --diff .
-            check-manifest .
-      - run:
-          name: Type check
-          command: |
-            mypy --strict pgtoolkit
-      - run: &unit_tests
-          name: Unit tests
-          command: |
-            pytest --cov --cov-report=term-missing pgtoolkit/ tests/
-            codecov -F ${CIRCLE_JOB/unit-/}
-      - run:
-          name: Check documentation
-          command: |
-            python setup.py --long-description | rst2html.py --strict >/dev/null
-            make -C docs clean html
-      - run: &script_tests
-          name: Script tests
-          command: |
-            tests/datatests.sh
-
 workflows:
   version: 2
   pipeline:
     jobs:
-    - unit-py36
     - rpm-centos7
     - rpm-centos8
     - deb-buster
