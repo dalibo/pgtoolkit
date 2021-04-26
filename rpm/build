@@ -21,7 +21,9 @@ yum_install() {
 }
 
 # Fasten yum by disabling updates repository
-sudo sed -i '/^\[updates\]/,/^gpgkey=/d' /etc/yum.repos.d/CentOS-Base.repo
+if [ -f /etc/yum.repos.d/CentOS-Base.repo ] ; then
+    sudo sed -i '/^\[updates\]/,/^gpgkey=/d' /etc/yum.repos.d/CentOS-Base.repo
+fi
 
 # Purge previous installation
 if rpm --query --queryformat= python3-pgtoolkit ; then
