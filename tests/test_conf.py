@@ -323,7 +323,14 @@ def test_edit():
     from pgtoolkit.conf import Configuration
 
     conf = Configuration()
-    list(conf.parse(["#bonjour_name = ''  # defaults to computer name\n"]))
+    list(
+        conf.parse(
+            [
+                "#bonjour = off # advertise server via Bonjour\n",
+                "#bonjour_name = ''  # defaults to computer name\n",
+            ]
+        )
+    )
 
     conf.listen_addresses = "*"
     assert "listen_addresses" in conf
@@ -344,6 +351,7 @@ def test_edit():
         lines = fo.getvalue().splitlines()
 
     assert lines == [
+        "#bonjour = off # advertise server via Bonjour",
         "#bonjour_name = ''  # defaults to computer name",
         "listen_addresses = '*'",
         "port = 5433",
@@ -359,6 +367,7 @@ def test_edit():
         lines = fo.getvalue().splitlines()
 
     assert lines == [
+        "#bonjour = off # advertise server via Bonjour",
         "bonjour_name = 'pgserver'  # defaults to computer name",
         "listen_addresses = '*'",
         "port = 5454",
@@ -378,6 +387,7 @@ def test_edit():
         )
         del entries["log_line_prefix"]
         entries["port"].value = "54"
+        entries["bonjour"].value = True
 
     assert conf.port == 54
     assert conf.entries["port"].value == 54
@@ -387,6 +397,7 @@ def test_edit():
         lines = fo.getvalue().splitlines()
 
     expected_lines = [
+        "bonjour = on  # advertise server via Bonjour",
         "bonjour_name = 'pgserver'  # defaults to computer name",
         "listen_addresses = '*'",
         "port = 54",

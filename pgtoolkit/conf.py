@@ -594,7 +594,7 @@ class Configuration:
     def _update_entry(self, entry: Entry) -> None:
         key = entry.name
         old_entry, self.entries[key] = self.entries[key], entry
-        if entry.commented:
+        if old_entry.commented:
             # If the entry was previously commented, we uncomment it (assuming
             # that setting a value to a commented entry does not make much
             # sense.)
