@@ -379,6 +379,9 @@ def test_edit():
         del entries["log_line_prefix"]
         entries["port"].value = "54"
 
+    assert conf.port == 54
+    assert conf.entries["port"].value == 54
+
     with StringIO() as fo:
         conf.save(fo)
         lines = fo.getvalue().splitlines()

@@ -592,7 +592,8 @@ class Configuration:
         self.lines.append(entry.raw_line)
 
     def _update_entry(self, entry: Entry) -> None:
-        old_entry = self.entries[entry.name]
+        key = entry.name
+        old_entry, self.entries[key] = self.entries[key], entry
         if entry.commented:
             # If the entry was previously commented, we uncomment it (assuming
             # that setting a value to a commented entry does not make much
