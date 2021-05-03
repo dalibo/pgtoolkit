@@ -2,7 +2,7 @@
  Postgres Cluster Support in Python
 ####################################
 
-| |CircleCI| |Codecov| |RTD|
+| |Build status| |Codecov| |RTD|
 
 
 ``pgtoolkit`` provides implementations to manage various file formats in Postgres
@@ -51,8 +51,8 @@ way of interacting with developers. Feel free to open an issue to get support.
    :target: https://codecov.io/gh/dalibo/pgtoolkit
    :alt: Code coverage report
 
-.. |CircleCI| image:: https://circleci.com/gh/dalibo/pgtoolkit.svg?style=shield
-   :target: https://circleci.com/gh/dalibo/pgtoolkit
+.. |Build status| image:: https://github.com/dalibo/pgtoolkit/actions/workflows/python-package.yml/badge.svg
+   :target: https://github.com/dalibo/pgtoolkit/actions/workflows/python-package.yml
    :alt: Continuous Integration report
 
 .. |RTD| image:: https://readthedocs.org/projects/pgtoolkit/badge/?version=latest
