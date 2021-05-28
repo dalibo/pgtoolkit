@@ -28,6 +28,7 @@ jobs:
           flake8 .
           black --check --diff .
           check-manifest .
+          mypy --strict pgtoolkit
       - name: Test with pytest
         run: |
           pytest --cov --cov-report=term-missing pgtoolkit/ tests/
