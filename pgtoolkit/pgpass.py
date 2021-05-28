@@ -250,10 +250,10 @@ class PassEntry:
             [str(x).replace("\\", r"\\").replace(":", r"\:") for x in self.as_tuple()]
         )
 
-    def as_tuple(self) -> Tuple[str, Union[int, str], str, str, str]:
+    def as_tuple(self) -> Tuple[str, str, str, str, str]:
         return (
             self.hostname,
-            self.port,
+            str(self.port),
             self.database,
             self.username,
             self.password,
