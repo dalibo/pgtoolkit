@@ -55,10 +55,14 @@ def test_compare():
     a = PassEntry.parse(":*:*:*:confidentiel")
     b = PassEntry.parse("hostname:*:*:*:otherpassword")
     c = PassEntry.parse("hostname:5442:*:username:otherpassword")
+    d = PassEntry("hostname", "5442", "*", "username", "otherpassword")
+    e = PassEntry("hostname", "5443", "*", "username", "otherpassword")
 
     assert a < b
     assert c < b
     assert a != b
+    assert c == d
+    assert c < e
 
     assert [c, a, b] == sorted([a, b, c])
 
