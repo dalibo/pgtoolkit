@@ -272,7 +272,11 @@ class PGCtl:
         :return: Status value.
         """
         cmd = [str(self.pg_ctl), "status"] + ["-D", str(datadir)]
-        return Status(self.run_command(cmd).returncode)
+        cp = self.run_command(cmd)
+        rc = cp.returncode
+        if rc == 1:
+            raise subprocess.CalledProcessError(rc, cmd, cp.stdout, cp.stderr)
+        return Status(rc)
 
 
 def num_version(text_version: str) -> int:

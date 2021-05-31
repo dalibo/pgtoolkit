@@ -122,6 +122,9 @@ def test_status(fake_pgctl):
     assert fake_pgctl.status("data") == ctl.Status.not_running
     fake_pgctl.code = 4
     assert fake_pgctl.status("data") == ctl.Status.unspecified_datadir
+    fake_pgctl.code = 1
+    with pytest.raises(subprocess.CalledProcessError):
+        fake_pgctl.status("data")
 
 
 @pytest.fixture(scope="module")
