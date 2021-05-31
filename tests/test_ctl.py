@@ -1,4 +1,5 @@
 import shlex
+import socket
 import stat
 import subprocess
 
@@ -167,18 +168,27 @@ def test_func_init(initdb):
     assert not st_mode & stat.S_IWGRP
 
 
-def test_func_start_stop_status_restart_reload(initdb, pg_ctl):
+@pytest.fixture
+def tmp_port():
+    s = socket.socket()
+    s.bind(("", 0))
+    with s:
+        port = s.getsockname()[1]
+    return port
+
+
+def test_func_start_stop_status_restart_reload(initdb, pg_ctl, tmp_port):
     from psycopg2 import connect
 
     datadir, __, pidpath = initdb
     assert pg_ctl.status("invalid") == ctl.Status.unspecified_datadir
     assert pg_ctl.status(str(datadir)) == ctl.Status.not_running
     assert not pidpath.exists()
-    pg_ctl.start(str(datadir), logfile=datadir / "logs")
+    pg_ctl.start(str(datadir), logfile=datadir / "logs", port=str(tmp_port))
     assert pidpath.exists()
     pid1 = pidpath.read_text()
 
-    connection = connect(dbname="postgres", host="0.0.0.0")
+    connection = connect(dbname="postgres", host="0.0.0.0", port=tmp_port)
     assert connection.info.server_version == pg_ctl.version
 
     assert pg_ctl.status(str(datadir)) == ctl.Status.running
