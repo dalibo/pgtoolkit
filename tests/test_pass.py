@@ -139,6 +139,30 @@ def test_parse_file(pathtype, tmp_path):
     assert fpath.read_text() == "# Something\n"
 
 
+def test_edit(tmp_path):
+    from pgtoolkit.pgpass import PassComment, PassEntry, edit
+
+    fpath = tmp_path / "pgpass"
+    assert not fpath.exists()
+    with edit(fpath) as passfile:
+        passfile.lines.append(PassComment("# commented"))
+    assert fpath.read_text() == "# commented\n"
+
+    with edit(fpath) as passfile:
+        passfile.lines.extend(
+            [
+                PassEntry("*", "5443", "*", "username", "otherpassword"),
+                PassEntry("hostname", "5443", "*", "username", "password"),
+            ]
+        )
+        passfile.sort()
+    assert fpath.read_text().splitlines() == [
+        "hostname:5443:*:username:password",
+        "# commented",
+        "*:5443:*:username:otherpassword",
+    ]
+
+
 def test_save_nofile():
     from pgtoolkit.pgpass import PassComment, PassFile
 

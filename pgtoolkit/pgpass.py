@@ -12,6 +12,7 @@ See `The Password File
 in PostgreSQL documentation.
 
 .. autofunction:: parse
+.. autofunction:: edit
 .. autoclass:: PassEntry
 .. autoclass:: PassComment
 .. autoclass:: PassFile
@@ -38,6 +39,15 @@ Shorter version using the file directly in `parse`:
     pgpass.sort()
     pgpass.save()
 
+Alternatively, this can be done with the `edit` context manager:
+
+.. code:: python
+
+    with edit('.pgpass') as pgpass:
+        pgpass.lines.append((PassEntry(username='toto', password='confidentiel'))
+        passfile.sort()
+
+
 Using as a script
 -----------------
 
@@ -61,6 +71,7 @@ path as first argument, read it, validate it, sort it and output it in stdout.
 import os
 import sys
 import warnings
+from contextlib import contextmanager
 from pathlib import Path
 from typing import IO, Callable, Iterable, Iterator, List, Optional, Tuple, Union
 
@@ -458,6 +469,21 @@ def parse(file: Union[Path, str, IO[str]]) -> PassFile:
         pgpass = PassFile()
         pgpass.parse(file)
     return pgpass
+
+
+@contextmanager
+def edit(fpath: Union[Path, str]) -> Iterator[PassFile]:
+    """Context manager to edit a .pgpass file.
+
+    If the file does not exists, it is created with 600 permissions.
+    Upon exit of the context manager, the file is saved, if no error occurred.
+    """
+    fpath = Path(fpath)
+    if not fpath.exists():
+        fpath.touch(mode=0o600)
+    passfile = parse(fpath)
+    yield passfile
+    passfile.save()
 
 
 if __name__ == "__main__":  # pragma: nocover
