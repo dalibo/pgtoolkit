@@ -90,7 +90,7 @@ def test_compare():
     assert (a == [1, 2]) is False
 
 
-def test_parse_lines(mocker):
+def test_parse_lines(tmp_path):
     from pgtoolkit.pgpass import ParseError, parse
 
     lines = [
@@ -116,28 +116,30 @@ def test_parse_lines(mocker):
 
     assert 2 == len(list(pgpass))
 
-    pgpass.save(mocker.Mock(name="fo"))
+    passfile = tmp_path / "fo"
+    with passfile.open("w") as fo:
+        pgpass.save(fo)
+    assert passfile.read_text().splitlines() == [
+        "h2:5432:*:postgres:confidentiel",
+        "# h1:*:*:postgres:confidentiel",
+        "# Comment for h2",
+        "h2:*:*:postgres:confidentiel",
+    ]
 
 
-@pytest.mark.parametrize("fpath", ["filename", Path("filename")])
-def test_parse_file(fpath, mocker):
+@pytest.mark.parametrize("pathtype", [str, Path])
+def test_parse_file(pathtype, tmp_path):
     from pgtoolkit.pgpass import PassComment, parse
 
-    m = mocker.mock_open()
-    try:
-        mocker.patch("builtins.open", m)
-    except Exception:
-        mocker.patch("__builtin__.open", m)
-    pgpass = parse(fpath)
+    fpath = tmp_path / "pgpass"
+    fpath.touch()
+    pgpass = parse(pathtype(fpath))
     pgpass.lines.append(PassComment("# Something"))
-
-    assert m.called
     pgpass.save()
-    handle = m()
-    handle.write.assert_called_with("# Something\n")
+    assert fpath.read_text() == "# Something\n"
 
 
-def test_save_nofile(mocker):
+def test_save_nofile():
     from pgtoolkit.pgpass import PassComment, PassFile
 
     pgpass = PassFile()
