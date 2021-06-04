@@ -61,6 +61,7 @@ path as first argument, read it, validate it, sort it and output it in stdout.
 import os
 import sys
 import warnings
+from pathlib import Path
 from typing import IO, Callable, Iterable, Iterator, List, Optional, Tuple, Union
 
 from ._helpers import open_or_stdin
@@ -442,17 +443,17 @@ class PassFile:
         self.lines = [line for line in self.lines if not filter_(line)]
 
 
-def parse(file: Union[str, IO[str]]) -> PassFile:
+def parse(file: Union[Path, str, IO[str]]) -> PassFile:
     """Parses a .pgpass file.
 
-    :param file: Either a line iterator such as a file-like object or a string
-        corresponding to the path to the file to open and parse.
+    :param file: Either a line iterator such as a file-like object or a file
+        path to open and parse.
     :rtype: :class:`PassFile`
     """
-    if isinstance(file, str):
+    if isinstance(file, (Path, str)):
         with open(file) as fo:
             pgpass = parse(fo)
-            pgpass.path = file
+            pgpass.path = str(file)
     else:
         pgpass = PassFile()
         pgpass.parse(file)

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 
@@ -117,7 +119,8 @@ def test_parse_lines(mocker):
     pgpass.save(mocker.Mock(name="fo"))
 
 
-def test_parse_file(mocker):
+@pytest.mark.parametrize("fpath", ["filename", Path("filename")])
+def test_parse_file(fpath, mocker):
     from pgtoolkit.pgpass import PassComment, parse
 
     m = mocker.mock_open()
@@ -125,7 +128,7 @@ def test_parse_file(mocker):
         mocker.patch("builtins.open", m)
     except Exception:
         mocker.patch("__builtin__.open", m)
-    pgpass = parse("filename")
+    pgpass = parse(fpath)
     pgpass.lines.append(PassComment("# Something"))
 
     assert m.called
