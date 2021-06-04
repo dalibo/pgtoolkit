@@ -1,17 +1,8 @@
-from datetime import datetime, timedelta
 import json
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import (
-    Any,
-    Generic,
-    IO,
-    NoReturn,
-    Optional,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import IO, Any, Generic, NoReturn, Optional, TypeVar, Union, overload
 
 
 def format_timedelta(delta: timedelta) -> str:

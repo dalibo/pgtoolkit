@@ -4,7 +4,7 @@ import pytest
 
 
 def test_parse():
-    from pgtoolkit.log import parse, UnknownData
+    from pgtoolkit.log import UnknownData, parse
 
     lines = """\
 \tResult  (cost=0.00..0.01 rows=1 width=4) (actual time=1001.117..1001.118 rows=1 loops=1)
@@ -167,7 +167,7 @@ def test_record_stage2_ok(mocker):
 
 
 def test_filters():
-    from pgtoolkit.log import parse, NoopFilters
+    from pgtoolkit.log import NoopFilters, parse
 
     lines = """\
 stage1 LOG:  duration: 1002.209 ms  statement: select pg_sleep(1);
@@ -200,6 +200,7 @@ def test_main(mocker, caplog, capsys):
     parse = mocker.patch(pkg + ".parse", autospec=True)
 
     from datetime import datetime
+
     from pgtoolkit.log import Record, UnknownData
     from pgtoolkit.log.__main__ import main
 

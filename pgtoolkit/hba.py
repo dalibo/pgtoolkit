@@ -70,12 +70,13 @@ fit pseudo-column width. If filename is ``-``, stdin is read instead.
 import os
 import shlex
 import sys
+import warnings
 from pathlib import Path
 from typing import (
+    IO,
     Any,
     Callable,
     Dict,
-    IO,
     Iterable,
     Iterator,
     List,
@@ -84,13 +85,9 @@ from typing import (
     Tuple,
     Union,
 )
-import warnings
 
+from ._helpers import open_or_return, open_or_stdin
 from .errors import ParseError
-from ._helpers import (
-    open_or_return,
-    open_or_stdin,
-)
 
 
 class HBAComment(str):

@@ -3,6 +3,7 @@ check-manifest
 codecov
 docutils
 flake8
+isort
 mypy
 pytest
 pytest-cov

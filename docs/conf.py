@@ -13,6 +13,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import pathlib
+
 import pkg_resources
 
 # import sys

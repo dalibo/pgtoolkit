@@ -1,7 +1,7 @@
 import pathlib
 from datetime import timedelta
-from textwrap import dedent
 from io import StringIO
+from textwrap import dedent
 
 import pytest
 

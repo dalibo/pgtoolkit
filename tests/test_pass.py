@@ -89,7 +89,7 @@ def test_compare():
 
 
 def test_parse_lines(mocker):
-    from pgtoolkit.pgpass import parse, ParseError
+    from pgtoolkit.pgpass import ParseError, parse
 
     lines = [
         "# Comment for h2",
@@ -118,7 +118,7 @@ def test_parse_lines(mocker):
 
 
 def test_parse_file(mocker):
-    from pgtoolkit.pgpass import parse, PassComment
+    from pgtoolkit.pgpass import PassComment, parse
 
     m = mocker.mock_open()
     try:
@@ -135,7 +135,7 @@ def test_parse_file(mocker):
 
 
 def test_save_nofile(mocker):
-    from pgtoolkit.pgpass import PassFile, PassComment
+    from pgtoolkit.pgpass import PassComment, PassFile
 
     pgpass = PassFile()
     pgpass.lines.append(PassComment("# Something"))

@@ -19,7 +19,8 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, List, Mapping, Optional, Sequence, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, List, Mapping, Optional, Sequence, Union
+
 from typing_extensions import Literal, Protocol
 
 if TYPE_CHECKING:

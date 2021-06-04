@@ -8,11 +8,8 @@ from argparse import ArgumentParser
 from distutils.util import strtobool
 from typing import List, MutableMapping
 
-from .._helpers import JSONDateEncoder
-from .._helpers import open_or_stdin
-from .._helpers import Timer
-from .parser import parse, UnknownData
-
+from .._helpers import JSONDateEncoder, Timer, open_or_stdin
+from .parser import UnknownData, parse
 
 logger = logging.getLogger(__name__)
 

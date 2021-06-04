@@ -2,7 +2,6 @@ import pathlib
 
 from setuptools import find_packages, setup
 
-
 here = pathlib.Path(__file__).parent
 
 with (here / "README.rst").open("r", encoding="utf-8") as fo:

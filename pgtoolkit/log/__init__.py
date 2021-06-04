@@ -97,15 +97,7 @@ You can use this module to dump logs as JSON using the following usage::
 
 """  # noqa
 
-from .parser import (
-    LogParser,
-    NoopFilters,
-    PrefixParser,
-    Record,
-    UnknownData,
-    parse,
-)
-
+from .parser import LogParser, NoopFilters, PrefixParser, Record, UnknownData, parse
 
 __all__ = [
     o.__name__  # type: ignore[attr-defined]

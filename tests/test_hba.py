@@ -149,7 +149,7 @@ def test_hba_create():
 
 
 def test_parse_file(mocker):
-    from pgtoolkit.hba import parse, HBAComment
+    from pgtoolkit.hba import HBAComment, parse
 
     m = mocker.mock_open()
     try:
@@ -172,7 +172,7 @@ def test_parse_file(mocker):
 
 
 def test_hba_error(mocker):
-    from pgtoolkit.hba import parse, ParseError
+    from pgtoolkit.hba import ParseError, parse
 
     with pytest.raises(ParseError) as ei:
         parse(["lcal all all\n"])
@@ -238,6 +238,7 @@ def test_remove():
 
 def test_merge():
     import os
+
     from pgtoolkit.hba import parse
 
     sample = """\

@@ -42,15 +42,15 @@ import contextlib
 import copy
 import enum
 import json
-from collections import OrderedDict
 import pathlib
 import re
 import sys
+from collections import OrderedDict
 from datetime import timedelta
 from typing import (
+    IO,
     Any,
     Dict,
-    IO,
     Iterable,
     Iterator,
     List,
@@ -61,8 +61,7 @@ from typing import (
     Union,
 )
 
-from ._helpers import JSONDateEncoder
-from ._helpers import open_or_return
+from ._helpers import JSONDateEncoder, open_or_return
 
 
 class IncludeType(enum.Enum):

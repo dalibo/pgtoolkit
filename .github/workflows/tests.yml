@@ -25,6 +25,7 @@ jobs:
           flake8 .
           black --check --diff .
           check-manifest .
+          isort --check --diff .
           mypy --strict pgtoolkit
       - name: Test with pytest
         run: |

@@ -60,20 +60,11 @@ path as first argument, read it, validate it, sort it and output it in stdout.
 
 import os
 import sys
-from typing import (
-    Callable,
-    IO,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-    Union,
-)
 import warnings
+from typing import IO, Callable, Iterable, Iterator, List, Optional, Tuple, Union
 
-from .errors import ParseError
 from ._helpers import open_or_stdin
+from .errors import ParseError
 
 
 def unescape(s: str, delim: str) -> str:

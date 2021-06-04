@@ -50,6 +50,7 @@ def test_timer():
 
 def test_format_timedelta():
     from datetime import timedelta
+
     from pgtoolkit._helpers import format_timedelta
 
     assert "5s" == format_timedelta(timedelta(seconds=5))
@@ -59,8 +60,9 @@ def test_format_timedelta():
 
 
 def test_json_encoder():
-    from datetime import datetime, timedelta
     import json
+    from datetime import datetime, timedelta
+
     from pgtoolkit._helpers import JSONDateEncoder
 
     data_ = dict(

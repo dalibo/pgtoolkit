@@ -89,13 +89,12 @@ comments.
 """
 
 
-from configparser import ConfigParser
 import os
 import sys
-from typing import Dict, IO, Iterable, MutableMapping, Optional, Union
+from configparser import ConfigParser
+from typing import IO, Dict, Iterable, MutableMapping, Optional, Union
 
 from ._helpers import open_or_stdin
-
 
 Parameter = Union[str, int]
 
