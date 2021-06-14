@@ -19,7 +19,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Mapping, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Union
 
 from typing_extensions import Literal, Protocol
 
@@ -278,6 +278,30 @@ class PGCtl:
         if rc == 1:
             raise subprocess.CalledProcessError(rc, cmd, cp.stdout, cp.stderr)
         return Status(rc)
+
+    def controldata(self, datadir: Union[Path, str]) -> Dict[str, str]:
+        """Run the pg_controldata command and parse the result to return
+        controldata as dict.
+
+        :param datadir: Path to database storage area
+        """
+        pg_controldata = self.bindir / "pg_controldata"
+        if not pg_controldata.exists():
+            raise EnvironmentError("pg_controldata executable not found")
+        cmd = [str(pg_controldata)] + ["-D", str(datadir)]
+        r = self.run_command(
+            cmd, check=True, env={"LC_ALL": "C"}, capture_output=True
+        ).stdout
+        return self._parse_control_data(r.splitlines())
+
+    def _parse_control_data(self, lines: List[str]) -> Dict[str, str]:
+        """Parse pg_controldata command output."""
+        controldata = {}
+        for line in lines:
+            m = re.match(r"^([^:]+):(.*)$", line)
+            if m:
+                controldata[m.group(1).strip()] = m.group(2).strip()
+        return controldata
 
 
 def num_version(text_version: str) -> int:

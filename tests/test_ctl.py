@@ -206,3 +206,31 @@ def test_func_start_stop_status_restart_reload(initdb, pg_ctl, tmp_port):
     pg_ctl.stop(str(datadir), mode="smart")
     assert not pidpath.exists()
     assert pg_ctl.status(str(datadir)) == ctl.Status.not_running
+
+
+def test_unit__parse_controldata(pg_ctl):
+    lines = [
+        "pg_control version number:            1100",
+        "Catalog version number:               201809051",
+        "Database system identifier:           6798427594087098476",
+        "Database cluster state:               shut down",
+        "pg_control last modified:             Tue 07 Jul 2020 01:08:58 PM CEST",
+        "WAL block size:                       8192",
+    ]
+    controldata = pg_ctl._parse_control_data(lines)
+    assert controldata == {
+        "Catalog version number": "201809051",
+        "Database cluster state": "shut down",
+        "Database system identifier": "6798427594087098476",
+        "WAL block size": "8192",
+        "pg_control last modified": "Tue 07 Jul 2020 01:08:58 PM CEST",
+        "pg_control version number": "1100",
+    }
+
+
+def test_func_controldata(initdb, pg_ctl):
+    datadir, __, __ = initdb
+    controldata = pg_ctl.controldata(datadir=datadir)
+    assert "Database block size" in controldata
+    assert controldata["Database block size"] == "8192"
+    assert "Database cluster state" in controldata
