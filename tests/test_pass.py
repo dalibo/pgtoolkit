@@ -126,6 +126,11 @@ def test_parse_lines(tmp_path):
         "h2:*:*:postgres:confidentiel",
     ]
 
+    header = "#hostname:port:database:username:password"
+    pgpass = parse([header])
+    pgpass.sort()
+    assert pgpass.lines == [header]
+
 
 @pytest.mark.parametrize("pathtype", [str, Path])
 def test_parse_file(pathtype, tmp_path):

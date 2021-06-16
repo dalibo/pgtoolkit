@@ -380,11 +380,15 @@ class PassFile:
             entries.append((line, comments))
             comments = []
 
-        entries.sort()
         self.lines[:] = []
-        for entry, comments in entries:
+        if not entries and comments:
+            # no entry, only comments
             self.lines.extend(comments)
-            self.lines.append(entry)
+        else:
+            entries.sort()
+            for entry, comments in entries:
+                self.lines.extend(comments)
+                self.lines.append(entry)
 
     def save(self, fo: Optional[IO[str]] = None) -> None:
         """Save entries and comment in a file.
