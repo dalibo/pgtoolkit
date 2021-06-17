@@ -9,7 +9,6 @@ with (here / "README.rst").open("r", encoding="utf-8") as fo:
 
 metadatas = dict(
     name="pgtoolkit",
-    version="0.17.0",
     description="PostgreSQL Support from Python",
     long_description=long_description,
     long_description_content_type="text/x-rst",
@@ -25,6 +24,8 @@ metadatas = dict(
         "Programming Language :: Python :: 3",
         "Topic :: Database",
     ],
+    use_scm_version=True,
+    setup_requires=["setuptools_scm"],
     install_requires=[
         "typing_extensions",
     ],

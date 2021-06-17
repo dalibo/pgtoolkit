@@ -33,7 +33,7 @@ author = metadatas["author"]
 copyright = "2018, Dalibo Labs"
 
 # The full version, including alpha/beta/rc tags
-release = metadatas["version"]
+release = pkg_resources.get_distribution(project).version
 parsed_version = pkg_resources.parse_version(release)
 # The short X.Y version
 version = parsed_version.base_version
