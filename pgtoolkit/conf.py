@@ -145,7 +145,7 @@ def parse_include(
     if include_type == IncludeType.include_dir:
         if not path.exists() or not path.is_dir():
             raise notfound(path, "directory", from_path)
-        for confpath in path.glob("*.conf"):
+        for confpath in sorted(path.glob("*.conf")):
             if not confpath.name.startswith("."):
                 yield from parse_include(
                     conf,
