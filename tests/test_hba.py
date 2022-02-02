@@ -166,7 +166,7 @@ def test_parse_file(mocker):
 
     # Also works for other string types
     m.reset_mock()
-    pgpass = parse(u"filename")
+    pgpass = parse("filename")
     pgpass.lines.append(HBAComment("# Something"))
     assert m.called
 

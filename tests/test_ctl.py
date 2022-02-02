@@ -67,14 +67,11 @@ def test_init(fake_pgctl):
 def test_start(fake_pgctl):
     assert fake_pgctl.start("data").args == "pg_ctl start -D data --wait"
     assert fake_pgctl.start("data", wait=False).args == "pg_ctl start -D data --no-wait"
-    assert (
-        fake_pgctl.start(
-            "data",
-            wait=3,
-            logfile="logfile",
-        ).args
-        == ("pg_ctl start -D data --wait --timeout=3 --log=logfile")
-    )
+    assert fake_pgctl.start(
+        "data",
+        wait=3,
+        logfile="logfile",
+    ).args == ("pg_ctl start -D data --wait --timeout=3 --log=logfile")
     assert fake_pgctl.start("data", k="/tmp/sockets").args == (
         "pg_ctl start -D data --wait -o '-k /tmp/sockets'"
     )
@@ -83,14 +80,11 @@ def test_start(fake_pgctl):
 def test_stop(fake_pgctl):
     assert fake_pgctl.stop("data").args == "pg_ctl stop -D data --wait"
     assert fake_pgctl.stop("data", wait=False).args == "pg_ctl stop -D data --no-wait"
-    assert (
-        fake_pgctl.stop(
-            "data",
-            wait=3,
-            mode="fast",
-        ).args
-        == ("pg_ctl stop -D data --wait --timeout=3 --mode=fast")
-    )
+    assert fake_pgctl.stop(
+        "data",
+        wait=3,
+        mode="fast",
+    ).args == ("pg_ctl stop -D data --wait --timeout=3 --mode=fast")
 
 
 def test_restart(fake_pgctl):
