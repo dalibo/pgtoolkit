@@ -11,9 +11,9 @@ jobs:
       - name: Build package
         run: rpm/build
 
-  rpm-centos8:
+  rpm-rockylinux8:
     runs-on: ubuntu-latest
-    container: dalibo/labs-sdk:centos8
+    container: dalibo/buildpack-pkg:rockylinux8
     steps:
       - uses: actions/checkout@v2
       - name: Build package
