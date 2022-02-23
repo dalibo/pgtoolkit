@@ -112,6 +112,15 @@ def test_parse_invalid_connection_type():
         HBARecord.parse("pif    all     all")
 
 
+def test_parse_record_with_backslash():
+    from pgtoolkit.hba import HBARecord
+
+    record = HBARecord.parse(
+        r'host all all all ldap ldapserver=host.local ldapprefix="DOMAINE\"'
+    )
+    assert record.ldapprefix == "DOMAINE\\"
+
+
 def test_hba(mocker):
     from pgtoolkit.hba import parse
 

@@ -68,7 +68,7 @@ fit pseudo-column width. If filename is ``-``, stdin is read instead.
 """  # noqa
 
 import os
-import shlex
+import re
 import sys
 import warnings
 from pathlib import Path
@@ -147,10 +147,17 @@ class HBARecord:
         """
         line = line.strip()
         record_fields = ["conntype", "databases", "users"]
-        values = shlex.split(line, comments=False)
+
+        # What the regexp below does is finding all elements separated by spaces
+        # unless they are enclosed in double-quotes
+        # (?: … )+ = non-capturing group
+        # \"+.*?\"+ = any element with or without spaces enclosed within
+        #             double-quotes (alternative 1)
+        # \S = any non-whitespace character (alternative 2)
+        values = [p for p in re.findall(r"(?:\"+.*?\"+|\S)+", line) if p.strip()]
         # Split databases and users lists.
-        values[1] = values[1].split(",")  # type: ignore[call-overload]
-        values[2] = values[2].split(",")  # type: ignore[call-overload]
+        values[1] = values[1].split(",")
+        values[2] = values[2].split(",")
         try:
             hash_pos = values.index("#")
         except ValueError:
@@ -169,6 +176,8 @@ class HBARecord:
         record_fields.append("method")
         base_options = list(zip(record_fields, values[: len(record_fields)]))
         auth_options = [o.split("=", 1) for o in values[len(record_fields) :]]
+        # Remove extra outer double quotes for auth options values if any
+        auth_options = [[o[0], re.sub(r"^\"|\"$", "", o[1])] for o in auth_options]
         options = base_options + auth_options  # type: ignore[operator]
         return cls(options, comment=comment)
 
