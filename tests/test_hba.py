@@ -121,6 +121,15 @@ def test_parse_record_with_backslash():
     assert record.ldapprefix == "DOMAINE\\"
 
 
+def test_parse_record_with_double_quoting():
+    from pgtoolkit.hba import HBARecord
+
+    record = HBARecord.parse(
+        r'host all all all radius radiusservers="server1,server2" radiussecrets="""secret one"",""secret two"""'
+    )
+    assert record.radiussecrets == '""secret one"",""secret two""'
+
+
 def test_hba(mocker):
     from pgtoolkit.hba import parse
 
