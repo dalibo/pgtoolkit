@@ -130,6 +130,19 @@ def test_parse_record_with_double_quoting():
     assert record.radiussecrets == '""secret one"",""secret two""'
 
 
+def test_parse_record_blank_in_quotes():
+    from pgtoolkit.hba import HBARecord
+
+    record = HBARecord.parse(
+        r"host all all all ldap ldapserver=ldap.example.net"
+        r' ldapbasedn="dc=example, dc=net"'
+        r' ldapsearchfilter="(|(uid=$username)(mail=$username))"'
+    )
+    assert record.ldapserver == "ldap.example.net"
+    assert record.ldapbasedn == "dc=example, dc=net"
+    assert record.ldapsearchfilter == "(|(uid=$username)(mail=$username))"
+
+
 def test_hba(mocker):
     from pgtoolkit.hba import parse
 
