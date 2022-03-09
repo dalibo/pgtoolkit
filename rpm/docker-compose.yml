@@ -14,7 +14,7 @@ services:
     command: /srv/rpm/build
 
   centos8:
-    image: dalibo/labs-sdk:centos8
+    image: dalibo/buildpack-pkg:rockylinux8
     volumes:
     - ../:/srv
     command: /srv/rpm/build
