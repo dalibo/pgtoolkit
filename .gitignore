@@ -1,6 +1,8 @@
 *.egg-info/
 *.pyc
 .coverage
+.eggs
+.mypy_cache/
 .pybuild
 .pytest_cache/
 __pycache__/
