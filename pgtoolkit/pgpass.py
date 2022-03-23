@@ -314,7 +314,10 @@ class PassFile:
     path: Optional[str] = None
 
     def __init__(
-        self, entries: Optional[List[Union[PassComment, PassEntry]]] = None
+        self,
+        entries: Optional[List[Union[PassComment, PassEntry]]] = None,
+        *,
+        path: Optional[str] = None,
     ) -> None:
         """PassFile constructor.
 
@@ -323,7 +326,7 @@ class PassFile:
         if entries and not isinstance(entries, list):
             raise ValueError("%s should be a list" % entries)
         self.lines = entries or []
-        self.path = None
+        self.path = path
 
     def __iter__(self) -> Iterator[PassEntry]:
         """Iterate entries
@@ -491,8 +494,7 @@ def edit(fpath: Union[Path, str]) -> Iterator[PassFile]:
     if fpath.exists():
         passfile = parse(fpath)
     else:
-        passfile = PassFile()
-        passfile.path = str(fpath)
+        passfile = PassFile(path=str(fpath))
     yield passfile
     passfile.save()
 
