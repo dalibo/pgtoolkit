@@ -395,6 +395,8 @@ class PassFile:
 
         :param fo: a file-like object. Is not required if :attr:`path` is set.
         """
+        if not self.lines:
+            return
 
         def _write(fo: IO[str], lines: Iterable[object]) -> None:
             for line in lines:
@@ -403,6 +405,9 @@ class PassFile:
         if fo:
             _write(fo, self.lines)
         elif self.path:
+            fpath = Path(self.path)
+            if not fpath.exists():
+                fpath.touch(mode=0o600)
             with open(self.path, "w") as fo:
                 _write(fo, self.lines)
         else:
@@ -483,9 +488,11 @@ def edit(fpath: Union[Path, str]) -> Iterator[PassFile]:
     Upon exit of the context manager, the file is saved, if no error occurred.
     """
     fpath = Path(fpath)
-    if not fpath.exists():
-        fpath.touch(mode=0o600)
-    passfile = parse(fpath)
+    if fpath.exists():
+        passfile = parse(fpath)
+    else:
+        passfile = PassFile()
+        passfile.path = str(fpath)
     yield passfile
     passfile.save()
 

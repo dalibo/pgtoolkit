@@ -149,6 +149,12 @@ def test_edit(tmp_path):
 
     fpath = tmp_path / "pgpass"
     assert not fpath.exists()
+
+    # Check we don't create an empty file.
+    with edit(fpath):
+        pass
+    assert not fpath.exists()
+
     with edit(fpath) as passfile:
         passfile.lines.append(PassComment("# commented"))
     assert fpath.read_text() == "# commented\n"
