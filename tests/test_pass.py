@@ -160,6 +160,14 @@ def test_edit(tmp_path):
     assert fpath.read_text() == "# commented\n"
 
     with edit(fpath) as passfile:
+        del passfile.lines[:]
+    assert fpath.read_text() == ""
+
+    with edit(fpath) as passfile:
+        passfile.lines.append(PassComment("# commented"))
+    assert fpath.read_text() == "# commented\n"
+
+    with edit(fpath) as passfile:
         passfile.lines.extend(
             [
                 PassEntry("*", "5443", "*", "username", "otherpassword"),

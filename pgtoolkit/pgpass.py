@@ -398,8 +398,6 @@ class PassFile:
 
         :param fo: a file-like object. Is not required if :attr:`path` is set.
         """
-        if not self.lines:
-            return
 
         def _write(fo: IO[str], lines: Iterable[object]) -> None:
             for line in lines:
@@ -410,6 +408,8 @@ class PassFile:
         elif self.path:
             fpath = Path(self.path)
             if not fpath.exists():
+                if not self.lines:
+                    return
                 fpath.touch(mode=0o600)
             with open(self.path, "w") as fo:
                 _write(fo, self.lines)
