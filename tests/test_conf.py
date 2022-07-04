@@ -78,6 +78,18 @@ def test_parser():
 
     lines = dedent(
         """\
+    # This file consists of lines of the form:
+    #
+    #   name = value
+    #
+    # (The "=" is optional.)  Whitespace may be used.  Comments are introduced with
+    # "#" anywhere on a line.  The complete list of parameter names and allowed
+    # values can be found in the PostgreSQL documentation.
+    #
+    # The commented-out settings shown in this file represent the default values.
+    # Re-commenting a setting is NOT sufficient to revert it to the default value;
+    # you need to reload the server.
+
     # - Connection Settings -
     listen_addresses = '*'                  # comma-separated list of addresses;
                             # defaults to 'localhost'; use '*' for all
@@ -122,6 +134,12 @@ def test_parser():
         str(conf.entries["authentication_timeout"])
         == "#authentication_timeout = '1 min'  # 1s-600s"
     )
+
+    assert [(e.name, e.value) for e in conf if e.commented] == [
+        ("name", "value"),
+        ("bonjour_name", ""),
+        ("authentication_timeout", timedelta(seconds=60)),
+    ]
 
     dict_ = conf.as_dict()
     assert "*" == dict_["listen_addresses"]

@@ -492,7 +492,12 @@ class Configuration:
                 continue
             commented = False
             if line.startswith("#"):
-                # Try to parse the uncommented line.
+                # Try to parse the commented line as a commented parameter,
+                # but only if in the form of 'name = value' since we cannot
+                # discriminate a commented sentence (with whitespaces) from a
+                # commented parameter in the form of 'name value'.
+                if "=" not in line:
+                    continue
                 line = line.lstrip("#").lstrip()
                 m = self._parameter_re.match(line)
                 if not m:
