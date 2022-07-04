@@ -1,4 +1,5 @@
 import pathlib
+import sys
 
 from setuptools import find_packages, setup
 
@@ -6,6 +7,8 @@ here = pathlib.Path(__file__).parent
 
 with (here / "README.rst").open("r", encoding="utf-8") as fo:
     long_description = fo.read()
+
+py36 = sys.version_info < (3, 7)
 
 metadatas = dict(
     name="pgtoolkit",
@@ -25,7 +28,7 @@ metadatas = dict(
         "Topic :: Database",
     ],
     use_scm_version=True,
-    setup_requires=["setuptools_scm"],
+    setup_requires=["setuptools_scm < 7" if py36 else "setuptools_scm"],
     install_requires=[
         "typing_extensions",
     ],
