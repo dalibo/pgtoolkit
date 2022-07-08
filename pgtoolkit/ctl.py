@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 else:
     CompletedProcess = subprocess.CompletedProcess
 
-PY37 = sys.version_info[:1] >= (3, 7)
+PY37 = sys.version_info[:2] >= (3, 7)
 
 
 class CommandRunner(Protocol):
