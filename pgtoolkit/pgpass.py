@@ -474,7 +474,7 @@ def parse(file: Union[Path, str, IO[str]]) -> PassFile:
     :rtype: :class:`PassFile`
     """
     if isinstance(file, (Path, str)):
-        with open(file) as fo:
+        with open(os.path.expanduser(file)) as fo:
             pgpass = parse(fo)
             pgpass.path = str(file)
     else:
@@ -490,7 +490,7 @@ def edit(fpath: Union[Path, str]) -> Iterator[PassFile]:
     If the file does not exists, it is created with 600 permissions.
     Upon exit of the context manager, the file is saved, if no error occurred.
     """
-    fpath = Path(fpath)
+    fpath = Path(fpath).expanduser()
     if fpath.exists():
         passfile = parse(fpath)
     else:
