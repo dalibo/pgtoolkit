@@ -437,7 +437,7 @@ class HBA:
                             kwargs[a] = getattr(new_line, a)
                     if line.matches(**kwargs):
                         # replace matched line with comments + record
-                        self.lines[i : i + 1] = other_comments + [new_line]  # type: ignore[list-item]
+                        self.lines[i : i + 1] = other_comments + [new_line]
                         for c in other_comments:
                             new_lines.remove(c)
                         new_lines.remove(new_line)
