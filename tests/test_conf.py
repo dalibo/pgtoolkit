@@ -74,9 +74,9 @@ def test_parse_value():
 
 
 def test_parser():
-    from pgtoolkit.conf import parse
+    from pgtoolkit.conf import parse, parse_string
 
-    lines = dedent(
+    content = dedent(
         """\
     # This file consists of lines of the form:
     #
@@ -104,11 +104,11 @@ def test_parser():
     #authentication_timeout = 1min		# 1s-600s
     # port = 5454  # commented value does not override previous (uncommented) one
     """
-    ).splitlines(
-        True
-    )  # noqa
+    )
 
-    conf = parse(lines)
+    conf = parse_string(content, "/etc/postgres/postgresql.conf")
+
+    assert conf.path == "/etc/postgres/postgresql.conf"
 
     assert "*" == conf.listen_addresses
     assert (
@@ -269,6 +269,16 @@ def test_parser_includes_notfound(tmp_path):
     msg = f"directory '{missing_conf}', included from '{pgconf}', not found"
     with pytest.raises(FileNotFoundError, match=msg):
         parse(str(pgconf))
+
+
+def test_parse_string_include(tmp_path):
+    from pgtoolkit.conf import parse_string
+
+    with pytest.raises(
+        ValueError,
+        match="cannot process include directives from a string value",
+    ):
+        parse_string("work_mem=1MB\ninclude = x\n")
 
 
 def test_entry_edit():

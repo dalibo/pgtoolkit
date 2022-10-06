@@ -10,6 +10,7 @@ API Reference
 -------------
 
 .. autofunction:: parse
+.. autofunction:: parse_string
 .. autoclass:: Configuration
 
 
@@ -111,6 +112,17 @@ def parse(fo: Union[str, pathlib.Path, IO[str]]) -> "Configuration":
         conf = Configuration(getattr(f, "name", None))
         list(consume(conf))
 
+    return conf
+
+
+def parse_string(string: str, source: Optional[str] = None) -> "Configuration":
+    """Parse configuration data from a string.
+
+    Optional *source* argument can be used to set the context path of built
+    Configuration.
+    """
+    conf = Configuration(source)
+    conf.parse_string(string)
     return conf
 
 
@@ -536,6 +548,13 @@ class Configuration:
                     raw_line=raw_line,
                     **kwargs,
                 )
+
+    def parse_string(self, string: str) -> None:
+        try:
+            next(self.parse(string.splitlines(keepends=True)))
+        except StopIteration:
+            return
+        raise ValueError("cannot process include directives from a string value")
 
     def __add__(self, other: Any) -> "Configuration":
         cls = self.__class__
