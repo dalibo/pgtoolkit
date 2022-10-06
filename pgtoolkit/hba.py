@@ -177,8 +177,8 @@ class HBARecord:
         base_options = list(zip(record_fields, values[: len(record_fields)]))
         auth_options = [o.split("=", 1) for o in values[len(record_fields) :]]
         # Remove extra outer double quotes for auth options values if any
-        auth_options = [[o[0], re.sub(r"^\"|\"$", "", o[1])] for o in auth_options]
-        options = base_options + auth_options  # type: ignore[operator]
+        auth_options = [(o[0], re.sub(r"^\"|\"$", "", o[1])) for o in auth_options]
+        options = base_options + auth_options
         return cls(options, comment=comment)
 
     conntype: Optional[str]
