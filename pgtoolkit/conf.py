@@ -227,7 +227,7 @@ def parse_value(raw: str) -> Value:
         # unquote value and unescape quotes
         raw = raw[1:-1].replace("''", "'").replace(r"\'", "'")
 
-    if raw.startswith("0"):
+    if raw.startswith("0") and raw != "0":
         try:
             int(raw, base=8)
             return raw
