@@ -229,7 +229,8 @@ def parse_value(raw: str) -> Value:
 
     if raw.startswith("0"):
         try:
-            return int(raw, base=8)
+            int(raw, base=8)
+            return raw
         except ValueError:
             pass
 
