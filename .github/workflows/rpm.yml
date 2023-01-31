@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   rpm-centos7:
     runs-on: ubuntu-latest
-    container: dalibo/labs-sdk:centos7
+    container: dalibo/buildpack-pkg:centos7
     steps:
       - uses: actions/checkout@v2
       - name: Build package
