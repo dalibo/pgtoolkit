@@ -19,10 +19,11 @@ def test_parse_value():
 
     # Numbers
     assert 10 == parse_value("10")
-    assert 8 == parse_value("010")
-    assert 8 == parse_value("'010'")
+    assert "010" == parse_value("010")
+    assert "010" == parse_value("'010'")
     assert 1.4 == parse_value("1.4")
     assert -2 == parse_value("-2")
+    assert 0.2 == parse_value("0.2")
 
     # Strings
     assert "/a/path/to/file.conf" == parse_value(r"/a/path/to/file.conf")
@@ -211,7 +212,7 @@ def test_parser_includes():
         "shared_buffers": "248MB",
         "shared_preload_libraries": "pg_stat_statements",
         "ssl": True,
-        "unix_socket_permissions": 511,
+        "unix_socket_permissions": "0777",
         "wal_level": "hot_standby",
     }
     assert "include" not in conf
