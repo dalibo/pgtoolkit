@@ -18,6 +18,7 @@ import re
 import shutil
 import subprocess
 import sys
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Union
 
@@ -151,12 +152,15 @@ class PGCtl:
 
         self.run_command = run_command
 
+    @property
+    @lru_cache()
+    def version(self) -> int:
+        """Integer representing the server version."""
         cmd = [str(self.pg_ctl), "--version"]
         text_version = self.run_command(
             cmd, check=True, capture_output=True
         ).stdout.strip()
-        self.version = num_version(text_version)
-        """Integer representing the server version."""
+        return num_version(text_version)
 
     def init(
         self, datadir: Union[Path, str], **opts: Union[str, Literal[True]]
