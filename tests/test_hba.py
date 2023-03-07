@@ -216,7 +216,6 @@ def test_hba_error(mocker):
 
 
 def test_remove():
-
     from pgtoolkit.hba import parse
 
     lines = HBA_SAMPLE.splitlines(True)
