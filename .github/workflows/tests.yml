@@ -3,7 +3,7 @@ name: Tests
 on: [push, pull_request]
 
 jobs:
-  build:
+  tests:
 
     runs-on: ubuntu-latest
     strategy:
@@ -19,25 +19,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements-ci.txt -e .
-      - name: Lint checks
-        run: |
-          flake8 .
-          black --check --diff .
-          check-manifest .
-          isort --check --diff .
-          mypy --strict pgtoolkit
+        run: python -m pip install -r requirements-ci.txt -e .
       - name: Test with pytest
         run: |
           pytest --cov --cov-report=term-missing pgtoolkit/ tests/
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
-      - name: Check documentation
-        run: |
-          python setup.py --long-description | rst2html.py --strict >/dev/null
-          make -C docs clean html
       - name: Script tests
         run: |
           tests/datatests.sh
