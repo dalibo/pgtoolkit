@@ -2,10 +2,16 @@ import shlex
 import socket
 import stat
 import subprocess
+import sys
 
 import pytest
 
-from pgtoolkit import ctl, hba
+from pgtoolkit import hba
+
+if sys.version_info[:2] < (3, 8):
+    pytest.skip("requires python 3.8+", allow_module_level=True)
+
+from pgtoolkit import ctl  # noqa: E402
 
 
 def test__args_to_opts():

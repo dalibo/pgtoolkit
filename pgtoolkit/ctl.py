@@ -18,7 +18,7 @@ import re
 import shutil
 import subprocess
 import sys
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Union
 
@@ -152,8 +152,7 @@ class PGCtl:
 
         self.run_command = run_command
 
-    @property
-    @lru_cache()
+    @cached_property
     def version(self) -> int:
         """Integer representing the server version."""
         cmd = [str(self.pg_ctl), "--version"]
