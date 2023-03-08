@@ -8,6 +8,7 @@ recursive-include tests *.py *.sh
 recursive-include tests/data *.conf *.includeme *.log pgpass*
 
 exclude .editorconfig
+exclude .readthedocs.yaml
 exclude Makefile
 prune .circleci
 prune rpm
