@@ -7,11 +7,14 @@ from typing import IO, Any, Generic, NoReturn, Optional, TypeVar, Union, overloa
 
 def format_timedelta(delta: timedelta) -> str:
     values = [
-        (delta.days, "d"),
-        (delta.seconds, "s"),
-        (delta.microseconds, "us"),
+        f"{v}{u}"
+        for v, u in (
+            (delta.days, "d"),
+            (delta.seconds, "s"),
+            (delta.microseconds, "us"),
+        )
+        if v
     ]
-    values = ["%d%s" % v for v in values if v[0]]
     if values:
         return " ".join(values)
     else:
