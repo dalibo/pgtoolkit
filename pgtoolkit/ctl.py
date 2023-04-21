@@ -17,7 +17,6 @@ import enum
 import re
 import shutil
 import subprocess
-import sys
 from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Union
@@ -28,8 +27,6 @@ if TYPE_CHECKING:
     CompletedProcess = subprocess.CompletedProcess[str]
 else:
     CompletedProcess = subprocess.CompletedProcess
-
-PY37 = sys.version_info[:2] >= (3, 7)
 
 
 class CommandRunner(Protocol):
@@ -55,22 +52,12 @@ class CommandRunner(Protocol):
 def run_command(
     args: Sequence[str],
     *,
-    capture_output: bool = False,
     check: bool = False,
     **kwargs: Any,
 ) -> CompletedProcess:
     """Default :class:`CommandRunner` implementation for :class:`PGCtl` using
     :func:`subprocess.run`.
     """
-    if PY37:
-        kwargs["capture_output"] = capture_output
-    elif capture_output:
-        if "stdout" in kwargs or "stderr" in kwargs:
-            raise ValueError(
-                "stdout and stderr arguments may not be used with capture_output"
-            )
-        kwargs["stdout"] = kwargs["stderr"] = subprocess.PIPE
-
     return subprocess.run(
         args,
         check=check,
