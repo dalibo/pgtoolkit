@@ -199,9 +199,10 @@ class PassEntry:
         fields = list(escapedsplit(line.strip(), ":"))
         if len(fields) != 5:
             raise ValueError("Invalid line.")
-        if fields[1] != "*":
-            fields[1] = int(fields[1])  # type: ignore[call-overload]
-        return cls(*fields)
+        hostname, port, database, username, password = fields
+        return cls(
+            hostname, int(port) if port != "*" else port, database, username, password
+        )
 
     def __init__(
         self,
