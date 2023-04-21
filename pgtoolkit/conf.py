@@ -47,20 +47,9 @@ import pathlib
 import re
 import sys
 from collections import OrderedDict
+from collections.abc import Iterable, Iterator
 from datetime import timedelta
-from typing import (
-    IO,
-    Any,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    NoReturn,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import IO, Any, NoReturn, Optional, Union
 
 from ._helpers import JSONDateEncoder, open_or_return
 
@@ -132,7 +121,7 @@ def parse_include(
     include_type: IncludeType,
     from_path: pathlib.Path,
     *,
-    _processed: Optional[Set[pathlib.Path]] = None,
+    _processed: Optional[set[pathlib.Path]] = None,
 ) -> Iterator[None]:
     """Parse on include directive with 'path' value of type 'include_type' into
     'conf' object.
@@ -308,7 +297,7 @@ class Entry:
         )
 
     def __repr__(self) -> str:
-        return "<%s %s=%s%s>" % (
+        return "<{} {}={}{}>".format(
             self.__class__.__name__,
             self.name,
             self.value,
@@ -352,7 +341,7 @@ class Entry:
                         continue
                     value = seconds // mod
                     break
-            value = "'%s%s'" % (value, unit)
+            value = "'{}{}'".format(value, unit)
         else:
             value = str(value)
         return value
@@ -366,7 +355,7 @@ class Entry:
         return line
 
 
-class EntriesProxy(Dict[str, Entry]):
+class EntriesProxy(dict[str, Entry]):
     """Proxy object used during Configuration edition.
 
     >>> p = EntriesProxy(port=Entry('port', '5432'),
@@ -473,8 +462,8 @@ class Configuration:
     .. automethod:: save
 
     """  # noqa
-    lines: List[str]
-    entries: Dict[str, Entry]
+    lines: list[str]
+    entries: dict[str, Entry]
     path: Optional[str]
 
     _parameter_re = re.compile(
@@ -497,7 +486,7 @@ class Configuration:
             )
         )
 
-    def parse(self, fo: Iterable[str]) -> Iterator[Tuple[pathlib.Path, IncludeType]]:
+    def parse(self, fo: Iterable[str]) -> Iterator[tuple[pathlib.Path, IncludeType]]:
         for raw_line in fo:
             self.lines.append(raw_line)
             line = raw_line.strip()
@@ -632,8 +621,8 @@ class Configuration:
     def __iter__(self) -> Iterator[Entry]:
         return iter(self.entries.values())
 
-    def as_dict(self) -> Dict[str, Value]:
-        return dict([(k, v.value) for k, v in self.entries.items() if not v.commented])
+    def as_dict(self) -> dict[str, Value]:
+        return {k: v.value for k, v in self.entries.items() if not v.commented}
 
     @contextlib.contextmanager
     def edit(self) -> Iterator[EntriesProxy]:
@@ -706,7 +695,7 @@ class Configuration:
                 fo.write(line)
 
 
-def _main(argv: List[str]) -> int:  # pragma: nocover
+def _main(argv: list[str]) -> int:  # pragma: nocover
     try:
         conf = parse(argv[0] if argv else sys.stdin)
         print(json.dumps(conf.as_dict(), cls=JSONDateEncoder, indent=2))

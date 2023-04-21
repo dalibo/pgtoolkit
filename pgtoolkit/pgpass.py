@@ -71,9 +71,10 @@ path as first argument, read it, validate it, sort it and output it in stdout.
 import os
 import sys
 import warnings
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import IO, Callable, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import IO, Callable, Optional, Union
 
 from ._helpers import open_or_stdin
 from .errors import ParseError
@@ -122,7 +123,7 @@ class PassComment(str):
     """
 
     def __repr__(self) -> str:
-        return "<%s %.32s>" % (self.__class__.__name__, self)
+        return "<{} {:.32}>".format(self.__class__.__name__, self)
 
     def __lt__(self, other: str) -> bool:
         if isinstance(other, PassEntry):
@@ -240,7 +241,7 @@ class PassEntry:
         return NotImplemented
 
     def __repr__(self) -> str:
-        return "<%s %s@%s:%s/%s>" % (
+        return "<{} {}@{}:{}/{}>".format(
             self.__class__.__name__,
             self.username,
             self.hostname,
@@ -253,7 +254,7 @@ class PassEntry:
             [str(x).replace("\\", r"\\").replace(":", r"\:") for x in self.as_tuple()]
         )
 
-    def as_tuple(self) -> Tuple[str, str, str, str, str]:
+    def as_tuple(self) -> tuple[str, str, str, str, str]:
         return (
             self.hostname,
             str(self.port),
@@ -262,7 +263,7 @@ class PassEntry:
             self.password,
         )
 
-    def sort_key(self) -> Tuple[int, str, Union[int, str], str, str]:
+    def sort_key(self) -> tuple[int, str, Union[int, str], str, str]:
         tpl = self.as_tuple()[:-1]
         # Compute precision from * occurences.
         precision = len([x for x in tpl if x == "*"])
@@ -310,12 +311,12 @@ class PassFile:
 
     """
 
-    lines: List[Union[PassComment, PassEntry]]
+    lines: list[Union[PassComment, PassEntry]]
     path: Optional[str] = None
 
     def __init__(
         self,
-        entries: Optional[List[Union[PassComment, PassEntry]]] = None,
+        entries: Optional[list[Union[PassComment, PassEntry]]] = None,
         *,
         path: Optional[str] = None,
     ) -> None:

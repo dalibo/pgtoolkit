@@ -46,7 +46,7 @@ def test_entry():
         password="newpassword",
     )
 
-    entries = set([a])
+    entries = {a}
 
     assert b in entries
 

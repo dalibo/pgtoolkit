@@ -91,15 +91,16 @@ comments.
 
 import os
 import sys
+from collections.abc import Iterable, MutableMapping
 from configparser import ConfigParser
-from typing import IO, Dict, Iterable, MutableMapping, Optional, Union
+from typing import IO, Optional, Union
 
 from ._helpers import open_or_stdin
 
 Parameter = Union[str, int]
 
 
-class Service(Dict[str, Parameter]):
+class Service(dict[str, Parameter]):
     """Service definition.
 
     The :class:`Service` class represents a single service definition in a
@@ -127,16 +128,16 @@ class Service(Dict[str, Parameter]):
     def __init__(
         self,
         name: str,
-        parameters: Optional[Dict[str, Parameter]] = None,
+        parameters: Optional[dict[str, Parameter]] = None,
         **extra: Parameter,
     ) -> None:
-        super(Service, self).__init__()
+        super().__init__()
         self.name = name
         self.update(parameters or {})
         self.update(extra)
 
     def __repr__(self) -> str:
-        return "<%s %s>" % (self.__class__.__name__, self.name)
+        return "<{} {}>".format(self.__class__.__name__, self.name)
 
     def __getattr__(self, name: str) -> Parameter:
         return self[name]
@@ -178,9 +179,9 @@ class ServiceFile:
         return "<%s>" % (self.__class__.__name__)
 
     def __getitem__(self, key: str) -> Service:
-        parameters = dict(
-            [(k, self._CONVERTERS.get(k, str)(v)) for k, v in self.config.items(key)]
-        )
+        parameters = {
+            k: self._CONVERTERS.get(k, str)(v) for k, v in self.config.items(key)
+        }
         return Service(key, parameters)
 
     def __len__(self) -> int:

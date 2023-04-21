@@ -17,11 +17,10 @@ import enum
 import re
 import shutil
 import subprocess
+from collections.abc import Mapping, Sequence
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Union
-
-from typing_extensions import Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, Union
 
 if TYPE_CHECKING:
     CompletedProcess = subprocess.CompletedProcess[str]
@@ -66,7 +65,7 @@ def run_command(
     )
 
 
-def _args_to_opts(args: Mapping[str, Union[str, Literal[True]]]) -> List[str]:
+def _args_to_opts(args: Mapping[str, Union[str, Literal[True]]]) -> list[str]:
     options = []
     for name, value in sorted(args.items()):
         short = len(name) == 1
@@ -79,7 +78,7 @@ def _args_to_opts(args: Mapping[str, Union[str, Literal[True]]]) -> List[str]:
     return options
 
 
-def _wait_args_to_opts(wait: Union[bool, int]) -> List[str]:
+def _wait_args_to_opts(wait: Union[bool, int]) -> list[str]:
     options = []
     if not wait:
         options.append("--no-wait")
@@ -111,7 +110,7 @@ class PGCtl:
     :param run_command: callable implementing :class:`CommandRunner` that will
         be used to execute ``pg_ctl`` commands.
 
-    :raises: :class:`EnvironmentError` if either ``pg_config`` or ``pg_ctl``
+    :raises: :class:`OSError` if either ``pg_config`` or ``pg_ctl``
         is not available.
     """
 
@@ -124,14 +123,14 @@ class PGCtl:
         if bindir is None:
             pg_config = shutil.which("pg_config")
             if pg_config is None:
-                raise EnvironmentError("pg_config executable not found")
+                raise OSError("pg_config executable not found")
             bindir = run_command(
                 [pg_config, "--bindir"], check=True, capture_output=True
             ).stdout.strip()
         bindir = Path(bindir)
         pg_ctl = bindir / "pg_ctl"
         if not pg_ctl.exists():
-            raise EnvironmentError("pg_ctl executable not found")
+            raise OSError("pg_ctl executable not found")
         self.bindir = bindir
 
         self.pg_ctl = pg_ctl
@@ -269,7 +268,7 @@ class PGCtl:
             raise subprocess.CalledProcessError(rc, cmd, cp.stdout, cp.stderr)
         return Status(rc)
 
-    def controldata(self, datadir: Union[Path, str]) -> Dict[str, str]:
+    def controldata(self, datadir: Union[Path, str]) -> dict[str, str]:
         """Run the pg_controldata command and parse the result to return
         controldata as dict.
 
@@ -277,14 +276,14 @@ class PGCtl:
         """
         pg_controldata = self.bindir / "pg_controldata"
         if not pg_controldata.exists():
-            raise EnvironmentError("pg_controldata executable not found")
+            raise OSError("pg_controldata executable not found")
         cmd = [str(pg_controldata)] + ["-D", str(datadir)]
         r = self.run_command(
             cmd, check=True, env={"LC_ALL": "C"}, capture_output=True
         ).stdout
         return self._parse_control_data(r.splitlines())
 
-    def _parse_control_data(self, lines: List[str]) -> Dict[str, str]:
+    def _parse_control_data(self, lines: list[str]) -> dict[str, str]:
         """Parse pg_controldata command output."""
         controldata = {}
         for line in lines:

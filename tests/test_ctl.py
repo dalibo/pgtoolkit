@@ -131,7 +131,7 @@ def test_status(fake_pgctl):
 def pg_ctl():
     try:
         return ctl.PGCtl()
-    except EnvironmentError as e:
+    except OSError as e:
         pytest.skip(str(e))
 
 
