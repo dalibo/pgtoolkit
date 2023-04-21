@@ -5,8 +5,8 @@ import os
 import pdb
 import sys
 from argparse import ArgumentParser
+from collections.abc import MutableMapping
 from distutils.util import strtobool
-from typing import List, MutableMapping
 
 from .._helpers import JSONDateEncoder, Timer, open_or_stdin
 from .parser import UnknownData, parse
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def main(
-    argv: List[str] = sys.argv[1:],
+    argv: list[str] = sys.argv[1:],
     environ: MutableMapping[str, str] = os.environ,
 ) -> int:
     debug = strtobool(environ.get("DEBUG", "n"))

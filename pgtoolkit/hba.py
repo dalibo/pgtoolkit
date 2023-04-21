@@ -71,20 +71,9 @@ import os
 import re
 import sys
 import warnings
+from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
-from typing import (
-    IO,
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import IO, Any, Callable, Optional, Union
 
 from ._helpers import open_or_return, open_or_stdin
 from .errors import ParseError
@@ -92,7 +81,7 @@ from .errors import ParseError
 
 class HBAComment(str):
     def __repr__(self) -> str:
-        return "<%s %.32s>" % (self.__class__.__name__, self)
+        return "<{} {:.32}>".format(self.__class__.__name__, self)
 
 
 class HBARecord:
@@ -182,12 +171,12 @@ class HBARecord:
         return cls(options, comment=comment)
 
     conntype: Optional[str]
-    databases: List[str]
-    users: List[str]
+    databases: list[str]
+    users: list[str]
 
     def __init__(
         self,
-        values: Optional[Union[Iterable[Tuple[str, str]], Dict[str, Any]]] = None,
+        values: Optional[Union[Iterable[tuple[str, str]], dict[str, Any]]] = None,
         comment: Optional[str] = None,
         **kw_values: Union[str, Sequence[str]],
     ) -> None:
@@ -196,7 +185,7 @@ class HBARecord:
         :param kw_values: Fields passed as keyword.
         :param comment:  Comment at the end of the line.
         """
-        dict_values: Dict[str, Any] = dict(values or {}, **kw_values)
+        dict_values: dict[str, Any] = dict(values or {}, **kw_values)
         if "database" in dict_values:
             dict_values["databases"] = [dict_values.pop("database")]
         if "user" in dict_values:
@@ -206,7 +195,7 @@ class HBARecord:
         self.comment = comment
 
     def __repr__(self) -> str:
-        return "<%s %s%s>" % (
+        return "<{} {}{}>".format(
             self.__class__.__name__,
             " ".join(self.common_values),
             "..." if self.auth_options else "",
@@ -231,7 +220,7 @@ class HBARecord:
             if width:
                 fmt += "%%(%s)-%ds " % (field, width - 1)
             else:
-                fmt += "%%(%s)s " % (field,)
+                fmt += "%({})s ".format(field)
         # Serialize database and user list using property.
         values = dict(self.__dict__, databases=self.database, users=self.user)
         line = fmt.rstrip() % values
@@ -248,14 +237,14 @@ class HBARecord:
         return line
 
     @property
-    def common_values(self) -> List[str]:
+    def common_values(self) -> list[str]:
         str_fields = self.COMMON_FIELDS[:]
         # Use serialized variant.
         str_fields[1:3] = ["database", "user"]
         return [getattr(self, f) for f in str_fields if f in self.fields]
 
     @property
-    def auth_options(self) -> List[Tuple[str, str]]:
+    def auth_options(self) -> list[tuple[str, str]]:
         return [
             (f, getattr(self, f)) for f in self.fields if f not in self.COMMON_FIELDS
         ]
@@ -317,7 +306,7 @@ class HBA:
     .. automethod:: merge
     """
 
-    lines: List[Union[HBAComment, HBARecord]]
+    lines: list[Union[HBAComment, HBARecord]]
     path: Optional[str]
 
     def __init__(

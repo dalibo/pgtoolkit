@@ -1,6 +1,6 @@
 class ParseError(Exception):
     def __init__(self, lineno: int, line: str, message: str) -> None:
-        super(ParseError, self).__init__(message)
+        super().__init__(message)
         self.lineno = lineno
         self.line = line
 
@@ -12,7 +12,7 @@ class ParseError(Exception):
         )
 
     def __str__(self) -> str:
-        return "Bad line #%s '%.32s': %s" % (
+        return "Bad line #{} '{:.32}': {}".format(
             self.lineno,
             self.line.strip(),
             self.args[0],

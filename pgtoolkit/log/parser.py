@@ -1,19 +1,8 @@
 import re
+from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
 from datetime import datetime, timedelta
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Pattern,
-    Sequence,
-    Union,
-)
+from re import Pattern
+from typing import Any, Callable, Optional, Union
 
 
 class LogParser:
@@ -90,15 +79,14 @@ def parse(
         PrefixParser.from_configuration(prefix_fmt),
         filters=filters,
     )
-    for item in parser.parse(fo):
-        yield item
+    yield from parser.parse(fo)
 
 
-def group_lines(lines: Iterable[str], cont: str = "\t") -> Iterator[List[str]]:
+def group_lines(lines: Iterable[str], cont: str = "\t") -> Iterator[list[str]]:
     # Group continuation lines according to continuation prefix. Yield a list
     # on lines supposed to belong to the same log record.
 
-    group: List[str] = []
+    group: list[str] = []
     for line in lines:
         if not line.startswith(cont) and group:
             yield group
@@ -152,7 +140,7 @@ class UnknownData(Exception):
 
     def __repr__(self) -> str:
         summary = str(self)[:32].replace("\n", "")
-        return "<%s %s...>" % (self.__class__.__name__, summary)
+        return "<{} {}...>".format(self.__class__.__name__, summary)
 
     def __str__(self) -> str:
         return "".join(self.lines)
@@ -255,7 +243,7 @@ class PrefixParser:
     # re to find %q separator in log_line_prefix.
     _q_re = re.compile(r"(?<!%)%q")
 
-    _casts: Dict[str, Callable[[str], Union[int, datetime]]] = {
+    _casts: dict[str, Callable[[str], Union[int, datetime]]] = {
         "epoch": parse_epoch,
         "line_num": int,
         "pid": int,
@@ -303,7 +291,7 @@ class PrefixParser:
         self.prefix_fmt = prefix_fmt
 
     def __repr__(self) -> str:
-        return "<%s '%s'>" % (self.__class__.__name__, self.prefix_fmt)
+        return "<{} '{}'>".format(self.__class__.__name__, self.prefix_fmt)
 
     def parse(self, prefix: str) -> MutableMapping[str, Any]:
         # Parses the prefix line according to the inner regular expression. If
@@ -482,7 +470,7 @@ class Record:
         return "unknown"
 
     @classmethod
-    def parse_stage1(cls, lines: List[str]) -> "Record":
+    def parse_stage1(cls, lines: list[str]) -> "Record":
         # Stage1: split prefix, severity and message.
         try:
             prefix, severity, message0 = cls._stage1_re.split(lines[0], maxsplit=1)
@@ -502,8 +490,8 @@ class Record:
         prefix: str,
         severity: str,
         message_type: str = "unknown",
-        message_lines: Optional[List[str]] = None,
-        raw_lines: Optional[List[str]] = None,
+        message_lines: Optional[list[str]] = None,
+        raw_lines: Optional[list[str]] = None,
         **fields: str,
     ) -> None:
         self.prefix = prefix
@@ -514,7 +502,7 @@ class Record:
         self.__dict__.update(fields)
 
     def __repr__(self) -> str:
-        return "<%s %s: %.32s...>" % (
+        return "<{} {}: {:.32}...>".format(
             self.__class__.__name__,
             self.severity,
             self.message_lines[0].replace("\n", ""),
@@ -532,6 +520,6 @@ class Record:
             [line.lstrip("\t").rstrip("\n") for line in self.message_lines]
         )
 
-    def as_dict(self) -> Dict[str, Union[str, object, datetime]]:
+    def as_dict(self) -> dict[str, Union[str, object, datetime]]:
         """Returns record fields as a :class:`dict`."""
-        return dict([(k, v) for k, v in self.__dict__.items()])
+        return {k: v for k, v in self.__dict__.items()}
