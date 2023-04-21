@@ -196,13 +196,13 @@ class HBARecord:
         :param kw_values: Fields passed as keyword.
         :param comment:  Comment at the end of the line.
         """
-        values: Dict[str, Any] = dict(values or {}, **kw_values)
-        if "database" in values:
-            values["databases"] = [values.pop("database")]
-        if "user" in values:
-            values["users"] = [values.pop("user")]
-        self.__dict__.update(values)
-        self.fields = [k for k, _ in values.items()]
+        dict_values: Dict[str, Any] = dict(values or {}, **kw_values)
+        if "database" in dict_values:
+            dict_values["databases"] = [dict_values.pop("database")]
+        if "user" in dict_values:
+            dict_values["users"] = [dict_values.pop("user")]
+        self.__dict__.update(dict_values)
+        self.fields = [k for k, _ in dict_values.items()]
         self.comment = comment
 
     def __repr__(self) -> str:
