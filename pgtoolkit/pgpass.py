@@ -451,13 +451,14 @@ class PassFile:
         if filter is not None:
             # Silently handle the case when line is a PassComment
             def filter_(line: Union[PassComment, PassEntry]) -> bool:
+                assert filter is not None
                 if isinstance(line, PassComment):
                     try:
-                        return filter(line.entry)  # type: ignore[misc]
+                        return filter(line.entry)
                     except ValueError:
                         return False
                 else:
-                    return filter(line)  # type: ignore[misc]
+                    return filter(line)
 
         else:
 
