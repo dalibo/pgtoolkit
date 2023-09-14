@@ -136,5 +136,5 @@ man_pages = [(master_doc, "pgtoolkit", "pgtoolkit Documentation", [author], 1)]
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    "https://docs.python.org/3/": None,
+    "python": ("https://docs.python.org/3/", None),
 }
