@@ -25,7 +25,7 @@ jobs:
           pytest -ra --cov --cov-report=term-missing pgtoolkit/ tests/
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == '3.11' }}
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
       - name: Script tests
         run: |
           tests/datatests.sh
