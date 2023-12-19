@@ -12,6 +12,7 @@ Build-Depends:
   python3-setuptools-scm,
   python3-psycopg2,
   python3-pytest,
+  python3-pytest-asyncio,
   python3-pytest-mock,
   python3-typing-extensions,
 Standards-Version: 4.1.3
