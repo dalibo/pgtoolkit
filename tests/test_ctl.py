@@ -208,7 +208,7 @@ def test_func_start_stop_status_restart_reload(initdb, pg_ctl, tmp_port):
     assert pg_ctl.status(str(datadir)) == ctl.Status.not_running
 
 
-def test_unit__parse_controldata(pg_ctl):
+def test_parse_controldata() -> None:
     lines = [
         "pg_control version number:            1100",
         "Catalog version number:               201809051",
@@ -217,7 +217,7 @@ def test_unit__parse_controldata(pg_ctl):
         "pg_control last modified:             Tue 07 Jul 2020 01:08:58 PM CEST",
         "WAL block size:                       8192",
     ]
-    controldata = pg_ctl._parse_control_data(lines)
+    controldata = ctl.parse_control_data(lines)
     assert controldata == {
         "Catalog version number": "201809051",
         "Database cluster state": "shut down",

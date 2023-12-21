@@ -281,16 +281,17 @@ class PGCtl:
         r = self.run_command(
             cmd, check=True, env={"LC_ALL": "C"}, capture_output=True
         ).stdout
-        return self._parse_control_data(r.splitlines())
+        return parse_control_data(r.splitlines())
 
-    def _parse_control_data(self, lines: list[str]) -> dict[str, str]:
-        """Parse pg_controldata command output."""
-        controldata = {}
-        for line in lines:
-            m = re.match(r"^([^:]+):(.*)$", line)
-            if m:
-                controldata[m.group(1).strip()] = m.group(2).strip()
-        return controldata
+
+def parse_control_data(lines: Sequence[str]) -> dict[str, str]:
+    """Parse pg_controldata command output."""
+    controldata = {}
+    for line in lines:
+        m = re.match(r"^([^:]+):(.*)$", line)
+        if m:
+            controldata[m.group(1).strip()] = m.group(2).strip()
+    return controldata
 
 
 def num_version(text_version: str) -> int:
