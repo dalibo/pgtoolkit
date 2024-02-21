@@ -51,8 +51,7 @@ class CommandRunner(Protocol):
         capture_output: bool = False,
         check: bool = False,
         **kwargs: Any,
-    ) -> CompletedProcess:
-        ...
+    ) -> CompletedProcess: ...
 
 
 class AsyncCommandRunner(Protocol):
@@ -71,8 +70,7 @@ class AsyncCommandRunner(Protocol):
         capture_output: bool = False,
         check: bool = False,
         **kwargs: Any,
-    ) -> CompletedProcess:
-        ...
+    ) -> CompletedProcess: ...
 
 
 def run_command(

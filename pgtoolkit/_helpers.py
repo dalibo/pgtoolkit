@@ -53,23 +53,21 @@ class PassthroughManager(Generic[T]):
 
 
 @overload
-def open_or_return(fo_or_path: None, mode: str = "r") -> NoReturn:
-    ...
+def open_or_return(fo_or_path: None, mode: str = "r") -> NoReturn: ...
 
 
 @overload
-def open_or_return(fo_or_path: str, mode: str = "r") -> IO[str]:
-    ...
+def open_or_return(fo_or_path: str, mode: str = "r") -> IO[str]: ...
 
 
 @overload
-def open_or_return(fo_or_path: Path, mode: str = "r") -> IO[str]:
-    ...
+def open_or_return(fo_or_path: Path, mode: str = "r") -> IO[str]: ...
 
 
 @overload
-def open_or_return(fo_or_path: IO[str], mode: str = "r") -> PassthroughManager[IO[str]]:
-    ...
+def open_or_return(
+    fo_or_path: IO[str], mode: str = "r"
+) -> PassthroughManager[IO[str]]: ...
 
 
 def open_or_return(

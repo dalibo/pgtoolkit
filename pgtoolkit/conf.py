@@ -38,7 +38,6 @@ You can use this module to dump a configuration file as JSON object
 
 """
 
-
 import contextlib
 import copy
 import enum
@@ -462,6 +461,7 @@ class Configuration:
     .. automethod:: save
 
     """  # noqa
+
     lines: list[str]
     entries: dict[str, Entry]
     path: Optional[str]
