@@ -120,9 +120,11 @@ class Service(dict[str, Parameter]):
     'mydb'
     >>> myservice.user = 'myuser'
     >>> list(sorted(myservice.items()))
-    [('dbname', 'mydb'), ('host', 'myhost'), ('name', 'myservice'), ('user', 'myuser')]
+    [('dbname', 'mydb'), ('host', 'myhost'), ('user', 'myuser')]
 
     """  # noqa
+
+    name: str
 
     def __init__(
         self,
@@ -131,7 +133,7 @@ class Service(dict[str, Parameter]):
         **extra: Parameter,
     ) -> None:
         super().__init__()
-        self.name = name
+        super().__setattr__("name", name)
         self.update(parameters or {})
         self.update(extra)
 

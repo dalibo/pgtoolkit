@@ -78,18 +78,14 @@ def test_render():
     assert raw == "\n".join(
         [
             "[service0]",
-            "name=service0",
             "port=5432",
             "",
             "[service1]",
-            "name=service1",
             "host=myhost",
             "",
             "",
         ]
     )
-    # TODO: In ^, 'name=' entries should not be there,
-    # see https://github.com/dalibo/pgtoolkit/issues/118
 
 
 def test_sysconfdir(mocker):
