@@ -181,12 +181,27 @@ def test_configuration_multiple_entries():
     ]
 
 
-def test_parser_includes_require_a_file_path():
-    from pgtoolkit.conf import parse
+def test_parser_includes_require_an_absolute_file_path():
+    from pgtoolkit.conf import ParseError, parse
 
     lines = ["include = 'foo.conf'\n"]
-    with pytest.raises(ValueError, match="try passing a file path"):
+    with pytest.raises(ParseError, match="cannot process include directives"):
         parse(lines)
+
+
+def test_parser_includes_string_with_absolute_file_path(tmp_path: pathlib.Path):
+    from pgtoolkit.conf import parse
+
+    included = tmp_path / "included.conf"
+    included.write_text("shared_buffers = 123MG\nmax_connections=45\n")
+
+    lines = [f"include = '{included}'", "cluster_name=foo"]
+    conf = parse(lines)
+    assert conf.as_dict() == {
+        "cluster_name": "foo",
+        "max_connections": 45,
+        "shared_buffers": "123MG",
+    }
 
 
 def test_parser_includes():
@@ -275,11 +290,11 @@ def test_parser_includes_notfound(tmp_path):
 
 
 def test_parse_string_include(tmp_path):
-    from pgtoolkit.conf import parse_string
+    from pgtoolkit.conf import ParseError, parse_string
 
     with pytest.raises(
-        ValueError,
-        match="cannot process include directives from a string value",
+        ParseError,
+        match="cannot process include directives referencing a relative path",
     ):
         parse_string("work_mem=1MB\ninclude = x\n")
 

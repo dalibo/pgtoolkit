@@ -12,6 +12,7 @@ API Reference
 .. autofunction:: parse
 .. autofunction:: parse_string
 .. autoclass:: Configuration
+.. autoclass:: ParseError
 
 
 Using as a CLI Script
@@ -53,6 +54,10 @@ from typing import IO, Any, NoReturn, Optional, Union
 from ._helpers import JSONDateEncoder, open_or_return
 
 
+class ParseError(Exception):
+    """Error while parsing configuration content."""
+
+
 class IncludeType(enum.Enum):
     """Include directive types.
 
@@ -85,22 +90,16 @@ def parse(fo: Union[str, pathlib.Path, IO[str]]) -> "Configuration":
     :returns: A :class:`Configuration` containing parsed configuration.
 
     """
-
-    def consume(conf: Configuration) -> Iterator[None]:
-        for include_path, include_type in conf.parse(f):
-            if not conf.path:
-                raise ValueError(
-                    "cannot process include directives from a file argument; "
-                    "try passing a file path"
-                )
-            from_path = pathlib.Path(conf.path).absolute()
-            yield from parse_include(conf, include_path, include_type, from_path)
-
     with open_or_return(fo) as f:
         conf = Configuration(getattr(f, "name", None))
-        list(consume(conf))
+        list(_consume(conf, f))
 
     return conf
+
+
+def _consume(conf: "Configuration", content: Iterable[str]) -> Iterator[None]:
+    for include_path, include_type in conf.parse(content):
+        yield from parse_include(conf, include_path, include_type)
 
 
 def parse_string(string: str, source: Optional[str] = None) -> "Configuration":
@@ -108,6 +107,9 @@ def parse_string(string: str, source: Optional[str] = None) -> "Configuration":
 
     Optional *source* argument can be used to set the context path of built
     Configuration.
+
+    :raises ParseError: if the string contains include directives referencing a relative
+        path and *source* is unspecified.
     """
     conf = Configuration(source)
     conf.parse_string(string)
@@ -118,7 +120,6 @@ def parse_include(
     conf: "Configuration",
     path: pathlib.Path,
     include_type: IncludeType,
-    from_path: pathlib.Path,
     *,
     _processed: Optional[set[pathlib.Path]] = None,
 ) -> Iterator[None]:
@@ -129,14 +130,21 @@ def parse_include(
         _processed = set()
 
     def notfound(
-        path: pathlib.Path, include_type: str, reference_path: pathlib.Path
+        path: pathlib.Path, include_type: str, reference_path: Optional[str]
     ) -> FileNotFoundError:
+        ref = (
+            f"{reference_path!r}" if reference_path is not None else "<string literal>"
+        )
         return FileNotFoundError(
-            f"{include_type} '{path}', included from '{reference_path}'," " not found"
+            f"{include_type} '{path}', included from {ref}, not found"
         )
 
     if not path.is_absolute():
-        relative_to = from_path
+        if not conf.path:
+            raise ParseError(
+                "cannot process include directives referencing a relative path"
+            )
+        relative_to = pathlib.Path(conf.path).absolute()
         assert relative_to.is_absolute()
         if relative_to.is_file():
             relative_to = relative_to.parent
@@ -144,26 +152,25 @@ def parse_include(
 
     if include_type == IncludeType.include_dir:
         if not path.exists() or not path.is_dir():
-            raise notfound(path, "directory", from_path)
+            raise notfound(path, "directory", conf.path)
         for confpath in sorted(path.glob("*.conf")):
             if not confpath.name.startswith("."):
                 yield from parse_include(
                     conf,
                     confpath,
                     IncludeType.include,
-                    from_path,
                     _processed=_processed,
                 )
 
     elif include_type == IncludeType.include_if_exists:
         if path.exists():
             yield from parse_include(
-                conf, path, IncludeType.include, from_path, _processed=_processed
+                conf, path, IncludeType.include, _processed=_processed
             )
 
     elif include_type == IncludeType.include:
         if not path.exists():
-            raise notfound(path, "file", from_path)
+            raise notfound(path, "file", conf.path)
 
         if path in _processed:
             raise RuntimeError(f"loop detected in include directive about '{path}'")
@@ -176,7 +183,6 @@ def parse_include(
                     subconf,
                     sub_include_path,
                     sub_include_type,
-                    path,
                     _processed=_processed,
                 )
         conf.entries.update(subconf.entries)
@@ -540,11 +546,7 @@ class Configuration:
                 )
 
     def parse_string(self, string: str) -> None:
-        try:
-            next(self.parse(string.splitlines(keepends=True)))
-        except StopIteration:
-            return
-        raise ValueError("cannot process include directives from a string value")
+        list(_consume(self, string.splitlines(keepends=True)))
 
     def __add__(self, other: Any) -> "Configuration":
         cls = self.__class__
