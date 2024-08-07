@@ -451,3 +451,12 @@ def test_configuration_iter():
     conf.port = 5432
     conf.log_timezone = "Europe/Paris"
     assert [e.name for e in conf] == ["port", "log_timezone"]
+
+
+def test_include_edit():
+    from pgtoolkit.conf import parse
+
+    fpath = pathlib.Path(__file__).parent / "data" / "postgres.conf"
+    conf = parse(str(fpath))
+    with conf.edit() as entries:
+        entries["my"].value = "new_value"
