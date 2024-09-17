@@ -414,7 +414,7 @@ class HBA:
 
         return lines_before != self.lines
 
-    def merge(self, other: "HBA") -> None:
+    def merge(self, other: "HBA") -> bool:
         """Add new records to HBAFile or replace them if they are matching
             (ie. same conntype, database, user and address)
 
@@ -422,6 +422,8 @@ class HBA:
             Lines with matching conntype, database, user and database will be
             replaced by the new one. Otherwise they will be added at the end.
             Comments from the original hba are preserved.
+
+        :returns: ``True`` if records have changed.
         """
         lines = self.lines[:]
         new_lines = other.lines[:]
@@ -449,6 +451,8 @@ class HBA:
                     other_comments[:] = []
         # Then add remaining new lines (not merged)
         self.lines.extend(new_lines)
+
+        return lines != self.lines
 
 
 def parse(file: Union[str, Iterable[str]]) -> HBA:

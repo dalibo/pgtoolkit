@@ -277,7 +277,7 @@ def test_remove():
 def test_merge():
     import os
 
-    from pgtoolkit.hba import parse
+    from pgtoolkit.hba import HBA, HBARecord, parse
 
     sample = """\
     # comment
@@ -300,7 +300,8 @@ def test_merge():
     """
     other_lines = other_sample.splitlines(True)
     other_hba = parse(other_lines)
-    hba.merge(other_hba)
+    result = hba.merge(other_hba)
+    assert result
 
     expected_sample = """\
     # comment
@@ -323,6 +324,18 @@ def test_merge():
         return os.linesep.join([str(line) for line in hba.lines])
 
     assert r(hba) == r(expected_hba)
+
+    other_hba = HBA()
+    record = HBARecord(
+        conntype="host",
+        databases=["replication"],
+        users=["all"],
+        address="1.2.3.4",
+        method="trust",
+    )
+    other_hba.lines.append(record)
+    result = hba.merge(other_hba)
+    assert not result
 
 
 def test_as_dict():
