@@ -236,6 +236,9 @@ class HBARecord:
 
         return line
 
+    def __eq__(self, other: object) -> bool:
+        return str(self) == str(other)
+
     def as_dict(self, serialized: bool = False) -> dict[str, Any]:
         str_fields = self.COMMON_FIELDS[:]
         if serialized:
