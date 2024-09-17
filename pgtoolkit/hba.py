@@ -236,6 +236,12 @@ class HBARecord:
 
         return line
 
+    def as_dict(self, serialized: bool = False) -> dict[str, Any]:
+        str_fields = self.COMMON_FIELDS[:]
+        if serialized:
+            str_fields[1:3] = ["database", "user"]
+        return {f: getattr(self, f) for f in str_fields if hasattr(self, f)}
+
     @property
     def common_values(self) -> list[str]:
         str_fields = self.COMMON_FIELDS[:]

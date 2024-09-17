@@ -315,3 +315,51 @@ def test_merge():
         return os.linesep.join([str(line) for line in hba.lines])
 
     assert r(hba) == r(expected_hba)
+
+
+def test_as_dict():
+    from pgtoolkit.hba import HBARecord
+
+    r = HBARecord(
+        conntype="local",
+        database="all",
+        user="all",
+        method="trust",
+    )
+    assert r.as_dict() == {
+        "conntype": "local",
+        "databases": ["all"],
+        "users": ["all"],
+        "method": "trust",
+    }
+    assert r.as_dict(serialized=True) == {
+        "conntype": "local",
+        "database": "all",
+        "user": "all",
+        "method": "trust",
+    }
+
+    r = HBARecord(
+        conntype="local",
+        databases=["mydb", "mydb2"],
+        users=["bob", "alice"],
+        address="127.0.0.1",
+        netmask="255.255.255.255",
+        method="trust",
+    )
+    assert r.as_dict() == {
+        "address": "127.0.0.1",
+        "conntype": "local",
+        "databases": ["mydb", "mydb2"],
+        "users": ["bob", "alice"],
+        "method": "trust",
+        "netmask": "255.255.255.255",
+    }
+    assert r.as_dict(serialized=True) == {
+        "address": "127.0.0.1",
+        "conntype": "local",
+        "database": "mydb,mydb2",
+        "user": "bob,alice",
+        "method": "trust",
+        "netmask": "255.255.255.255",
+    }
