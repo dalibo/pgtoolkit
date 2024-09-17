@@ -179,7 +179,7 @@ def test_hba_create():
         HBA("blah")
 
 
-def test_parse_file(mocker):
+def test_parse_file(mocker, tmp_path):
     from pgtoolkit.hba import HBAComment, parse
 
     m = mocker.mock_open()
@@ -199,6 +199,13 @@ def test_parse_file(mocker):
     m.reset_mock()
     pgpass = parse("filename")
     pgpass.lines.append(HBAComment("# Something"))
+    assert m.called
+
+    # Also works with path
+    m.reset_mock()
+    pgpass = parse(tmp_path / "filename")
+    pgpass.lines.append(HBAComment("# Something"))
+
     assert m.called
 
 

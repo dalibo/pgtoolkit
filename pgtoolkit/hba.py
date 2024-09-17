@@ -316,7 +316,7 @@ class HBA:
     """
 
     lines: list[Union[HBAComment, HBARecord]]
-    path: Optional[str]
+    path: Optional[Union[str, Path]]
 
     def __init__(
         self, entries: Optional[Iterable[Union[HBAComment, HBARecord]]] = None
@@ -455,14 +455,14 @@ class HBA:
         return lines != self.lines
 
 
-def parse(file: Union[str, Iterable[str]]) -> HBA:
+def parse(file: Union[str, Iterable[str], Path]) -> HBA:
     """Parse a `pg_hba.conf` file.
 
-    :param file: Either a line iterator such as a file-like object or a string
+    :param file: Either a line iterator such as a file-like object, a path or a string
         corresponding to the path to the file to open and parse.
     :rtype: :class:`HBA`.
     """
-    if isinstance(file, str):
+    if isinstance(file, (str, Path)):
         with open(file) as fo:
             hba = parse(fo)
             hba.path = file
