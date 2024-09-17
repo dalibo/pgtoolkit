@@ -224,24 +224,31 @@ def test_remove():
     with pytest.raises(ValueError):
         hba.remove()
 
-    hba.remove(database="replication")
+    result = hba.remove(database="badname")
+    assert not result
+
+    result = hba.remove(database="replication")
+    assert result
     entries = list(iter(hba))
     assert 4 == len(entries)
 
     hba = parse(lines)
-    hba.remove(filter=lambda r: r.database == "replication")
+    result = hba.remove(filter=lambda r: r.database == "replication")
+    assert result
     entries = list(iter(hba))
     assert 4 == len(entries)
 
     hba = parse(lines)
-    hba.remove(conntype="host", database="replication")
+    result = hba.remove(conntype="host", database="replication")
+    assert result
     entries = list(iter(hba))
     assert 5 == len(entries)
 
     # Works even for fields that may not be valid for all records
     # `address` is not valid for `local` connection type
     hba = parse(lines)
-    hba.remove(address="127.0.0.1/32")
+    result = hba.remove(address="127.0.0.1/32")
+    assert result
     entries = list(iter(hba))
     assert 6 == len(entries)
 
@@ -249,7 +256,8 @@ def test_remove():
         return r.conntype == "host" and r.database == "replication"
 
     hba = parse(lines)
-    hba.remove(filter=filter)
+    result = hba.remove(filter=filter)
+    assert result
     entries = list(iter(hba))
     assert 5 == len(entries)
 

@@ -374,7 +374,7 @@ class HBA:
         self,
         filter: Optional[Callable[[HBARecord], bool]] = None,
         **attrs: str,
-    ) -> None:
+    ) -> bool:
         """Remove records matching the provided attributes.
 
         One can for example remove all records for which user is 'david'.
@@ -384,6 +384,8 @@ class HBA:
             kept otherwise.
         :param attrs: keyword/values pairs correspond to one or more
             HBARecord attributes (ie. user, conntype, etc...)
+
+        :returns: ``True`` if records have changed.
 
         Usage examples:
 
@@ -402,11 +404,15 @@ class HBA:
 
         filter = filter or (lambda line: line.matches(**attrs))
 
+        lines_before = self.lines
+
         self.lines = [
             line
             for line in self.lines
             if not (isinstance(line, HBARecord) and filter(line))
         ]
+
+        return lines_before != self.lines
 
     def merge(self, other: "HBA") -> None:
         """Add new records to HBAFile or replace them if they are matching
