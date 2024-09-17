@@ -363,3 +363,29 @@ def test_as_dict():
         "method": "trust",
         "netmask": "255.255.255.255",
     }
+
+
+def test_hbarecord_equality():
+    from pgtoolkit.hba import HBARecord
+
+    r = HBARecord(
+        conntype="local",
+        database="all",
+        user="all",
+        method="trust",
+    )
+    r2 = HBARecord.parse("local all all trust")
+    assert r == r2
+
+    r = HBARecord(
+        conntype="host",
+        databases=["all"],
+        users=["u0", "u1"],
+        address="127.0.0.1/32",
+        method="trust",
+    )
+    r2 = HBARecord.parse("host all u0,u1 127.0.0.1/32 trust")
+    assert r == r2
+
+    r2 = HBARecord.parse("host mydb u0,u1 127.0.0.1/32 trust")
+    assert r != r2
