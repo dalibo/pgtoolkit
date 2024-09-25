@@ -2,6 +2,7 @@ include pyproject.toml
 include *.md
 include *.txt
 include LICENSE
+include tox.ini
 recursive-include docs *.py *.rst Makefile
 recursive-include pgtoolkit *.py
 recursive-include tests *.py *.sh
@@ -10,6 +11,7 @@ recursive-include tests/data *.conf *.includeme *.log pgpass*
 exclude .editorconfig
 exclude .readthedocs.yaml
 exclude Makefile
+exclude requirements/dev.txt
 prune .circleci
 prune rpm
 prune debian
