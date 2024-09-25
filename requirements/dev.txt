@@ -1,0 +1,5 @@
+flake8
+black
+check-manifest
+isort
+mypy
