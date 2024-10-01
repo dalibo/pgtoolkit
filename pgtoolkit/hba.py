@@ -81,7 +81,7 @@ from .errors import ParseError
 
 class HBAComment(str):
     def __repr__(self) -> str:
-        return "<{} {:.32}>".format(self.__class__.__name__, self)
+        return f"<{self.__class__.__name__} {self:.32}>"
 
 
 class HBARecord:
@@ -220,7 +220,7 @@ class HBARecord:
             if width:
                 fmt += "%%(%s)-%ds " % (field, width - 1)
             else:
-                fmt += "%({})s ".format(field)
+                fmt += f"%({field})s "
         # Serialize database and user list using property.
         values = dict(self.__dict__, databases=self.database, users=self.user)
         line = fmt.rstrip() % values

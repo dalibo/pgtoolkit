@@ -346,7 +346,7 @@ class Entry:
                         continue
                     value = seconds // mod
                     break
-            value = "'{}{}'".format(value, unit)
+            value = f"'{value}{unit}'"
         else:
             value = str(value)
         return value

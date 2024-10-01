@@ -140,7 +140,7 @@ class UnknownData(Exception):
 
     def __repr__(self) -> str:
         summary = str(self)[:32].replace("\n", "")
-        return "<{} {}...>".format(self.__class__.__name__, summary)
+        return f"<{self.__class__.__name__} {summary}...>"
 
     def __str__(self) -> str:
         return "".join(self.lines)
@@ -291,7 +291,7 @@ class PrefixParser:
         self.prefix_fmt = prefix_fmt
 
     def __repr__(self) -> str:
-        return "<{} '{}'>".format(self.__class__.__name__, self.prefix_fmt)
+        return f"<{self.__class__.__name__} '{self.prefix_fmt}'>"
 
     def parse(self, prefix: str) -> MutableMapping[str, Any]:
         # Parses the prefix line according to the inner regular expression. If

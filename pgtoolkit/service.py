@@ -138,7 +138,7 @@ class Service(dict[str, Parameter]):
         self.update(extra)
 
     def __repr__(self) -> str:
-        return "<{} {}>".format(self.__class__.__name__, self.name)
+        return f"<{self.__class__.__name__} {self.name}>"
 
     def __getattr__(self, name: str) -> Parameter:
         return self[name]
