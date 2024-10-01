@@ -82,12 +82,7 @@ def run_command(
     """Default :class:`CommandRunner` implementation for :class:`PGCtl` using
     :func:`subprocess.run`.
     """
-    return subprocess.run(
-        args,
-        check=check,
-        universal_newlines=True,
-        **kwargs,
-    )
+    return subprocess.run(args, check=check, text=True, **kwargs)
 
 
 async def asyncio_run_command(
