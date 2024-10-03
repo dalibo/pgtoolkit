@@ -445,6 +445,7 @@ class Configuration:
     }
 
     though, lines are discarded in the operation:
+
     >>> sumconf.lines
     []
 
