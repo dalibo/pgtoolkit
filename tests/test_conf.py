@@ -459,6 +459,28 @@ def test_edit():
     assert lines == expected_lines
 
 
+def test_edit_included_value(tmp_path: pathlib.Path) -> None:
+    from pgtoolkit.conf import parse
+
+    included = tmp_path / "included.conf"
+    included.write_text("included = true\n")
+    base = tmp_path / "postgresql.conf"
+    lines = ["bonjour = on", f"include = {included}", "cluster_name=test"]
+    base.write_text("\n".join(lines) + "\n")
+
+    conf = parse(base)
+    with conf.edit() as entries:
+        entries["included"].value = False
+
+    out = tmp_path / "postgresql-new.conf"
+    conf.save(out)
+    newlines = out.read_text().splitlines()
+    assert newlines == lines + ["included = off"]
+
+    conf = parse(out)
+    assert conf["included"] is False
+
+
 def test_configuration_iter():
     from pgtoolkit.conf import Configuration
 
