@@ -625,8 +625,14 @@ class Configuration:
         # Update serialized entry.
         old_line = old_entry.raw_line
         entry.raw_line = str(entry) + "\n"
-        lineno = self.lines.index(old_line)
-        self.lines[lineno : lineno + 1] = [entry.raw_line]
+        try:
+            lineno = self.lines.index(old_line)
+        except ValueError:
+            # Entry may come from an included file, in which case we don't have the
+            # "old_line" index; so append the new line at end of file.
+            self.lines.append(entry.raw_line)
+        else:
+            self.lines[lineno : lineno + 1] = [entry.raw_line]
 
     def __iter__(self) -> Iterator[Entry]:
         return iter(self.entries.values())
