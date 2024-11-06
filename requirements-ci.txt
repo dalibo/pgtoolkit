@@ -1,7 +1,7 @@
 black>=24.2.0
 check-manifest
 codecov
-docutils
+docutils>=0.21.0
 flake8
 isort
 mypy>=0.982

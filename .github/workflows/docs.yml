@@ -16,5 +16,5 @@ jobs:
         run: python -m pip install -r requirements-ci.txt -e .
       - name: Check documentation
         run: |
-          python setup.py --long-description | rst2html.py --strict >/dev/null
+          python setup.py --long-description | rst2html --strict >/dev/null
           make -C docs clean html
