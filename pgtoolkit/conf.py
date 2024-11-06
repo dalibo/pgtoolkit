@@ -50,6 +50,7 @@ from collections import OrderedDict
 from collections.abc import Iterable, Iterator
 from datetime import timedelta
 from typing import IO, Any, NoReturn, Optional, Union
+from warnings import warn
 
 from ._helpers import JSONDateEncoder, open_or_return
 
@@ -621,8 +622,12 @@ class Configuration:
         try:
             lineno = self.lines.index(old_line)
         except ValueError:
-            # Entry may come from an included file, in which case we don't have the
-            # "old_line" index; so append the new line at end of file.
+            msg = (
+                f"entry {key!r} not directly found in {self.path or 'parsed content'}"
+                " (it might be defined in an included file),"
+                " appending a new line to set requested value"
+            )
+            warn(msg, UserWarning)
             self.lines.append(entry.raw_line)
         else:
             self.lines[lineno : lineno + 1] = [entry.raw_line]

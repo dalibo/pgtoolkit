@@ -469,8 +469,9 @@ def test_edit_included_value(tmp_path: pathlib.Path) -> None:
     base.write_text("\n".join(lines) + "\n")
 
     conf = parse(base)
-    with conf.edit() as entries:
-        entries["included"].value = False
+    with pytest.warns(UserWarning, match="entry 'included' not directly found"):
+        with conf.edit() as entries:
+            entries["included"].value = False
 
     out = tmp_path / "postgresql-new.conf"
     conf.save(out)
