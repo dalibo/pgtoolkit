@@ -239,18 +239,19 @@ def parse_value(raw: str) -> Value:
         kwargs = {arg: int(m.group("number"))}
         return timedelta(**kwargs)
 
-    elif raw in ("true", "yes", "on"):
+    if raw in ("true", "yes", "on"):
         return True
-    elif raw in ("false", "no", "off"):
+
+    if raw in ("false", "no", "off"):
         return False
-    else:
+
+    try:
+        return int(raw)
+    except ValueError:
         try:
-            return int(raw)
+            return float(raw)
         except ValueError:
-            try:
-                return float(raw)
-            except ValueError:
-                return raw
+            return raw
 
 
 class Entry:
