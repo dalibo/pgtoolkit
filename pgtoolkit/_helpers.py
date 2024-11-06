@@ -1,6 +1,6 @@
 import json
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import IO, Any, Generic, NoReturn, Optional, TypeVar, Union, overload
 
@@ -94,8 +94,8 @@ def open_or_return(
 
 class Timer:
     def __enter__(self) -> "Timer":
-        self.start = datetime.utcnow()
+        self.start = datetime.now(timezone.utc)
         return self
 
     def __exit__(self, *a: Any) -> None:
-        self.delta = datetime.utcnow() - self.start
+        self.delta = datetime.now(timezone.utc) - self.start

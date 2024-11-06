@@ -199,14 +199,14 @@ def test_main(mocker, caplog, capsys):
     open_ = mocker.patch(pkg + ".open_or_stdin", autospec=True)
     parse = mocker.patch(pkg + ".parse", autospec=True)
 
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     from pgtoolkit.log import Record, UnknownData
     from pgtoolkit.log.__main__ import main
 
     open_.return_value = mocker.MagicMock()
     parse.return_value = [
-        Record("prefix", "LOG", timestamp=datetime.utcnow()),
+        Record("prefix", "LOG", timestamp=datetime.now(timezone.utc)),
         UnknownData(["unknown line\n"]),
     ]
     log_line_prefix = "%m [%p]: "
