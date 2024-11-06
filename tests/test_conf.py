@@ -25,7 +25,9 @@ def test_parse_value():
     assert -2 == parse_value("-2")
     assert 0.2 == parse_value("0.2")
     assert 0 == parse_value("0")
-    assert 0 == parse_value("'0'")
+    # Numbers, quoted
+    assert "0" == parse_value("'0'")
+    assert "2.3" == parse_value("'2.3'")
 
     # Strings
     assert "/a/path/to/file.conf" == parse_value(r"/a/path/to/file.conf")

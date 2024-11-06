@@ -215,11 +215,13 @@ def parse_value(raw: str) -> Value:
     # Ref.
     # https://www.postgresql.org/docs/current/static/config-setting.html#CONFIG-SETTING-NAMES-VALUES
 
+    quoted = False
     if raw.startswith("'"):
         if not raw.endswith("'"):
             raise ValueError(raw)
         # unquote value and unescape quotes
         raw = raw[1:-1].replace("''", "'").replace(r"\'", "'")
+        quoted = True
 
     if raw.startswith("0") and raw != "0":
         try:
@@ -245,13 +247,16 @@ def parse_value(raw: str) -> Value:
     if raw in ("false", "no", "off"):
         return False
 
-    try:
-        return int(raw)
-    except ValueError:
+    if not quoted:
         try:
-            return float(raw)
+            return int(raw)
         except ValueError:
-            return raw
+            try:
+                return float(raw)
+            except ValueError:
+                return raw
+
+    return raw
 
 
 class Entry:
