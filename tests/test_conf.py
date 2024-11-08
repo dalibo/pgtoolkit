@@ -233,6 +233,7 @@ def test_parser_includes():
         "ssl": True,
         "unix_socket_permissions": "0777",
         "wal_level": "hot_standby",
+        "some_guc": "2.30",
     }
     assert "include" not in conf
     assert "include_if_exists" not in conf
@@ -253,10 +254,12 @@ def test_parser_includes():
         "# - Connection Settings -",
         "listen_addresses = '*'                  # comma-separated list of addresses;",
     ]
-    assert lines[-3:] == [
+    assert lines[-5:] == [
         "# Add settings for extensions here",
         "pg_stat_statements.max = 10000",
         "pg_stat_statements.track = all",
+        "",
+        "some_guc = '2.30'",
     ]
 
 
