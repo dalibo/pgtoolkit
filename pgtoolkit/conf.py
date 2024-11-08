@@ -215,11 +215,13 @@ def parse_value(raw: str) -> Value:
     # Ref.
     # https://www.postgresql.org/docs/current/static/config-setting.html#CONFIG-SETTING-NAMES-VALUES
 
+    quoted = False
     if raw.startswith("'"):
         if not raw.endswith("'"):
             raise ValueError(raw)
         # unquote value and unescape quotes
         raw = raw[1:-1].replace("''", "'").replace(r"\'", "'")
+        quoted = True
 
     if raw.startswith("0") and raw != "0":
         try:
@@ -239,11 +241,13 @@ def parse_value(raw: str) -> Value:
         kwargs = {arg: int(m.group("number"))}
         return timedelta(**kwargs)
 
-    elif raw in ("true", "yes", "on"):
+    if raw in ("true", "yes", "on"):
         return True
-    elif raw in ("false", "no", "off"):
+
+    if raw in ("false", "no", "off"):
         return False
-    else:
+
+    if not quoted:
         try:
             return int(raw)
         except ValueError:
@@ -251,6 +255,8 @@ def parse_value(raw: str) -> Value:
                 return float(raw)
             except ValueError:
                 return raw
+
+    return raw
 
 
 class Entry:
@@ -267,7 +273,8 @@ class Entry:
         raw_line: Optional[str] = None,
     ) -> None:
         self._name = name
-        if isinstance(value, str):
+        # We parse value only if not already parsed from a file
+        if raw_line is None and isinstance(value, str):
             value = parse_value(value)
         self._value = value
         self.commented = commented
