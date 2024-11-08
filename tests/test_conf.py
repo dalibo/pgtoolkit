@@ -233,6 +233,7 @@ def test_parser_includes():
         "ssl": True,
         "unix_socket_permissions": "0777",
         "wal_level": "hot_standby",
+        "some_guc": "2.30",
     }
     assert "include" not in conf
     assert "include_if_exists" not in conf
@@ -253,10 +254,12 @@ def test_parser_includes():
         "# - Connection Settings -",
         "listen_addresses = '*'                  # comma-separated list of addresses;",
     ]
-    assert lines[-3:] == [
+    assert lines[-5:] == [
         "# Add settings for extensions here",
         "pg_stat_statements.max = 10000",
         "pg_stat_statements.track = all",
+        "",
+        "some_guc = '2.30'",
     ]
 
 
@@ -308,6 +311,19 @@ def test_entry_edit():
     assert entry.value == 1234
     entry.value = "9876"
     assert entry.value == 9876
+
+
+def test_entry_constructor_parse_value():
+    from pgtoolkit.conf import Entry
+
+    entry = Entry(name="var", value="'1.2'")
+    assert entry.value == "1.2"
+    entry = Entry(name="var", value="1234")
+    assert entry.value == 1234
+    # If value come from the parsing of a file (ie. raw_line is provided) value should
+    # not be parsed and be kept as is
+    entry = Entry(name="var", value="'1.2'", raw_line="var = '1.2'")
+    assert entry.value == "'1.2'"
 
 
 def test_serialize_entry():

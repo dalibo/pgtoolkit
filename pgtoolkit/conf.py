@@ -273,7 +273,8 @@ class Entry:
         raw_line: Optional[str] = None,
     ) -> None:
         self._name = name
-        if isinstance(value, str):
+        # We parse value only if not already parsed from a file
+        if raw_line is None and isinstance(value, str):
             value = parse_value(value)
         self._value = value
         self.commented = commented
