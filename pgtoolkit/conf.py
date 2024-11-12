@@ -274,6 +274,35 @@ def parse_value(raw: str) -> Value:
     return raw
 
 
+def serialize_value(value: Value) -> str:
+    # This is the reverse of parse_value.
+    if isinstance(value, bool):
+        value = "on" if value else "off"
+    elif isinstance(value, str):
+        # Only quote if not already quoted.
+        if not (value.startswith("'") and value.endswith("'")):
+            # Only double quotes, if not already done; we assume this is
+            # done everywhere in the string or nowhere.
+            if "''" not in value and r"\'" not in value:
+                value = value.replace("'", "''")
+            value = "'%s'" % value
+    elif isinstance(value, timedelta):
+        seconds = value.days * _day + value.seconds
+        if value.microseconds:
+            unit = " ms"
+            value = seconds * 1000 + value.microseconds // 1000
+        else:
+            for unit, mod in _timedelta_unit_map:
+                if seconds % mod:
+                    continue
+                value = seconds // mod
+                break
+        value = f"'{value}{unit}'"
+    else:
+        value = str(value)
+    return value
+
+
 class Entry:
     # Holds the parsed representation of a configuration entry line.
     #
@@ -332,33 +361,7 @@ class Entry:
         )
 
     def serialize(self) -> str:
-        # This is the reverse of parse_value.
-        value = self.value
-        if isinstance(value, bool):
-            value = "on" if value else "off"
-        elif isinstance(value, str):
-            # Only quote if not already quoted.
-            if not (value.startswith("'") and value.endswith("'")):
-                # Only double quotes, if not already done; we assume this is
-                # done everywhere in the string or nowhere.
-                if "''" not in value and r"\'" not in value:
-                    value = value.replace("'", "''")
-                value = "'%s'" % value
-        elif isinstance(value, timedelta):
-            seconds = value.days * _day + value.seconds
-            if value.microseconds:
-                unit = " ms"
-                value = seconds * 1000 + value.microseconds // 1000
-            else:
-                for unit, mod in _timedelta_unit_map:
-                    if seconds % mod:
-                        continue
-                    value = seconds // mod
-                    break
-            value = f"'{value}{unit}'"
-        else:
-            value = str(value)
-        return value
+        return serialize_value(self.value)
 
     def __str__(self) -> str:
         line = "%(name)s = %(value)s" % dict(name=self.name, value=self.serialize())
