@@ -481,23 +481,24 @@ def test_edit_included_value(tmp_path: pathlib.Path) -> None:
     from pgtoolkit.conf import parse
 
     included = tmp_path / "included.conf"
-    included.write_text("included = true\n")
+    included.write_text("foo = true\nbar= off\n")
     base = tmp_path / "postgresql.conf"
     lines = ["bonjour = on", f"include = {included}", "cluster_name=test"]
     base.write_text("\n".join(lines) + "\n")
 
     conf = parse(base)
-    with pytest.warns(UserWarning, match="entry 'included' not directly found"):
+    with pytest.warns(UserWarning, match="entry 'foo' not directly found"):
         with conf.edit() as entries:
-            entries["included"].value = False
+            entries["foo"].value = False
+            entries["bar"].commented = True
 
     out = tmp_path / "postgresql-new.conf"
     conf.save(out)
     newlines = out.read_text().splitlines()
-    assert newlines == lines + ["included = off"]
+    assert newlines == lines + ["foo = off"]
 
     conf = parse(out)
-    assert conf["included"] is False
+    assert conf["foo"] is False
 
 
 def test_configuration_iter():
