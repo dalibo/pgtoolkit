@@ -631,13 +631,14 @@ class Configuration:
         try:
             lineno = self.lines.index(old_line)
         except ValueError:
-            msg = (
-                f"entry {key!r} not directly found in {self.path or 'parsed content'}"
-                " (it might be defined in an included file),"
-                " appending a new line to set requested value"
-            )
-            warn(msg, UserWarning)
-            self.lines.append(entry.raw_line)
+            if not entry.commented:
+                msg = (
+                    f"entry {key!r} not directly found in {self.path or 'parsed content'}"
+                    " (it might be defined in an included file),"
+                    " appending a new line to set requested value"
+                )
+                warn(msg, UserWarning)
+                self.lines.append(entry.raw_line)
         else:
             self.lines[lineno : lineno + 1] = [entry.raw_line]
 
