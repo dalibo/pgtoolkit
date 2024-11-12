@@ -88,11 +88,13 @@ comments.
 
 """
 
+from __future__ import annotations
+
 import os
 import sys
 from collections.abc import Iterable, MutableMapping
 from configparser import ConfigParser
-from typing import IO, Optional, Union
+from typing import IO, Union
 
 from ._helpers import open_or_stdin
 
@@ -129,7 +131,7 @@ class Service(dict[str, Parameter]):
     def __init__(
         self,
         name: str,
-        parameters: Optional[dict[str, Parameter]] = None,
+        parameters: dict[str, Parameter] | None = None,
         **extra: Parameter,
     ) -> None:
         super().__init__()
@@ -163,7 +165,7 @@ class ServiceFile:
         path to a file. :meth:`save` will write to this file if set.
     """
 
-    path: Optional[str]
+    path: str | None
 
     _CONVERTERS = {
         "port": int,
@@ -195,7 +197,7 @@ class ServiceFile:
         for parameter, value in service.items():
             self.config.set(service.name, parameter, str(value))
 
-    def parse(self, fo: Iterable[str], source: Optional[str] = None) -> None:
+    def parse(self, fo: Iterable[str], source: str | None = None) -> None:
         """Add service from a service file.
 
         This method is strictly the same as :func:`parse`. It’s the method
@@ -203,7 +205,7 @@ class ServiceFile:
         """
         self.config.read_file(fo, source=source)
 
-    def save(self, fo: Optional[IO[str]] = None) -> None:
+    def save(self, fo: IO[str] | None = None) -> None:
         """Writes services in ``fo`` file-like object.
 
         :param fo: a file-like object. Is not required if :attr:`path` is set.
@@ -242,7 +244,7 @@ def guess_sysconfdir(environ: MutableMapping[str, str] = os.environ) -> str:
     raise Exception("Can't find sysconfdir")
 
 
-def find(environ: Optional[MutableMapping[str, str]] = None) -> str:
+def find(environ: MutableMapping[str, str] | None = None) -> str:
     """Find service file.
 
     :param dict environ: Dict of environment variables.
@@ -284,7 +286,7 @@ def find(environ: Optional[MutableMapping[str, str]] = None) -> str:
     raise Exception("Can't find pg_service file.")
 
 
-def parse(file: Union[str, Iterable[str]], source: Optional[str] = None) -> ServiceFile:
+def parse(file: str | Iterable[str], source: str | None = None) -> ServiceFile:
     """Parse a service file.
 
     :param file: a file-object as returned by open or a string corresponding to

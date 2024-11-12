@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class ParseError(Exception):
     def __init__(self, lineno: int, line: str, message: str) -> None:
         super().__init__(message)

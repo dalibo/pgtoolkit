@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import json
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import IO, Any, Generic, NoReturn, Optional, TypeVar, Union, overload
+from typing import IO, Any, Generic, NoReturn, TypeVar, overload
 
 
 def format_timedelta(delta: timedelta) -> str:
@@ -22,7 +24,7 @@ def format_timedelta(delta: timedelta) -> str:
 
 
 class JSONDateEncoder(json.JSONEncoder):
-    def default(self, obj: Union[timedelta, datetime, object]) -> Any:
+    def default(self, obj: timedelta | datetime | object) -> Any:
         if isinstance(obj, datetime):
             return obj.isoformat()
         elif isinstance(obj, timedelta):
@@ -71,8 +73,8 @@ def open_or_return(
 
 
 def open_or_return(
-    fo_or_path: Optional[Union[str, Path, IO[str]]], mode: str = "r"
-) -> Union[IO[str], PassthroughManager[IO[str]]]:
+    fo_or_path: str | Path | IO[str] | None, mode: str = "r"
+) -> IO[str] | PassthroughManager[IO[str]]:
     # Returns a context manager around a file-object for fo_or_path. If
     # fo_or_path is a file-object, the context manager keeps it open. If it's a
     # path, the file is opened with mode and will be closed upon context exit.
@@ -93,7 +95,7 @@ def open_or_return(
 
 
 class Timer:
-    def __enter__(self) -> "Timer":
+    def __enter__(self) -> Timer:
         self.start = datetime.now(timezone.utc)
         return self
 

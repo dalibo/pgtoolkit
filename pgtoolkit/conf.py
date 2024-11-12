@@ -39,6 +39,8 @@ You can use this module to dump a configuration file as JSON object
 
 """
 
+from __future__ import annotations
+
 import contextlib
 import copy
 import enum
@@ -49,7 +51,7 @@ import sys
 from collections import OrderedDict
 from collections.abc import Iterable, Iterator
 from datetime import timedelta
-from typing import IO, Any, NoReturn, Optional, Union
+from typing import IO, Any, NoReturn, Union
 from warnings import warn
 
 from ._helpers import JSONDateEncoder, open_or_return
@@ -70,7 +72,7 @@ class IncludeType(enum.Enum):
     include = enum.auto()
 
 
-def parse(fo: Union[str, pathlib.Path, IO[str]]) -> "Configuration":
+def parse(fo: str | pathlib.Path | IO[str]) -> Configuration:
     """Parse a configuration file.
 
     The parser tries to return Python object corresponding to value, based on
@@ -98,12 +100,12 @@ def parse(fo: Union[str, pathlib.Path, IO[str]]) -> "Configuration":
     return conf
 
 
-def _consume(conf: "Configuration", content: Iterable[str]) -> Iterator[None]:
+def _consume(conf: Configuration, content: Iterable[str]) -> Iterator[None]:
     for include_path, include_type in conf.parse(content):
         yield from parse_include(conf, include_path, include_type)
 
 
-def parse_string(string: str, source: Optional[str] = None) -> "Configuration":
+def parse_string(string: str, source: str | None = None) -> Configuration:
     """Parse configuration data from a string.
 
     Optional *source* argument can be used to set the context path of built
@@ -118,11 +120,11 @@ def parse_string(string: str, source: Optional[str] = None) -> "Configuration":
 
 
 def parse_include(
-    conf: "Configuration",
+    conf: Configuration,
     path: pathlib.Path,
     include_type: IncludeType,
     *,
-    _processed: Optional[set[pathlib.Path]] = None,
+    _processed: set[pathlib.Path] | None = None,
 ) -> Iterator[None]:
     """Parse on include directive with 'path' value of type 'include_type' into
     'conf' object.
@@ -131,7 +133,7 @@ def parse_include(
         _processed = set()
 
     def notfound(
-        path: pathlib.Path, include_type: str, reference_path: Optional[str]
+        path: pathlib.Path, include_type: str, reference_path: str | None
     ) -> FileNotFoundError:
         ref = (
             f"{reference_path!r}" if reference_path is not None else "<string literal>"
@@ -270,8 +272,8 @@ class Entry:
         name: str,
         value: Value,
         commented: bool = False,
-        comment: Optional[str] = None,
-        raw_line: Optional[str] = None,
+        comment: str | None = None,
+        raw_line: str | None = None,
     ) -> None:
         self._name = name
         # We parse value only if not already parsed from a file
@@ -294,7 +296,7 @@ class Entry:
         return self._value
 
     @value.setter
-    def value(self, value: Union[str, Value]) -> None:
+    def value(self, value: str | Value) -> None:
         if isinstance(value, str):
             value = parse_value(value)
         self._value = value
@@ -412,7 +414,7 @@ class EntriesProxy(dict[str, Entry]):
         value: Value,
         *,
         commented: bool = False,
-        comment: Optional[str] = None,
+        comment: str | None = None,
     ) -> None:
         """Add a new entry."""
         if name in self:
@@ -479,7 +481,7 @@ class Configuration:
 
     lines: list[str]
     entries: dict[str, Entry]
-    path: Optional[str]
+    path: str | None
 
     _parameter_re = re.compile(
         r"^(?P<name>[a-z_.]+)(?: +(?!=)| *= *)(?P<value>.*?)"
@@ -492,7 +494,7 @@ class Configuration:
     # the serialized line is updated accordingly. This allows to keep comments
     # and serialize only what's needed. Other lines are just written as-is.
 
-    def __init__(self, path: Optional[str] = None) -> None:
+    def __init__(self, path: str | None = None) -> None:
         self.__dict__.update(
             dict(
                 lines=[],
@@ -557,7 +559,7 @@ class Configuration:
     def parse_string(self, string: str) -> None:
         list(_consume(self, string.splitlines(keepends=True)))
 
-    def __add__(self, other: Any) -> "Configuration":
+    def __add__(self, other: Any) -> Configuration:
         cls = self.__class__
         if not isinstance(other, cls):
             return NotImplemented
@@ -566,7 +568,7 @@ class Configuration:
         s.entries.update(other.entries)
         return s
 
-    def __iadd__(self, other: Any) -> "Configuration":
+    def __iadd__(self, other: Any) -> Configuration:
         cls = self.__class__
         if not isinstance(other, cls):
             return NotImplemented
@@ -602,7 +604,7 @@ class Configuration:
         else:
             self._add_entry(Entry(name=key, value=value))
 
-    def get(self, key: str, default: Optional[Value] = None) -> Optional[Value]:
+    def get(self, key: str, default: Value | None = None) -> Value | None:
         try:
             return self[key]
         except KeyError:
@@ -702,7 +704,7 @@ class Configuration:
                     if entry.raw_line is not None:
                         self.lines.remove(entry.raw_line)
 
-    def save(self, fo: Optional[Union[str, pathlib.Path, IO[str]]] = None) -> None:
+    def save(self, fo: str | pathlib.Path | IO[str] | None = None) -> None:
         """Write configuration to a file.
 
         Configuration entries order and comments are preserved.

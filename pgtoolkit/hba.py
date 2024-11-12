@@ -67,13 +67,15 @@ fit pseudo-column width. If filename is ``-``, stdin is read instead.
 
 """  # noqa
 
+from __future__ import annotations
+
 import os
 import re
 import sys
 import warnings
 from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
-from typing import IO, Any, Callable, Optional, Union
+from typing import IO, Any, Callable
 
 from ._helpers import open_or_return, open_or_stdin
 from .errors import ParseError
@@ -126,7 +128,7 @@ class HBARecord:
     ]
 
     @classmethod
-    def parse(cls, line: str) -> "HBARecord":
+    def parse(cls, line: str) -> HBARecord:
         """Parse a HBA record
 
         :rtype: :class:`HBARecord` or a :class:`str` for a comment or blank
@@ -170,15 +172,15 @@ class HBARecord:
         options = base_options + auth_options
         return cls(options, comment=comment)
 
-    conntype: Optional[str]
+    conntype: str | None
     databases: list[str]
     users: list[str]
 
     def __init__(
         self,
-        values: Optional[Union[Iterable[tuple[str, str]], dict[str, Any]]] = None,
-        comment: Optional[str] = None,
-        **kw_values: Union[str, Sequence[str]],
+        values: Iterable[tuple[str, str]] | dict[str, Any] | None = None,
+        comment: str | None = None,
+        **kw_values: str | Sequence[str],
     ) -> None:
         """
         :param values: A dict of fields.
@@ -315,12 +317,10 @@ class HBA:
     .. automethod:: merge
     """
 
-    lines: list[Union[HBAComment, HBARecord]]
-    path: Optional[Union[str, Path]]
+    lines: list[HBAComment | HBARecord]
+    path: str | Path | None
 
-    def __init__(
-        self, entries: Optional[Iterable[Union[HBAComment, HBARecord]]] = None
-    ) -> None:
+    def __init__(self, entries: Iterable[HBAComment | HBARecord] | None = None) -> None:
         """HBA constructor
 
         :param entries: A list of HBAComment or HBARecord. Optional.
@@ -343,7 +343,7 @@ class HBA:
         """
         for i, line in enumerate(fo):
             stripped = line.lstrip()
-            record: Union[HBARecord, HBAComment]
+            record: HBARecord | HBAComment
             if not stripped or stripped.startswith("#"):
                 record = HBAComment(line.replace(os.linesep, ""))
             else:
@@ -353,7 +353,7 @@ class HBA:
                     raise ParseError(1 + i, line, str(e))
             self.lines.append(record)
 
-    def save(self, fo: Optional[Union[str, Path, IO[str]]] = None) -> None:
+    def save(self, fo: str | Path | IO[str] | None = None) -> None:
         """Write records and comments in a file
 
         :param fo: a file-like object. Is not required if :attr:`path` is set.
@@ -372,7 +372,7 @@ class HBA:
 
     def remove(
         self,
-        filter: Optional[Callable[[HBARecord], bool]] = None,
+        filter: Callable[[HBARecord], bool] | None = None,
         **attrs: str,
     ) -> bool:
         """Remove records matching the provided attributes.
@@ -414,7 +414,7 @@ class HBA:
 
         return lines_before != self.lines
 
-    def merge(self, other: "HBA") -> bool:
+    def merge(self, other: HBA) -> bool:
         """Add new records to HBAFile or replace them if they are matching
             (ie. same conntype, database, user and address)
 
@@ -455,7 +455,7 @@ class HBA:
         return lines != self.lines
 
 
-def parse(file: Union[str, Iterable[str], Path]) -> HBA:
+def parse(file: str | Iterable[str] | Path) -> HBA:
     """Parse a `pg_hba.conf` file.
 
     :param file: Either a line iterator such as a file-like object, a path or a string

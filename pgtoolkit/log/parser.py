@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import re
 from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
 from datetime import datetime, timedelta, timezone
 from re import Pattern
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable
 
 
 class LogParser:
@@ -22,16 +24,16 @@ class LogParser:
     """
 
     def __init__(
-        self, prefix_parser: "PrefixParser", filters: Optional["NoopFilters"] = None
+        self, prefix_parser: PrefixParser, filters: NoopFilters | None = None
     ) -> None:
         self.prefix_parser = prefix_parser
         self.filters = filters or NoopFilters()
 
-    def parse(self, fo: Iterable[str]) -> Iterator[Union["Record", "UnknownData"]]:
+    def parse(self, fo: Iterable[str]) -> Iterator[Record | UnknownData]:
         """Yield records and unparsed data from file-like object ``fo``
 
         :param fo: A line iterator such as a file object.
-        :rtype: Iterator[Union[:class:`Record`, :class:`UnknownData`]]
+        :rtype: Iterator[:class:`Record` | :class:`UnknownData`]
         :returns: Yields either :class:`Record` or :class:`UnknownData` object.
         """
         # Fast access variables to avoid attribute access overhead on each
@@ -60,8 +62,8 @@ class LogParser:
 
 
 def parse(
-    fo: Iterable[str], prefix_fmt: str, filters: Optional["NoopFilters"] = None
-) -> Iterator[Union["Record", "UnknownData"]]:
+    fo: Iterable[str], prefix_fmt: str, filters: NoopFilters | None = None
+) -> Iterator[Record | UnknownData]:
     """Parses log lines and yield :class:`Record` or :class:`UnknownData` objects.
 
     This is a helper around :class:`LogParser` and :`PrefixParser`.
@@ -164,7 +166,7 @@ class NoopFilters:
 
     """
 
-    def stage1(self, record: "Record") -> None:
+    def stage1(self, record: Record) -> None:
         """First stage filter.
 
         :param Record record: A new record.
@@ -174,7 +176,7 @@ class NoopFilters:
         attributes.
         """
 
-    def stage2(self, record: "Record") -> None:
+    def stage2(self, record: Record) -> None:
         """Second stage filter.
 
         :param Record record: A new record.
@@ -184,7 +186,7 @@ class NoopFilters:
         analysis. See :class:`Record` for details.
         """
 
-    def stage3(self, record: "Record") -> None:
+    def stage3(self, record: Record) -> None:
         """Third stage filter.
 
         :param Record record: A new record.
@@ -245,7 +247,7 @@ class PrefixParser:
     # re to find %q separator in log_line_prefix.
     _q_re = re.compile(r"(?<!%)%q")
 
-    _casts: dict[str, Callable[[str], Union[int, datetime]]] = {
+    _casts: dict[str, Callable[[str], int | datetime]] = {
         "epoch": parse_epoch,
         "line_num": int,
         "pid": int,
@@ -268,7 +270,7 @@ class PrefixParser:
         return "".join(segments)
 
     @classmethod
-    def from_configuration(cls, log_line_prefix: str) -> "PrefixParser":
+    def from_configuration(cls, log_line_prefix: str) -> PrefixParser:
         """Factory from log_line_prefix
 
         Parses log_line_prefix and build a prefix parser from this.
@@ -277,7 +279,7 @@ class PrefixParser:
         :return: A :class:`PrefixParser` instance.
 
         """
-        optionnal: Optional[str]
+        optionnal: str | None
         try:
             fixed, optionnal = cls._q_re.split(log_line_prefix)
         except ValueError:
@@ -288,7 +290,7 @@ class PrefixParser:
             pattern += r"(?:" + cls.mkpattern(optionnal) + ")?"
         return cls(re.compile(pattern), log_line_prefix)
 
-    def __init__(self, re_: Pattern[str], prefix_fmt: Optional[str] = None) -> None:
+    def __init__(self, re_: Pattern[str], prefix_fmt: str | None = None) -> None:
         self.re_ = re_
         self.prefix_fmt = prefix_fmt
 
@@ -472,7 +474,7 @@ class Record:
         return "unknown"
 
     @classmethod
-    def parse_stage1(cls, lines: list[str]) -> "Record":
+    def parse_stage1(cls, lines: list[str]) -> Record:
         # Stage1: split prefix, severity and message.
         try:
             prefix, severity, message0 = cls._stage1_re.split(lines[0], maxsplit=1)
@@ -492,8 +494,8 @@ class Record:
         prefix: str,
         severity: str,
         message_type: str = "unknown",
-        message_lines: Optional[list[str]] = None,
-        raw_lines: Optional[list[str]] = None,
+        message_lines: list[str] | None = None,
+        raw_lines: list[str] | None = None,
         **fields: str,
     ) -> None:
         self.prefix = prefix
@@ -522,6 +524,6 @@ class Record:
             [line.lstrip("\t").rstrip("\n") for line in self.message_lines]
         )
 
-    def as_dict(self) -> dict[str, Union[str, object, datetime]]:
+    def as_dict(self) -> dict[str, str | object | datetime]:
         """Returns record fields as a :class:`dict`."""
         return {k: v for k, v in self.__dict__.items()}
