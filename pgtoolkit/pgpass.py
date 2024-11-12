@@ -68,13 +68,15 @@ path as first argument, read it, validate it, sort it and output it in stdout.
 
 """  # noqa
 
+from __future__ import annotations
+
 import os
 import sys
 import warnings
 from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import IO, Callable, Optional, Union
+from typing import IO, Callable
 
 from ._helpers import open_or_stdin
 from .errors import ParseError
@@ -138,12 +140,12 @@ class PassComment(str):
         return self.lstrip("#").strip()
 
     @property
-    def entry(self) -> "PassEntry":
+    def entry(self) -> PassEntry:
         if not hasattr(self, "_entry"):
             self._entry = PassEntry.parse(self.comment)
         return self._entry
 
-    def matches(self, **attrs: Union[int, str]) -> bool:
+    def matches(self, **attrs: int | str) -> bool:
         """In case of a commented entry, tells if it is matching provided
         attributes. Returns False otherwise.
 
@@ -189,7 +191,7 @@ class PassEntry:
     """
 
     @classmethod
-    def parse(cls, line: str) -> "PassEntry":
+    def parse(cls, line: str) -> PassEntry:
         """Parse a single line.
 
         :param line: string containing a serialized .pgpass entry.
@@ -207,7 +209,7 @@ class PassEntry:
     def __init__(
         self,
         hostname: str,
-        port: Union[int, str],
+        port: int | str,
         database: str,
         username: str,
         password: str,
@@ -231,7 +233,7 @@ class PassEntry:
     def __hash__(self) -> int:
         return hash(self.as_tuple()[:-1])
 
-    def __lt__(self, other: Union[PassComment, "PassEntry"]) -> bool:
+    def __lt__(self, other: PassComment | PassEntry) -> bool:
         if isinstance(other, PassComment):
             try:
                 other = other.entry
@@ -264,14 +266,14 @@ class PassEntry:
             self.password,
         )
 
-    def sort_key(self) -> tuple[int, str, Union[int, str], str, str]:
+    def sort_key(self) -> tuple[int, str, int | str, str, str]:
         tpl = self.as_tuple()[:-1]
         # Compute precision from * occurences.
         precision = len([x for x in tpl if x == "*"])
         # More specific entries comes first.
         return (precision,) + tuple(chr(0xFF) if x == "*" else x for x in tpl)  # type: ignore[return-value]
 
-    def matches(self, **attrs: Union[int, str]) -> bool:
+    def matches(self, **attrs: int | str) -> bool:
         """Tells if the current entry is matching provided attributes.
 
         :param attrs: keyword/values pairs correspond to one or more
@@ -312,14 +314,14 @@ class PassFile:
 
     """
 
-    lines: list[Union[PassComment, PassEntry]]
-    path: Optional[str] = None
+    lines: list[PassComment | PassEntry]
+    path: str | None = None
 
     def __init__(
         self,
-        entries: Optional[list[Union[PassComment, PassEntry]]] = None,
+        entries: list[PassComment | PassEntry] | None = None,
         *,
-        path: Optional[str] = None,
+        path: str | None = None,
     ) -> None:
         """PassFile constructor.
 
@@ -346,7 +348,7 @@ class PassFile:
 
         Raises ``ParseError`` if a bad line is found.
         """
-        entry: Union[PassComment, PassEntry]
+        entry: PassComment | PassEntry
         for i, line in enumerate(fo):
             stripped = line.lstrip()
             if not stripped or stripped.startswith("#"):
@@ -395,7 +397,7 @@ class PassFile:
                 self.lines.extend(comments)
                 self.lines.append(entry)
 
-    def save(self, fo: Optional[IO[str]] = None) -> None:
+    def save(self, fo: IO[str] | None = None) -> None:
         """Save entries and comment in a file.
 
         :param fo: a file-like object. Is not required if :attr:`path` is set.
@@ -420,8 +422,8 @@ class PassFile:
 
     def remove(
         self,
-        filter: Optional[Callable[[Union[PassComment, PassEntry, str]], bool]] = None,
-        **attrs: Union[int, str],
+        filter: Callable[[PassComment | PassEntry | str], bool] | None = None,
+        **attrs: int | str,
     ) -> None:
         """Remove entries matching the provided attributes.
 
@@ -451,7 +453,7 @@ class PassFile:
 
         if filter is not None:
             # Silently handle the case when line is a PassComment
-            def filter_(line: Union[PassComment, PassEntry]) -> bool:
+            def filter_(line: PassComment | PassEntry) -> bool:
                 assert filter is not None
                 if isinstance(line, PassComment):
                     try:
@@ -463,13 +465,13 @@ class PassFile:
 
         else:
 
-            def filter_(line: Union[PassComment, PassEntry]) -> bool:
+            def filter_(line: PassComment | PassEntry) -> bool:
                 return line.matches(**attrs)
 
         self.lines = [line for line in self.lines if not filter_(line)]
 
 
-def parse(file: Union[Path, str, IO[str]]) -> PassFile:
+def parse(file: Path | str | IO[str]) -> PassFile:
     """Parses a .pgpass file.
 
     :param file: Either a line iterator such as a file-like object or a file
@@ -487,7 +489,7 @@ def parse(file: Union[Path, str, IO[str]]) -> PassFile:
 
 
 @contextmanager
-def edit(fpath: Union[Path, str]) -> Iterator[PassFile]:
+def edit(fpath: Path | str) -> Iterator[PassFile]:
     """Context manager to edit a .pgpass file.
 
     If the file does not exists, it is created with 600 permissions.

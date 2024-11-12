@@ -18,6 +18,8 @@ API Reference
     :members: __call__
 """
 
+from __future__ import annotations
+
 import abc
 import asyncio
 import enum
@@ -27,7 +29,7 @@ import subprocess
 from collections.abc import Mapping, Sequence
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, Union
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 if TYPE_CHECKING:
     CompletedProcess = subprocess.CompletedProcess[str]
@@ -111,7 +113,7 @@ async def asyncio_run_command(
     return r
 
 
-def _args_to_opts(args: Mapping[str, Union[str, Literal[True]]]) -> list[str]:
+def _args_to_opts(args: Mapping[str, str | Literal[True]]) -> list[str]:
     options = []
     for name, value in sorted(args.items()):
         short = len(name) == 1
@@ -124,7 +126,7 @@ def _args_to_opts(args: Mapping[str, Union[str, Literal[True]]]) -> list[str]:
     return options
 
 
-def _wait_args_to_opts(wait: Union[bool, int]) -> list[str]:
+def _wait_args_to_opts(wait: bool | int) -> list[str]:
     options = []
     if not wait:
         options.append("--no-wait")
@@ -162,9 +164,7 @@ class AbstractPGCtl(abc.ABC):
     def version_cmd(self) -> list[str]:
         return [str(self.pg_ctl), "--version"]
 
-    def init_cmd(
-        self, datadir: Union[Path, str], **opts: Union[str, Literal[True]]
-    ) -> list[str]:
+    def init_cmd(self, datadir: Path | str, **opts: str | Literal[True]) -> list[str]:
         cmd = [str(self.pg_ctl), "init"] + ["-D", str(datadir)]
         options = _args_to_opts(opts)
         if options:
@@ -173,11 +173,11 @@ class AbstractPGCtl(abc.ABC):
 
     def start_cmd(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
         *,
-        wait: Union[bool, int] = True,
-        logfile: Optional[Union[Path, str]] = None,
-        **opts: Union[str, Literal[True]],
+        wait: bool | int = True,
+        logfile: Path | str | None = None,
+        **opts: str | Literal[True],
     ) -> list[str]:
         cmd = [str(self.pg_ctl), "start"] + ["-D", str(datadir)]
         cmd.extend(_wait_args_to_opts(wait))
@@ -190,10 +190,10 @@ class AbstractPGCtl(abc.ABC):
 
     def stop_cmd(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
         *,
-        mode: Optional[str] = None,
-        wait: Union[bool, int] = True,
+        mode: str | None = None,
+        wait: bool | int = True,
     ) -> list[str]:
         cmd = [str(self.pg_ctl), "stop"] + ["-D", str(datadir)]
         cmd.extend(_wait_args_to_opts(wait))
@@ -203,11 +203,11 @@ class AbstractPGCtl(abc.ABC):
 
     def restart_cmd(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
         *,
-        mode: Optional[str] = None,
-        wait: Union[bool, int] = True,
-        **opts: Union[str, Literal[True]],
+        mode: str | None = None,
+        wait: bool | int = True,
+        **opts: str | Literal[True],
     ) -> list[str]:
         cmd = [str(self.pg_ctl), "restart"] + ["-D", str(datadir)]
         cmd.extend(_wait_args_to_opts(wait))
@@ -218,13 +218,13 @@ class AbstractPGCtl(abc.ABC):
             cmd.extend(["-o", " ".join(options)])
         return cmd
 
-    def reload_cmd(self, datadir: Union[Path, str]) -> list[str]:
+    def reload_cmd(self, datadir: Path | str) -> list[str]:
         return [str(self.pg_ctl), "reload"] + ["-D", str(datadir)]
 
-    def status_cmd(self, datadir: Union[Path, str]) -> list[str]:
+    def status_cmd(self, datadir: Path | str) -> list[str]:
         return [str(self.pg_ctl), "status"] + ["-D", str(datadir)]
 
-    def controldata_cmd(self, datadir: Union[Path, str]) -> list[str]:
+    def controldata_cmd(self, datadir: Path | str) -> list[str]:
         pg_controldata = self.bindir / "pg_controldata"
         if not pg_controldata.exists():
             raise OSError("pg_controldata executable not found")
@@ -257,7 +257,7 @@ class PGCtl(AbstractPGCtl):
 
     def __init__(
         self,
-        bindir: Optional[Union[str, Path]] = None,
+        bindir: str | Path | None = None,
         *,
         run_command: CommandRunner = run_command,
     ) -> None:
@@ -276,7 +276,7 @@ class PGCtl(AbstractPGCtl):
         self.version = num_version(version)
 
     def init(
-        self, datadir: Union[Path, str], **opts: Union[str, Literal[True]]
+        self, datadir: Path | str, **opts: str | Literal[True]
     ) -> CompletedProcess:
         """Initialize a PostgreSQL cluster (initdb) at `datadir`.
 
@@ -292,11 +292,11 @@ class PGCtl(AbstractPGCtl):
 
     def start(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
         *,
-        wait: Union[bool, int] = True,
-        logfile: Optional[Union[Path, str]] = None,
-        **opts: Union[str, Literal[True]],
+        wait: bool | int = True,
+        logfile: Path | str | None = None,
+        **opts: str | Literal[True],
     ) -> CompletedProcess:
         """Start a PostgreSQL cluster.
 
@@ -316,10 +316,10 @@ class PGCtl(AbstractPGCtl):
 
     def stop(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
         *,
-        mode: Optional[str] = None,
-        wait: Union[bool, int] = True,
+        mode: str | None = None,
+        wait: bool | int = True,
     ) -> CompletedProcess:
         """Stop a PostgreSQL cluster.
 
@@ -334,11 +334,11 @@ class PGCtl(AbstractPGCtl):
 
     def restart(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
         *,
-        mode: Optional[str] = None,
-        wait: Union[bool, int] = True,
-        **opts: Union[str, Literal[True]],
+        mode: str | None = None,
+        wait: bool | int = True,
+        **opts: str | Literal[True],
     ) -> CompletedProcess:
         """Restart a PostgreSQL cluster.
 
@@ -358,7 +358,7 @@ class PGCtl(AbstractPGCtl):
 
     def reload(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
     ) -> CompletedProcess:
         """Reload a PostgreSQL cluster.
 
@@ -366,7 +366,7 @@ class PGCtl(AbstractPGCtl):
         """
         return self.run_command(self.reload_cmd(datadir), check=True)
 
-    def status(self, datadir: Union[Path, str]) -> Status:
+    def status(self, datadir: Path | str) -> Status:
         """Check PostgreSQL cluster status.
 
         :param datadir: Path to database storage area
@@ -378,7 +378,7 @@ class PGCtl(AbstractPGCtl):
             raise subprocess.CalledProcessError(rc, cp.args, cp.stdout, cp.stderr)
         return Status(rc)
 
-    def controldata(self, datadir: Union[Path, str]) -> dict[str, str]:
+    def controldata(self, datadir: Path | str) -> dict[str, str]:
         """Run the pg_controldata command and parse the result to return
         controldata as dict.
 
@@ -408,10 +408,10 @@ class AsyncPGCtl(AbstractPGCtl):
     @classmethod
     async def get(
         cls,
-        bindir: Optional[Union[str, Path]] = None,
+        bindir: str | Path | None = None,
         *,
         run_command: AsyncCommandRunner = asyncio_run_command,
-    ) -> "AsyncPGCtl":
+    ) -> AsyncPGCtl:
         """Construct an AsyncPGCtl instance from specified or inferred 'bindir'.
 
         :param bindir: location of postgresql user executables; if not specified,
@@ -441,17 +441,17 @@ class AsyncPGCtl(AbstractPGCtl):
         return self
 
     async def init(
-        self, datadir: Union[Path, str], **opts: Union[str, Literal[True]]
+        self, datadir: Path | str, **opts: str | Literal[True]
     ) -> CompletedProcess:
         return await self.run_command(self.init_cmd(datadir, **opts), check=True)
 
     async def start(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
         *,
-        wait: Union[bool, int] = True,
-        logfile: Optional[Union[Path, str]] = None,
-        **opts: Union[str, Literal[True]],
+        wait: bool | int = True,
+        logfile: Path | str | None = None,
+        **opts: str | Literal[True],
     ) -> CompletedProcess:
         return await self.run_command(
             self.start_cmd(datadir, wait=wait, logfile=logfile, **opts), check=True
@@ -459,10 +459,10 @@ class AsyncPGCtl(AbstractPGCtl):
 
     async def stop(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
         *,
-        mode: Optional[str] = None,
-        wait: Union[bool, int] = True,
+        mode: str | None = None,
+        wait: bool | int = True,
     ) -> CompletedProcess:
         return await self.run_command(
             self.stop_cmd(datadir, mode=mode, wait=wait), check=True
@@ -470,11 +470,11 @@ class AsyncPGCtl(AbstractPGCtl):
 
     async def restart(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
         *,
-        mode: Optional[str] = None,
-        wait: Union[bool, int] = True,
-        **opts: Union[str, Literal[True]],
+        mode: str | None = None,
+        wait: bool | int = True,
+        **opts: str | Literal[True],
     ) -> CompletedProcess:
         return await self.run_command(
             self.restart_cmd(datadir, mode=mode, wait=wait, **opts), check=True
@@ -482,18 +482,18 @@ class AsyncPGCtl(AbstractPGCtl):
 
     async def reload(
         self,
-        datadir: Union[Path, str],
+        datadir: Path | str,
     ) -> CompletedProcess:
         return await self.run_command(self.reload_cmd(datadir), check=True)
 
-    async def status(self, datadir: Union[Path, str]) -> Status:
+    async def status(self, datadir: Path | str) -> Status:
         cp = await self.run_command(self.status_cmd(datadir))
         rc = cp.returncode
         if rc == 1:
             raise subprocess.CalledProcessError(rc, cp.args, cp.stdout, cp.stderr)
         return Status(rc)
 
-    async def controldata(self, datadir: Union[Path, str]) -> dict[str, str]:
+    async def controldata(self, datadir: Path | str) -> dict[str, str]:
         r = (
             await self.run_command(
                 self.controldata_cmd(datadir),
