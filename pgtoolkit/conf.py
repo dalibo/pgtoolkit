@@ -50,6 +50,7 @@ import re
 import sys
 from collections import OrderedDict
 from collections.abc import Iterable, Iterator
+from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import IO, Any, NoReturn, Union
 from warnings import warn
@@ -303,34 +304,27 @@ def serialize_value(value: Value) -> str:
     return value
 
 
+_unspecified: Any = object()
+
+
+@dataclass
 class Entry:
-    # Holds the parsed representation of a configuration entry line.
-    #
-    # This includes the comment.
+    """Configuration entry, parsed from a line in the configuration file."""
 
-    def __init__(
-        self,
-        name: str,
-        value: Value,
-        commented: bool = False,
-        comment: str | None = None,
-        raw_line: str | None = None,
-    ) -> None:
-        self._name = name
-        # We parse value only if not already parsed from a file
-        if raw_line is None and isinstance(value, str):
-            value = parse_value(value)
-        self._value = value
-        self.commented = commented
-        self.comment = comment
-        # Store the raw_line to track the position in the list of lines.
-        if raw_line is None:
-            raw_line = str(self) + "\n"
-        self.raw_line = raw_line
+    name: str
+    _value: Value
+    # _: KW_ONLY from Python 3.10
+    commented: bool = False
+    comment: str | None = None
+    raw_line: str = field(default=_unspecified, compare=False, repr=False)
 
-    @property
-    def name(self) -> str:
-        return self._name
+    def __post_init__(self) -> None:
+        if self.raw_line is _unspecified:
+            # We parse value only if not already parsed from a file
+            if isinstance(self._value, str):
+                self._value = parse_value(self._value)
+            # Store the raw_line to track the position in the list of lines.
+            self.raw_line = str(self) + "\n"
 
     @property
     def value(self) -> Value:
@@ -341,24 +335,6 @@ class Entry:
         if isinstance(value, str):
             value = parse_value(value)
         self._value = value
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Entry):
-            return NotImplemented  # pragma: nocover
-        return (
-            self.name == other.name
-            and self.value == other.value
-            and self.comment == other.comment
-            and self.commented == other.commented
-        )
-
-    def __repr__(self) -> str:
-        return "<{} {}={}{}>".format(
-            self.__class__.__name__,
-            self.name,
-            self.value,
-            " (commented)" if self.commented else "",
-        )
 
     def serialize(self) -> str:
         return serialize_value(self.value)
@@ -386,13 +362,13 @@ class EntriesProxy(dict[str, Entry]):
 
     >>> p.add('listen_addresses', '*', commented=True, comment='IP address')
     >>> p  # doctest: +NORMALIZE_WHITESPACE
-    {'port': <Entry port=5433>,
-     'shared_buffers': <Entry shared_buffers=1GB>,
-     'listen_addresses': <Entry listen_addresses=* (commented)>}
+    {'port': Entry(name='port', _value=5433, commented=False, comment=None),
+     'shared_buffers': Entry(name='shared_buffers', _value='1GB', commented=False, comment=None),
+     'listen_addresses': Entry(name='listen_addresses', _value='*', commented=True, comment='IP address')}
     >>> del p['shared_buffers']
     >>> p  # doctest: +NORMALIZE_WHITESPACE
-    {'port': <Entry port=5433>,
-     'listen_addresses': <Entry listen_addresses=* (commented)>}
+    {'port': Entry(name='port', _value=5433, commented=False, comment=None),
+     'listen_addresses': Entry(name='listen_addresses', _value='*', commented=True, comment='IP address')}
 
     Adding an existing entry fails:
     >>> p.add('port', 5433)
@@ -551,11 +527,7 @@ class Configuration:
                         if not existing_entry.commented:
                             continue
                 self.entries[name] = Entry(
-                    name=name,
-                    value=value,
-                    commented=commented,
-                    raw_line=raw_line,
-                    **kwargs,
+                    name, value, commented=commented, raw_line=raw_line, **kwargs
                 )
 
     def parse_string(self, string: str) -> None:
@@ -604,7 +576,7 @@ class Configuration:
             e.value = value
             self._update_entry(e)
         else:
-            self._add_entry(Entry(name=key, value=value))
+            self._add_entry(Entry(key, value))
 
     def get(self, key: str, default: Value | None = None) -> Value | None:
         try:

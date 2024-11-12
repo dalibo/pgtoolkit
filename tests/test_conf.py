@@ -307,7 +307,7 @@ def test_parse_string_include(tmp_path):
 def test_entry_edit():
     from pgtoolkit.conf import Entry
 
-    entry = Entry(name="port", value="1234")
+    entry = Entry("port", "1234")
     assert entry.value == 1234
     entry.value = "9876"
     assert entry.value == 9876
@@ -316,56 +316,54 @@ def test_entry_edit():
 def test_entry_constructor_parse_value():
     from pgtoolkit.conf import Entry
 
-    entry = Entry(name="var", value="'1.2'")
+    entry = Entry("var", "'1.2'")
     assert entry.value == "1.2"
-    entry = Entry(name="var", value="1234")
+    entry = Entry("var", "1234")
     assert entry.value == 1234
     # If value come from the parsing of a file (ie. raw_line is provided) value should
     # not be parsed and be kept as is
-    entry = Entry(name="var", value="'1.2'", raw_line="var = '1.2'")
+    entry = Entry("var", "'1.2'", raw_line="var = '1.2'")
     assert entry.value == "'1.2'"
 
 
 def test_serialize_entry():
     from pgtoolkit.conf import Entry
 
-    e = Entry(name="grp.setting", value=True)
+    e = Entry("grp.setting", True)
 
     assert "grp.setting" in repr(e)
     assert "grp.setting = on" == str(e)
 
-    assert "'2kB'" == Entry(name="var", value="2kB").serialize()
-    assert "2048" == Entry(name="var", value=2048).serialize()
-    assert "var = 0" == str(Entry(name="var", value=0))
-    assert "var = 15" == str(Entry(name="var", value=15))
-    assert "var = 0.1" == str(Entry(name="var", value=0.1))
-    assert "var = 'enum'" == str(Entry(name="var", value="enum"))
-    assert "addrs = '*'" == str(Entry(name="addrs", value="*"))
-    assert "var = 'sp ced'" == str(Entry(name="var", value="sp ced"))
-    assert "var = 'quo''ed'" == str(Entry(name="var", value="quo'ed"))
-    assert "var = 'quo''ed'' and space'" == str(
-        Entry(name="var", value="quo'ed' and space")
-    )
+    assert "'2kB'" == Entry("var", "2kB").serialize()
+    assert "2048" == Entry("var", 2048).serialize()
+    assert "var = 0" == str(Entry("var", 0))
+    assert "var = 15" == str(Entry("var", 15))
+    assert "var = 0.1" == str(Entry("var", 0.1))
+    assert "var = 'enum'" == str(Entry("var", "enum"))
+    assert "addrs = '*'" == str(Entry("addrs", "*"))
+    assert "var = 'sp ced'" == str(Entry("var", "sp ced"))
+    assert "var = 'quo''ed'" == str(Entry("var", "quo'ed"))
+    assert "var = 'quo''ed'' and space'" == str(Entry("var", "quo'ed' and space"))
 
-    assert r"'quo\'ed'" == Entry(name="var", value=r"quo\'ed").serialize()
-    e = Entry(name="var", value="app=''foo'' host=192.168.0.8")
+    assert r"'quo\'ed'" == Entry("var", r"quo\'ed").serialize()
+    e = Entry("var", "app=''foo'' host=192.168.0.8")
     assert e.serialize() == "'app=''foo'' host=192.168.0.8'"
     assert str(e) == "var = 'app=''foo'' host=192.168.0.8'"
 
     e = Entry(
-        name="primary_conninfo",
-        value="port=5432 password=pa'sw0'd dbname=postgres",
+        "primary_conninfo",
+        "port=5432 password=pa'sw0'd dbname=postgres",
     )
     assert (
         str(e) == "primary_conninfo = 'port=5432 password=pa''sw0''d dbname=postgres'"
     )
 
-    assert "var = 'quoted'" == str(Entry(name="var", value="'quoted'"))
+    assert "var = 'quoted'" == str(Entry("var", "'quoted'"))
 
-    assert "'1d'" == Entry("var", value=timedelta(days=1)).serialize()
-    assert "'1h'" == Entry("var", value=timedelta(minutes=60)).serialize()
-    assert "'61 min'" == Entry("var", value=timedelta(minutes=61)).serialize()
-    e = Entry("var", value=timedelta(microseconds=12000))
+    assert "'1d'" == Entry("var", timedelta(days=1)).serialize()
+    assert "'1h'" == Entry("var", timedelta(minutes=60)).serialize()
+    assert "'61 min'" == Entry("var", timedelta(minutes=61)).serialize()
+    e = Entry("var", timedelta(microseconds=12000))
     assert "'12 ms'" == e.serialize()
 
     assert "  # Comment" in str(Entry("var", 1, comment="Comment"))
