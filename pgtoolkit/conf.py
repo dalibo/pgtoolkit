@@ -210,6 +210,18 @@ TIMEDELTA_ARGNAME = {
 }
 _timedelta_re = re.compile(r"^\s*(?P<number>\d+)\s*(?P<unit>ms|s|min|h|d)\s*$")
 
+_minute = 60
+_hour = 60 * _minute
+_day = 24 * _hour
+_timedelta_unit_map = [
+    ("d", _day),
+    ("h", _hour),
+    # The space before 'min' is intentionnal. I find '1 min' more readable
+    # than '1min'.
+    (" min", _minute),
+    ("s", 1),
+]
+
 
 Value = Union[str, bool, float, int, timedelta]
 
@@ -319,19 +331,6 @@ class Entry:
             " (commented)" if self.commented else "",
         )
 
-    _minute = 60
-    _hour = 60 * _minute
-    _day = 24 * _hour
-
-    _timedelta_unit_map = [
-        ("d", _day),
-        ("h", _hour),
-        # The space before 'min' is intentionnal. I find '1 min' more readable
-        # than '1min'.
-        (" min", _minute),
-        ("s", 1),
-    ]
-
     def serialize(self) -> str:
         # This is the reverse of parse_value.
         value = self.value
@@ -346,12 +345,12 @@ class Entry:
                     value = value.replace("'", "''")
                 value = "'%s'" % value
         elif isinstance(value, timedelta):
-            seconds = value.days * self._day + value.seconds
+            seconds = value.days * _day + value.seconds
             if value.microseconds:
                 unit = " ms"
                 value = seconds * 1000 + value.microseconds // 1000
             else:
-                for unit, mod in self._timedelta_unit_map:
+                for unit, mod in _timedelta_unit_map:
                     if seconds % mod:
                         continue
                     value = seconds // mod
