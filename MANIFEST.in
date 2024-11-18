@@ -4,6 +4,7 @@ include *.md
 include *.txt
 include LICENSE
 include mypy.ini
+include pytest.ini
 include tox.ini
 recursive-include docs *.py *.rst Makefile
 recursive-include pgtoolkit *.py
