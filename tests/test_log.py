@@ -194,17 +194,15 @@ stage3 LOG:  connection authorized: user=postgres database=postgres
 
 
 def test_main(mocker, caplog, capsys):
-    pkg = "pgtoolkit.log.__main__"
-    mocker.patch(pkg + ".logging.basicConfig", autospec=True)
-    open_ = mocker.patch(pkg + ".open_or_stdin", autospec=True)
-    parse = mocker.patch(pkg + ".parse", autospec=True)
-
     from datetime import datetime, timezone
 
-    from pgtoolkit.log import Record, UnknownData
+    from pgtoolkit.log import Record, UnknownData, __main__
     from pgtoolkit.log.__main__ import main
 
+    mocker.patch.object(__main__, "basicConfig", autospec=True)
+    open_ = mocker.patch.object(__main__, "open_or_stdin", autospec=True)
     open_.return_value = mocker.MagicMock()
+    parse = mocker.patch.object(__main__, "parse", autospec=True)
     parse.return_value = [
         Record("prefix", "LOG", timestamp=datetime.now(timezone.utc)),
         UnknownData(["unknown line\n"]),
@@ -227,14 +225,12 @@ def test_main(mocker, caplog, capsys):
 
 
 def test_main_ko(mocker):
-    pkg = "pgtoolkit.log.__main__"
-    mocker.patch(pkg + ".logging.basicConfig", autospec=True)
-    open_ = mocker.patch(pkg + ".open_or_stdin", autospec=True)
-    parse = mocker.patch(pkg + ".parse", autospec=True)
-
-    from pgtoolkit.log import Record
+    from pgtoolkit.log import Record, __main__
     from pgtoolkit.log.__main__ import main
 
+    mocker.patch.object(__main__, "basicConfig", autospec=True)
+    open_ = mocker.patch.object(__main__, "open_or_stdin", autospec=True)
     open_.return_value = mocker.MagicMock()
+    parse = mocker.patch.object(__main__, "parse", autospec=True)
     parse.return_value = [Record("prefix", "LOG", badentry=object())]
     assert 1 == main(argv=["%m"], environ=dict())

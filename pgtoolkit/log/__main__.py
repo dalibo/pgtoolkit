@@ -9,6 +9,7 @@ import sys
 from argparse import ArgumentParser
 from collections.abc import MutableMapping
 from distutils.util import strtobool
+from logging import basicConfig
 
 from .._helpers import JSONDateEncoder, Timer, open_or_stdin
 from .parser import UnknownData, parse
@@ -21,7 +22,7 @@ def main(
     environ: MutableMapping[str, str] = os.environ,
 ) -> int:
     debug = strtobool(environ.get("DEBUG", "n"))
-    logging.basicConfig(
+    basicConfig(
         level=logging.DEBUG if debug else logging.INFO,
         format="%(asctime)s %(levelname).1s: %(message)s",
     )
