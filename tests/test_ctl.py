@@ -150,9 +150,12 @@ def test_status(pgctl: ctl.PGCtl, returncode: int, status: ctl.Status) -> None:
 
 
 def test_status_returncode1(pgctl: ctl.PGCtl) -> None:
-    with patch.object(
-        pgctl, "run_command", return_value=subprocess.CompletedProcess([], 1)
-    ) as run_command, pytest.raises(subprocess.CalledProcessError):
+    with (
+        patch.object(
+            pgctl, "run_command", return_value=subprocess.CompletedProcess([], 1)
+        ) as run_command,
+        pytest.raises(subprocess.CalledProcessError),
+    ):
         pgctl.status("data")
     run_command.assert_called_once_with(["pg_ctl", "status", "-D", "data"])
 
@@ -194,9 +197,12 @@ async def test_status_async(
 
 @pytest.mark.asyncio
 async def test_status_returncode1_async(apgctl: ctl.AsyncPGCtl) -> None:
-    with patch.object(
-        apgctl, "run_command", return_value=subprocess.CompletedProcess([], 1)
-    ) as run_command, pytest.raises(subprocess.CalledProcessError):
+    with (
+        patch.object(
+            apgctl, "run_command", return_value=subprocess.CompletedProcess([], 1)
+        ) as run_command,
+        pytest.raises(subprocess.CalledProcessError),
+    ):
         await apgctl.status("data")
     run_command.assert_called_once_with(["pg_ctl", "status", "-D", "data"])
 
