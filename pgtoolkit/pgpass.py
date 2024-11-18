@@ -25,7 +25,7 @@ Editing a .pgpass file
 
     with open('.pgpass') as fo:
         pgpass = parse(fo)
-    pgpass.lines.append(PassEntry(username='toto', password='confidentiel'))
+    pgpass.lines.append(PassEntry(username='toto', password='confidential'))
     pgpass.sort()
     with open('.pgpass', 'w') as fo:
         pgpass.save(fo)
@@ -35,7 +35,7 @@ Shorter version using the file directly in `parse`:
 .. code:: python
 
     pgpass = parse('.pgpass')
-    pgpass.lines.append(PassEntry(username='toto', password='confidentiel'))
+    pgpass.lines.append(PassEntry(username='toto', password='confidential'))
     pgpass.sort()
     pgpass.save()
 
@@ -44,7 +44,7 @@ Alternatively, this can be done with the `edit` context manager:
 .. code:: python
 
     with edit('.pgpass') as pgpass:
-        pgpass.lines.append((PassEntry(username='toto', password='confidentiel'))
+        pgpass.lines.append((PassEntry(username='toto', password='confidential'))
         passfile.sort()
 
 
@@ -268,7 +268,7 @@ class PassEntry:
 
     def sort_key(self) -> tuple[int, str, int | str, str, str]:
         tpl = self.as_tuple()[:-1]
-        # Compute precision from * occurences.
+        # Compute precision from * occurrences.
         precision = len([x for x in tpl if x == "*"])
         # More specific entries comes first.
         return (precision,) + tuple(chr(0xFF) if x == "*" else x for x in tpl)  # type: ignore[return-value]
@@ -363,11 +363,11 @@ class PassFile:
     def sort(self) -> None:
         """Sort entries preserving comments.
 
-        libpq use the first entry from .pgpass matching connexion informations.
+        libpq use the first entry from .pgpass matching connection information.
         Thus, less specific entries should be last in the file. This is the
         purpose of :func:`sort` method.
 
-        About comments. Comments are supposed to bear with the entrie
+        About comments. Comments are supposed to bear with the entries
         **below**. Thus comments block are sorted according to the first entry
         below.
 

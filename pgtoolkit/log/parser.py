@@ -128,13 +128,13 @@ def parse_epoch(raw: str) -> datetime:
 
 
 class UnknownData(Exception):
-    """Represents unparseable data.
+    """Represents unparsable data.
 
     :class:`UnknownData` is throwable, you can raise it.
 
     .. attribute:: lines
 
-        The list of unparseable strings.
+        The list of unparsable strings.
     """
 
     # UnknownData object is an exception to be throwable.
@@ -207,7 +207,7 @@ class PrefixParser:
     # https://www.postgresql.org/docs/current/static/runtime-config-logging.html#GUC-LOG-LINE-PREFIX
 
     _datetime_pat = r"\d{4}-[01]\d-[0-3]\d [012]\d:[0-6]\d:[0-6]\d"
-    # Pattern map of Status informations.
+    # Pattern map of Status information.
     _status_pat = dict(
         # Application name
         a=r"(?P<application>\[unknown\]|\w+)?",
@@ -279,15 +279,15 @@ class PrefixParser:
         :return: A :class:`PrefixParser` instance.
 
         """
-        optionnal: str | None
+        optional: str | None
         try:
-            fixed, optionnal = cls._q_re.split(log_line_prefix)
+            fixed, optional = cls._q_re.split(log_line_prefix)
         except ValueError:
-            fixed, optionnal = log_line_prefix, None
+            fixed, optional = log_line_prefix, None
 
         pattern = cls.mkpattern(fixed)
-        if optionnal:
-            pattern += r"(?:" + cls.mkpattern(optionnal) + ")?"
+        if optional:
+            pattern += r"(?:" + cls.mkpattern(optional) + ")?"
         return cls(re.compile(pattern), log_line_prefix)
 
     def __init__(self, re_: Pattern[str], prefix_fmt: str | None = None) -> None:
@@ -313,7 +313,7 @@ class PrefixParser:
         if remote_host:
             fields.setdefault("remote_host", remote_host)
 
-        # Ensure timestamp field is fed eiter by %m or %t.
+        # Ensure timestamp field is fed either by %m or %t.
         timestamp_ms = fields.pop("timestamp_ms", None)
         if timestamp_ms:
             fields.setdefault("timestamp", timestamp_ms)
@@ -322,7 +322,7 @@ class PrefixParser:
 
     @classmethod
     def cast_fields(cls, fields: MutableMapping[str, Any]) -> None:
-        # In-place cast of values in fields dictionnary.
+        # In-place cast of values in fields dictionary.
 
         for k in fields:
             v = fields[k]
@@ -345,11 +345,11 @@ class Record:
     (see csvlog output to compare). Thus we can determine easily message type
     as this stage. :mod:`pgtoolkit.log` does not rewrite message severity.
 
-    Once prefix, severity and message are splitted, the parser analyze prefix
+    Once prefix, severity and message are split, the parser analyze prefix
     according to ``log_line_prefix`` parameter. Prefix can give a lot of
-    informations for filtering, but costs some CPU cycles to process.
+    information for filtering, but costs some CPU cycles to process.
 
-    Finally, the parser analyze the message to extract informations such as
+    Finally, the parser analyze the message to extract information such as
     statement, hint, duration, execution plan, etc. depending on the message
     type.
 

@@ -78,7 +78,7 @@ def parse(fo: str | pathlib.Path | IO[str]) -> Configuration:
 
     The parser tries to return Python object corresponding to value, based on
     some heuristics. booleans, octal number, decimal integers and floating
-    point numbers are parsed. Multiplier units like kB or MB are applyied and
+    point numbers are parsed. Multiplier units like kB or MB are applied and
     you get an int. Interval value like ``3s`` are returned as
     :class:`datetime.timedelta`.
 
@@ -217,7 +217,7 @@ _day = 24 * _hour
 _timedelta_unit_map = [
     ("d", _day),
     ("h", _hour),
-    # The space before 'min' is intentionnal. I find '1 min' more readable
+    # The space before 'min' is intentional. I find '1 min' more readable
     # than '1min'.
     (" min", _minute),
     ("s", 1),
@@ -404,7 +404,7 @@ class EntriesProxy(dict[str, Entry]):
 class Configuration:
     r"""Holds a parsed configuration.
 
-    You can access parameter using attribute or dictionnary syntax.
+    You can access parameter using attribute or dictionary syntax.
 
     >>> conf = parse(['port=5432\n', 'pg_stat_statement.min_duration = 3s\n'])
     >>> conf.port

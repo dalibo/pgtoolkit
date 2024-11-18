@@ -38,7 +38,7 @@ Project name
 
 There is a homonym project by @grayhemp since September 2013:
 `PgToolkit <https://github.com/grayhemp/pgtoolkit>`__.
-``grayhemp/PgToolkit`` is a single tool projet, thus *toolkit* is
+``grayhemp/PgToolkit`` is a single tool project, thus *toolkit* is
 misleading. Also, as of August 2018, it is inactive for 3 years.
 
 There is no Python library named ``pgtoolkit``. There is no CLI program

@@ -69,7 +69,7 @@ Using as a script
 -----------------
 
 :mod:`pgtoolkit.service` is usable as a CLI script. It accepts a service file
-path as first argument, read it, validate it and re-render it, loosing
+path as first argument, read it, validate it and re-render it, losing
 comments.
 
 :class:`ServiceFile` is less strict than `libpq`. Spaces are accepted around
@@ -105,12 +105,12 @@ class Service(dict[str, Parameter]):
     """Service definition.
 
     The :class:`Service` class represents a single service definition in a
-    Service file. It’s actually a dictionnary of its own parameters.
+    Service file. It’s actually a dictionary of its own parameters.
 
     The ``name`` attributes is mapped to the section name of the service in the
     Service file.
 
-    Each parameters can be accessed either as a dictionnary entry or as an
+    Each parameters can be accessed either as a dictionary entry or as an
     attributes.
 
     >>> myservice = Service('myservice', {'dbname': 'mydb'}, host='myhost')
