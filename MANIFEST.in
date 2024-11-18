@@ -2,6 +2,7 @@ include pyproject.toml
 include *.md
 include *.txt
 include LICENSE
+include mypy.ini
 include tox.ini
 recursive-include docs *.py *.rst Makefile
 recursive-include pgtoolkit *.py
