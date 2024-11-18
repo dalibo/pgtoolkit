@@ -13,7 +13,7 @@ jobs:
         with:
           python-version: 3.11
       - name: Install dependencies
-        run: python -m pip install -r requirements-ci.txt -e .
+        run: python -m pip install -e ".[doc]"
       - name: Check documentation
         run: |
           rst2html --strict README.rst > /dev/null

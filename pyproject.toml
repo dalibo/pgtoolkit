@@ -26,6 +26,32 @@ classifiers = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+dev = [
+    "pgtoolkit[lint,typing,test,doc]",
+]
+lint = [
+    "black",
+    "check-manifest",
+    "flake8",
+    "isort",
+]
+typing = [
+    "mypy",
+]
+test = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-mock",
+    "psycopg2-binary",
+]
+doc = [
+    "sphinx",
+    "sphinx-autobuild",
+    "sphinx_rtd_theme",
+]
+
 [project.urls]
 Repository = "https://github.com/dalibo/pgtoolkit"
 Documentation = "https://pgtoolkit.readthedocs.io/"

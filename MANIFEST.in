@@ -15,7 +15,6 @@ recursive-include tests/data *.conf *.includeme *.log pgpass*
 exclude .editorconfig
 exclude .readthedocs.yaml
 exclude Makefile
-exclude requirements/dev.txt
 prune .circleci
 prune rpm
 prune debian
