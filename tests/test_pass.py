@@ -54,7 +54,7 @@ def test_entry():
 def test_compare():
     from pgtoolkit.pgpass import PassComment, PassEntry
 
-    a = PassEntry.parse(":*:*:*:confidentiel")
+    a = PassEntry.parse(":*:*:*:confidential")
     b = PassEntry.parse("hostname:*:*:*:otherpassword")
     c = PassEntry.parse("hostname:5442:*:username:otherpassword")
     d = PassEntry("hostname", "5442", "*", "username", "otherpassword")
@@ -95,9 +95,9 @@ def test_parse_lines(tmp_path):
 
     lines = [
         "# Comment for h2",
-        "h2:*:*:postgres:confidentiel",
-        "# h1:*:*:postgres:confidentiel",
-        "h2:5432:*:postgres:confidentiel",
+        "h2:*:*:postgres:confidential",
+        "# h1:*:*:postgres:confidential",
+        "h2:5432:*:postgres:confidential",
     ]
 
     pgpass = parse(lines)
@@ -120,10 +120,10 @@ def test_parse_lines(tmp_path):
     with passfile.open("w") as fo:
         pgpass.save(fo)
     assert passfile.read_text().splitlines() == [
-        "h2:5432:*:postgres:confidentiel",
-        "# h1:*:*:postgres:confidentiel",
+        "h2:5432:*:postgres:confidential",
+        "# h1:*:*:postgres:confidential",
         "# Comment for h2",
-        "h2:*:*:postgres:confidentiel",
+        "h2:*:*:postgres:confidential",
     ]
 
     header = "#hostname:port:database:username:password"
@@ -218,11 +218,11 @@ def test_remove():
 
     lines = [
         "# Comment for h2",
-        "h2:*:*:postgres:confidentiel",
-        "# h1:*:*:postgres:confidentiel",
-        "h2:5432:*:postgres:confidentiel",
+        "h2:*:*:postgres:confidential",
+        "# h1:*:*:postgres:confidential",
+        "h2:5432:*:postgres:confidential",
         "h2:5432:*:david:Som3Password",
-        "h2:5433:*:postgres:confidentiel",
+        "h2:5433:*:postgres:confidential",
     ]
 
     pgpass = parse(lines)

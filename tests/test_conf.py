@@ -150,10 +150,10 @@ def test_parser():
     assert "*" == dict_["listen_addresses"]
 
     with pytest.raises(AttributeError):
-        conf.inexistant
+        conf.inexistent
 
     with pytest.raises(KeyError):
-        conf["inexistant"]
+        conf["inexistent"]
 
     with pytest.raises(ValueError):
         parse(["bad_line"])
