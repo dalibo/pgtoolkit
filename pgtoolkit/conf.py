@@ -52,7 +52,7 @@ from collections import OrderedDict
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import IO, Any, NoReturn, Union
+from typing import IO, Any, ClassVar, NoReturn, Union
 from warnings import warn
 
 from ._helpers import JSONDateEncoder, open_or_return
@@ -401,6 +401,7 @@ class EntriesProxy(dict[str, Entry]):
         super().__setitem__(name, entry)
 
 
+@dataclass
 class Configuration:
     r"""Holds a parsed configuration.
 
@@ -457,29 +458,20 @@ class Configuration:
 
     """  # noqa
 
-    lines: list[str]
-    entries: dict[str, Entry]
-    path: str | None
-
-    _parameter_re = re.compile(
-        r"^(?P<name>[a-z_.]+)(?: +(?!=)| *= *)(?P<value>.*?)"
-        "[\\s\t]*"
-        r"(?P<comment>#.*)?$"
-    )
-
     # Internally, lines property contains an updated list of all comments and
     # entries serialized. When adding a setting or updating an existing one,
     # the serialized line is updated accordingly. This allows to keep comments
     # and serialize only what's needed. Other lines are just written as-is.
 
-    def __init__(self, path: str | None = None) -> None:
-        self.__dict__.update(
-            dict(
-                lines=[],
-                entries=OrderedDict(),
-                path=path,
-            )
-        )
+    path: str | None = None
+    lines: list[str] = field(default_factory=list, init=False)
+    entries: dict[str, Entry] = field(default_factory=OrderedDict, init=False)
+
+    _parameter_re: ClassVar = re.compile(
+        r"^(?P<name>[a-z_.]+)(?: +(?!=)| *= *)(?P<value>.*?)"
+        "[\\s\t]*"
+        r"(?P<comment>#.*)?$"
+    )
 
     def parse(self, fo: Iterable[str]) -> Iterator[tuple[pathlib.Path, IncludeType]]:
         for raw_line in fo:
@@ -552,13 +544,13 @@ class Configuration:
 
     def __getattr__(self, name: str) -> Value:
         try:
-            return self[name]
+            return self.entries[name].value
         except KeyError:
             raise AttributeError(name)
 
     def __setattr__(self, name: str, value: Value) -> None:
-        if name in self.__dict__:
-            self.__dict__[name] = value
+        if name in self.__dataclass_fields__:
+            super().__setattr__(name, value)
         else:
             self[name] = value
 

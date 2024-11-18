@@ -159,6 +159,17 @@ def test_parser():
         parse(["bad_line"])
 
 
+def test_configuration_fields():
+    """Configuration fields (the ones from dataclass definition) can be changed."""
+    from pgtoolkit.conf import Configuration
+
+    cfg = Configuration(path="my/postgresql.conf")
+    assert cfg.path == "my/postgresql.conf"
+    cfg.path = "changed/to/postgres.conf"
+    assert cfg.path == "changed/to/postgres.conf"
+    assert "path" not in cfg and "path" not in cfg.entries
+
+
 def test_configuration_multiple_entries():
     from pgtoolkit.conf import Configuration
 
