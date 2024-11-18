@@ -8,7 +8,6 @@ import pdb
 import sys
 from argparse import ArgumentParser
 from collections.abc import MutableMapping
-from distutils.util import strtobool
 from logging import basicConfig
 
 from .._helpers import JSONDateEncoder, Timer, open_or_stdin
@@ -21,7 +20,7 @@ def main(
     argv: list[str] = sys.argv[1:],
     environ: MutableMapping[str, str] = os.environ,
 ) -> int:
-    debug = strtobool(environ.get("DEBUG", "n"))
+    debug = environ.get("DEBUG", "n").lower() in ("1", "y", "yes", "true", "on")
     basicConfig(
         level=logging.DEBUG if debug else logging.INFO,
         format="%(asctime)s %(levelname).1s: %(message)s",
