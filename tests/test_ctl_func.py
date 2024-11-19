@@ -16,7 +16,7 @@ def pgctl() -> ctl.PGCtl:
         pytest.skip(str(e))
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(loop_scope="module")
 async def apgctl() -> ctl.AsyncPGCtl:
     try:
         return await ctl.AsyncPGCtl.get()
@@ -51,7 +51,7 @@ def initdb(tmp_path_factory, pgctl: ctl.PGCtl) -> tuple[Path, Path, Path]:
     return datadir, waldir, pid_path
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(loop_scope="module")
 async def ainitdb(tmp_path_factory, apgctl: ctl.AsyncPGCtl) -> tuple[Path, Path, Path]:
     datadir = tmp_path_factory.mktemp("data")
     waldir = tmp_path_factory.mktemp("wal")
