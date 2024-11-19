@@ -22,7 +22,7 @@ jobs:
         run: python -m pip install tox
       - name: Test with pytest
         run: |
-          tox -e tests-ci
+          tox -v -e tests-ci
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == '3.12' }}
         uses: codecov/codecov-action@v3
