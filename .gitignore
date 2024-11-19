@@ -1,6 +1,6 @@
 *.egg-info/
 *.pyc
-.coverage
+coverage.xml
 .eggs
 .mypy_cache/
 .pybuild
