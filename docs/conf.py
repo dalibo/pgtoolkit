@@ -11,7 +11,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import pkg_resources
+import importlib.metadata
 
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
@@ -22,10 +22,9 @@ author = "Dalibo"
 copyright = "2018, Dalibo Labs"
 
 # The full version, including alpha/beta/rc tags
-release = pkg_resources.get_distribution(project).version
-parsed_version = pkg_resources.parse_version(release)
+release = importlib.metadata.version(project)
 # The short X.Y version
-version = parsed_version.base_version
+version = ".".join(release.split(".")[:2])
 
 
 # -- General configuration ---------------------------------------------------
