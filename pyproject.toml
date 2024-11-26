@@ -35,6 +35,7 @@ lint = [
     "check-manifest",
     "flake8",
     "isort",
+    "pyupgrade",
 ]
 typing = [
     "mypy",

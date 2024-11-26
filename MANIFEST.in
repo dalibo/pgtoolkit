@@ -1,5 +1,6 @@
 include .coveragerc
 include .flake8
+include .pre-commit-config.yaml
 include pyproject.toml
 include *.md
 include *.txt
