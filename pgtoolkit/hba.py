@@ -73,9 +73,9 @@ import os
 import re
 import sys
 import warnings
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from pathlib import Path
-from typing import IO, Any, Callable
+from typing import IO, Any
 
 from ._helpers import open_or_return, open_or_stdin
 from .errors import ParseError

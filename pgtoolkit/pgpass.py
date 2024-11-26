@@ -73,10 +73,10 @@ from __future__ import annotations
 import os
 import sys
 import warnings
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import IO, Callable
+from typing import IO
 
 from ._helpers import open_or_stdin
 from .errors import ParseError

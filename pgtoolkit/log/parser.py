@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
+from collections.abc import (
+    Callable,
+    Iterable,
+    Iterator,
+    Mapping,
+    MutableMapping,
+    Sequence,
+)
 from datetime import datetime, timedelta, timezone
 from re import Pattern
-from typing import Any, Callable
+from typing import Any
 
 
 class LogParser:
