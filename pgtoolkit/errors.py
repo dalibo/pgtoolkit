@@ -8,15 +8,7 @@ class ParseError(Exception):
         self.line = line
 
     def __repr__(self) -> str:
-        return "<%s at line %d: %.32s>" % (
-            self.__class__.__name__,
-            self.lineno,
-            self.args[0],
-        )
+        return f"<{self.__class__.__name__} at line {self.lineno}: {self.args[0]:.32}>"
 
     def __str__(self) -> str:
-        return "Bad line #{} '{:.32}': {}".format(
-            self.lineno,
-            self.line.strip(),
-            self.args[0],
-        )
+        return f"Bad line #{self.lineno} '{self.line.strip():.32}': {self.args[0]}"

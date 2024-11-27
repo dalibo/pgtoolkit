@@ -45,8 +45,7 @@ def test_parse_value():
     assert "user=foo password=secret'" == parse_value("'user=foo password=secret'''")
     assert (
         # this one does not work in parse_dsn()
-        "user=foo password='secret"
-        == parse_value("'user=foo password=''secret'")
+        "user=foo password='secret" == parse_value("'user=foo password=''secret'")
     )
     assert "%m [%p] %q%u@%d " == parse_value(r"'%m [%p] %q%u@%d '")
     assert "124.7MB" == parse_value("124.7MB")

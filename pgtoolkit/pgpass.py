@@ -244,13 +244,7 @@ class PassEntry:
         return NotImplemented
 
     def __repr__(self) -> str:
-        return "<{} {}@{}:{}/{}>".format(
-            self.__class__.__name__,
-            self.username,
-            self.hostname,
-            self.port,
-            self.database,
-        )
+        return f"<{self.__class__.__name__} {self.username}@{self.hostname}:{self.port}/{self.database}>"
 
     def __str__(self) -> str:
         return ":".join(
@@ -284,7 +278,7 @@ class PassEntry:
         expected_attributes = self.__dict__.keys()
         for k in attrs.keys():
             if k not in expected_attributes:
-                raise AttributeError("%s is not a valid attribute" % k)
+                raise AttributeError(f"{k} is not a valid attribute")
 
         for k, v in attrs.items():
             if getattr(self, k) != v:
@@ -328,7 +322,7 @@ class PassFile:
         :param entries: A list of PassEntry or PassComment. Optional.
         """
         if entries and not isinstance(entries, list):
-            raise ValueError("%s should be a list" % entries)
+            raise ValueError(f"{entries} should be a list")
         self.lines = entries or []
         self.path = path
 

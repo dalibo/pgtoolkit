@@ -63,9 +63,7 @@ def test_parse_local_line():
     with pytest.raises(AttributeError):
         record.address
 
-    wanted = (
-        "local   all             all                                     trust"  # noqa
-    )
+    wanted = "local   all             all                                     trust"  # noqa
     assert wanted == str(record)
 
 

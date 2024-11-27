@@ -158,7 +158,7 @@ class HBARecord:
             comment = " ".join(comments[1:])
 
         if values[0] not in cls.CONNECTION_TYPES:
-            raise ValueError("Unknown connection type '%s'" % values[0])
+            raise ValueError(f"Unknown connection type '{values[0]}'")
         if "local" != values[0]:
             record_fields.append("address")
         common_values = [v for v in values if "=" not in v]
@@ -220,14 +220,14 @@ class HBARecord:
                 continue
 
             if width:
-                fmt += "%%(%s)-%ds " % (field, width - 1)
+                fmt += f"%%({field})-%ds " % (width - 1)
             else:
                 fmt += f"%({field})s "
         # Serialize database and user list using property.
         values = dict(self.__dict__, databases=self.database, users=self.user)
         line = fmt.rstrip() % values
 
-        auth_options = ['%s="%s"' % i for i in self.auth_options]
+        auth_options = ['{}="{}"'.format(*i) for i in self.auth_options]
         if auth_options:
             line += " " + " ".join(auth_options)
 
@@ -290,7 +290,7 @@ class HBARecord:
         # Provided attributes should be comparable to HBARecord attributes
         for k in attrs.keys():
             if k not in self.COMMON_FIELDS + ["database", "user"]:
-                raise AttributeError("%s is not a valid attribute" % k)
+                raise AttributeError(f"{k} is not a valid attribute")
 
         for k, v in attrs.items():
             if getattr(self, k, None) != v:
@@ -326,7 +326,7 @@ class HBA:
         :param entries: A list of HBAComment or HBARecord. Optional.
         """
         if entries and not isinstance(entries, list):
-            raise ValueError("%s should be a list" % entries)
+            raise ValueError(f"{entries} should be a list")
         self.lines = list(entries) if entries is not None else []
         self.path = None
 

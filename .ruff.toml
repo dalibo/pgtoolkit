@@ -1,0 +1,25 @@
+target-version = "py39"
+exclude = [
+    ".eggs",
+    ".tox",
+    ".venv",
+    ".cache",
+]
+
+[lint]
+extend-select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "I",  # isort
+    "UP", # pyupgrade
+    "W",  # pycodestyle warnings
+]
+ignore = [
+    "E501", # line too long
+]
+
+[lint.isort]
+known-first-party = ["pgtoolkit"]
+
+[format]
+docstring-code-format = true

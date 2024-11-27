@@ -518,13 +518,13 @@ def parse_control_data(lines: Sequence[str]) -> dict[str, str]:
 def num_version(text_version: str) -> int:
     """Return PostgreSQL numeric version as defined by LibPQ PQserverVersion
 
-    >>> num_version('pg_ctl (PostgreSQL) 9.6.3')
+    >>> num_version("pg_ctl (PostgreSQL) 9.6.3")
     90603
-    >>> num_version('pg_ctl (PostgreSQL) 9.2.0')
+    >>> num_version("pg_ctl (PostgreSQL) 9.2.0")
     90200
-    >>> num_version('pg_ctl (PostgreSQL) 11.10')
+    >>> num_version("pg_ctl (PostgreSQL) 11.10")
     110010
-    >>> num_version('pg_ctl (PostgreSQL) 11.1')
+    >>> num_version("pg_ctl (PostgreSQL) 11.1")
     110001
     >>> num_version("pg_ctl (PostgreSQL) 14devel")
     140000

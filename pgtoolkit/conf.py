@@ -286,7 +286,7 @@ def serialize_value(value: Value) -> str:
             # done everywhere in the string or nowhere.
             if "''" not in value and r"\'" not in value:
                 value = value.replace("'", "''")
-            value = "'%s'" % value
+            value = f"'{value}'"
     elif isinstance(value, timedelta):
         seconds = value.days * _day + value.seconds
         if value.microseconds:
@@ -340,7 +340,7 @@ class Entry:
         return serialize_value(self.value)
 
     def __str__(self) -> str:
-        line = "%(name)s = %(value)s" % dict(name=self.name, value=self.serialize())
+        line = "{name} = {value}".format(**dict(name=self.name, value=self.serialize()))
         if self.comment:
             line += "  # " + self.comment
         if self.commented:
@@ -351,33 +351,34 @@ class Entry:
 class EntriesProxy(dict[str, Entry]):
     """Proxy object used during Configuration edition.
 
-    >>> p = EntriesProxy(port=Entry('port', '5432'),
-    ...                  shared_buffers=Entry('shared_buffers', '1GB'))
+    >>> p = EntriesProxy(
+    ...     port=Entry("port", "5432"), shared_buffers=Entry("shared_buffers", "1GB")
+    ... )
 
     Existing entries can be edited:
 
-    >>> p['port'].value = '5433'
+    >>> p["port"].value = "5433"
 
     New entries can be added as:
 
-    >>> p.add('listen_addresses', '*', commented=True, comment='IP address')
+    >>> p.add("listen_addresses", "*", commented=True, comment="IP address")
     >>> p  # doctest: +NORMALIZE_WHITESPACE
     {'port': Entry(name='port', _value=5433, commented=False, comment=None),
      'shared_buffers': Entry(name='shared_buffers', _value='1GB', commented=False, comment=None),
      'listen_addresses': Entry(name='listen_addresses', _value='*', commented=True, comment='IP address')}
-    >>> del p['shared_buffers']
+    >>> del p["shared_buffers"]
     >>> p  # doctest: +NORMALIZE_WHITESPACE
     {'port': Entry(name='port', _value=5433, commented=False, comment=None),
      'listen_addresses': Entry(name='listen_addresses', _value='*', commented=True, comment='IP address')}
 
     Adding an existing entry fails:
-    >>> p.add('port', 5433)
+    >>> p.add("port", 5433)
     Traceback (most recent call last):
         ...
     ValueError: 'port' key already present
 
     So does adding a value to the underlying dict:
-    >>> p['bonjour_name'] = 'pgserver'
+    >>> p["bonjour_name"] = "pgserver"
     Traceback (most recent call last):
         ...
     TypeError: cannot set a key
@@ -407,16 +408,16 @@ class Configuration:
 
     You can access parameter using attribute or dictionary syntax.
 
-    >>> conf = parse(['port=5432\n', 'pg_stat_statement.min_duration = 3s\n'])
+    >>> conf = parse(["port=5432\n", "pg_stat_statement.min_duration = 3s\n"])
     >>> conf.port
     5432
     >>> conf.port = 5433
     >>> conf.port
     5433
-    >>> conf['port'] = 5434
+    >>> conf["port"] = 5434
     >>> conf.port
     5434
-    >>> conf['pg_stat_statement.min_duration'].total_seconds()
+    >>> conf["pg_stat_statement.min_duration"].total_seconds()
     3.0
     >>> conf.get("ssl")
     >>> conf.get("ssl", False)
@@ -496,7 +497,7 @@ class Configuration:
             else:
                 m = self._parameter_re.match(line)
                 if not m:
-                    raise ValueError("Bad line: %r." % raw_line)
+                    raise ValueError(f"Bad line: {raw_line!r}.")
             kwargs = m.groupdict()
             name = kwargs.pop("name")
             value = parse_value(kwargs.pop("value"))
@@ -621,12 +622,14 @@ class Configuration:
         >>> import sys
 
         >>> cfg = Configuration()
-        >>> includes = cfg.parse([
-        ...     "#listen_addresses = 'localhost'  # what IP address(es) to listen on;\n",
-        ...     "                                 # comma-separated list of addresses;\n",
-        ...     "port = 5432                      # (change requires restart)\n",
-        ...     "max_connections = 100            # (change requires restart)\n",
-        ... ])
+        >>> includes = cfg.parse(
+        ...     [
+        ...         "#listen_addresses = 'localhost'  # what IP address(es) to listen on;\n",
+        ...         "                                 # comma-separated list of addresses;\n",
+        ...         "port = 5432                      # (change requires restart)\n",
+        ...         "max_connections = 100            # (change requires restart)\n",
+        ...     ]
+        ... )
         >>> list(includes)
         []
         >>> cfg.save(sys.stdout)
@@ -638,7 +641,7 @@ class Configuration:
         >>> with cfg.edit() as entries:
         ...     entries["port"].value = 2345
         ...     entries["port"].comment = None
-        ...     entries["listen_addresses"].value = '*'
+        ...     entries["listen_addresses"].value = "*"
         ...     del entries["max_connections"]
         ...     entries.add(
         ...         "unix_socket_directories",
