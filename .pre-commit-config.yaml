@@ -1,6 +1,16 @@
 repos:
 - repo: local
   hooks:
+    - id: ruff
+      name: ruff
+      entry: ruff check
+      language: system
+      types: [python]
+    - id: ruff-format
+      name: ruff-format
+      entry: ruff format
+      language: system
+      types: [python]
     - id: pyupgrade
       name: pyupgrade
       entry: pyupgrade --exit-zero-even-if-changed

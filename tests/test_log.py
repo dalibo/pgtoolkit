@@ -25,9 +25,7 @@ def test_parse():
 \tORDER BY 1;
 2018-06-15 10:49:26.088 UTC [8420]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.006 user=postgres database=postgres host=[local]
 BAD PREFIX 10:49:31.140 UTC [8423]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
-""".splitlines(
-        True
-    )  # noqa
+""".splitlines(True)  # noqa
 
     log_line_prefix = "%m [%p]: [%l-1] app=%a,db=%d,client=%h,user=%u "
     records = list(parse(lines, prefix_fmt=log_line_prefix))
@@ -57,9 +55,7 @@ def test_group_lines():
 \tORDER BY 1;
 2018-06-15 10:49:26.088 UTC [8420]: [4-1] app=psql,db=postgres,client=[local],user=postgres LOG:  disconnection: session time: 0:00:00.006 user=postgres database=postgres host=[local]
 2018-06-15 10:49:31.140 UTC [8423]: [1-1] app=[unknown],db=[unknown],client=[local],user=[unknown] LOG:  connection received: host=[local]
-""".splitlines(
-        True
-    )  # noqa
+""".splitlines(True)  # noqa
 
     groups = list(group_lines(lines))
     assert 7 == len(groups)
@@ -128,9 +124,7 @@ def test_record_stage1_ok():
 \t       pg_catalog.array_to_string(d.datacl, E'\\n') AS "Access privileges"
 \tFROM pg_catalog.pg_database d
 \tORDER BY 1;
-""".splitlines(
-        True
-    )  # noqa
+""".splitlines(True)  # noqa
 
     record = Record.parse_stage1(lines)
     assert "LOG" in repr(record)
@@ -173,9 +167,7 @@ def test_filters():
 stage1 LOG:  duration: 1002.209 ms  statement: select pg_sleep(1);
 stage2 LOG:  duration: 0.223 ms  statement: show log_timezone;
 stage3 LOG:  connection authorized: user=postgres database=postgres
-""".splitlines(
-        True
-    )  # noqa
+""".splitlines(True)  # noqa
 
     class MyFilters(NoopFilters):
         def stage1(self, record):

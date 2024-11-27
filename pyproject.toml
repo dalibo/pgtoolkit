@@ -31,11 +31,8 @@ dev = [
     "pgtoolkit[lint,typing,test,doc]",
 ]
 lint = [
-    "black",
+    "ruff",
     "check-manifest",
-    "flake8",
-    "isort",
-    "pyupgrade",
 ]
 typing = [
     "mypy",
@@ -56,10 +53,6 @@ doc = [
 [project.urls]
 Repository = "https://github.com/dalibo/pgtoolkit"
 Documentation = "https://pgtoolkit.readthedocs.io/"
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3
 
 [tool.setuptools.packages.find]
 where = ["."]
