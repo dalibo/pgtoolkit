@@ -173,7 +173,7 @@ def test_hba_create():
     assert ["all"] == r.databases
 
     # Should be a list
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="should be a list"):
         HBA("blah")
 
 

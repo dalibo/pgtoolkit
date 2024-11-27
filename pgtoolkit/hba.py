@@ -74,6 +74,7 @@ import re
 import sys
 import warnings
 from collections.abc import Callable, Iterable, Iterator, Sequence
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import IO, Any
 
@@ -209,20 +210,20 @@ class HBARecord:
         widths = [8, 16, 16, 16, 8]
 
         fmt = ""
-        for i, field in enumerate(self.COMMON_FIELDS):
+        for i, field_ in enumerate(self.COMMON_FIELDS):
             try:
                 width = widths[i]
             except IndexError:
                 width = 0
 
-            if field not in self.fields:
+            if field_ not in self.fields:
                 fmt += " " * width
                 continue
 
             if width:
-                fmt += f"%%({field})-%ds " % (width - 1)
+                fmt += f"%%({field_})-%ds " % (width - 1)
             else:
-                fmt += f"%({field})s "
+                fmt += f"%({field_})s "
         # Serialize database and user list using property.
         values = dict(self.__dict__, databases=self.database, users=self.user)
         line = fmt.rstrip() % values
@@ -298,6 +299,7 @@ class HBARecord:
         return True
 
 
+@dataclass
 class HBA:
     """Represents pg_hba.conf records
 
@@ -317,18 +319,14 @@ class HBA:
     .. automethod:: merge
     """
 
-    lines: list[HBAComment | HBARecord]
-    path: str | Path | None
+    entries: Iterable[HBAComment | HBARecord] | None = None
+    lines: list[HBAComment | HBARecord] = field(default_factory=list, init=False)
+    path: str | Path | None = field(init=False)
 
-    def __init__(self, entries: Iterable[HBAComment | HBARecord] | None = None) -> None:
-        """HBA constructor
-
-        :param entries: A list of HBAComment or HBARecord. Optional.
-        """
-        if entries and not isinstance(entries, list):
-            raise ValueError(f"{entries} should be a list")
-        self.lines = list(entries) if entries is not None else []
-        self.path = None
+    def __post_init__(self) -> None:
+        if self.entries and not isinstance(self.entries, list):
+            raise ValueError(f"{self.entries} should be a list")
+        self.lines = list(self.entries) if self.entries is not None else []
 
     def __iter__(self) -> Iterator[HBARecord]:
         """Iterate on records, ignoring comments and blank lines."""
