@@ -3,7 +3,8 @@ from __future__ import annotations
 
 class ParseError(Exception):
     def __init__(self, lineno: int, line: str, message: str) -> None:
-        super().__init__(message)
+        self.message = message
+        super().__init__(self.message)
         self.lineno = lineno
         self.line = line
 
@@ -11,12 +12,12 @@ class ParseError(Exception):
         return "<%s at line %d: %.32s>" % (
             self.__class__.__name__,
             self.lineno,
-            self.args[0],
+            self.message,
         )
 
     def __str__(self) -> str:
         return "Bad line #{} '{:.32}': {}".format(
             self.lineno,
             self.line.strip(),
-            self.args[0],
+            self.message,
         )
