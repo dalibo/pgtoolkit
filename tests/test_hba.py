@@ -155,6 +155,20 @@ def test_hba(mocker):
     hba.save(mocker.Mock(name="file"))
 
 
+def test_hba_path(tmp_path):
+    from pgtoolkit.hba import HBA
+
+    hba = HBA()
+    assert hba.path is None
+    with pytest.raises(ValueError, match="No file-like object nor path provided"):
+        hba.save()
+
+    p = tmp_path / "filename"
+    hba = HBA([], p)
+    assert hba.path == p
+    hba.save()
+
+
 def test_hba_create():
     from pgtoolkit.hba import HBA, HBAComment, HBARecord
 
@@ -173,10 +187,6 @@ def test_hba_create():
 
     r = hba.lines[1]
     assert ["all"] == r.databases
-
-    # Should be a list
-    with pytest.raises(ValueError):
-        HBA("blah")
 
 
 def test_parse_file(mocker, tmp_path):
