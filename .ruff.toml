@@ -19,3 +19,6 @@ ignore = [
 
 [lint.isort]
 known-first-party = ["pgtoolkit"]
+
+[format]
+docstring-code-format = true

@@ -113,14 +113,14 @@ class Service(dict[str, Parameter]):
     Each parameters can be accessed either as a dictionary entry or as an
     attributes.
 
-    >>> myservice = Service('myservice', {'dbname': 'mydb'}, host='myhost')
+    >>> myservice = Service("myservice", {"dbname": "mydb"}, host="myhost")
     >>> myservice.name
     'myservice'
     >>> myservice.dbname
     'mydb'
-    >>> myservice['dbname']
+    >>> myservice["dbname"]
     'mydb'
-    >>> myservice.user = 'myuser'
+    >>> myservice.user = "myuser"
     >>> list(sorted(myservice.items()))
     [('dbname', 'mydb'), ('host', 'myhost'), ('user', 'myuser')]
 
