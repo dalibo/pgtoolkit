@@ -118,11 +118,11 @@ def parse_isodatetime(raw: str) -> datetime:
             int(raw[20:23]) if raw[19] == "." else 0,
         )
     except ValueError:
-        raise ValueError("%s is not a known date" % raw)
+        raise ValueError(f"{raw} is not a known date")
 
     if raw[-3:] != "UTC":
         # We need tzdata for that.
-        raise ValueError("%s not in UTC." % raw)
+        raise ValueError(f"{raw} not in UTC.")
 
     return datetime(*infos)
 

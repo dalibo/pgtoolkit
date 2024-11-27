@@ -11,8 +11,3 @@ repos:
       entry: ruff format
       language: system
       types: [python]
-    - id: pyupgrade
-      name: pyupgrade
-      entry: pyupgrade --exit-zero-even-if-changed
-      language: system
-      types: [python]

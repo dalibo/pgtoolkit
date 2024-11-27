@@ -286,7 +286,7 @@ def serialize_value(value: Value) -> str:
             # done everywhere in the string or nowhere.
             if "''" not in value and r"\'" not in value:
                 value = value.replace("'", "''")
-            value = "'%s'" % value
+            value = f"'{value}'"
     elif isinstance(value, timedelta):
         seconds = value.days * _day + value.seconds
         if value.microseconds:
@@ -340,7 +340,7 @@ class Entry:
         return serialize_value(self.value)
 
     def __str__(self) -> str:
-        line = "%(name)s = %(value)s" % dict(name=self.name, value=self.serialize())
+        line = "{name} = {value}".format(**dict(name=self.name, value=self.serialize()))
         if self.comment:
             line += "  # " + self.comment
         if self.commented:
@@ -497,7 +497,7 @@ class Configuration:
             else:
                 m = self._parameter_re.match(line)
                 if not m:
-                    raise ValueError("Bad line: %r." % raw_line)
+                    raise ValueError(f"Bad line: {raw_line!r}.")
             kwargs = m.groupdict()
             name = kwargs.pop("name")
             value = parse_value(kwargs.pop("value"))

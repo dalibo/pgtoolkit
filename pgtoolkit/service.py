@@ -179,7 +179,7 @@ class ServiceFile:
         )
 
     def __repr__(self) -> str:
-        return "<%s>" % (self.__class__.__name__)
+        return f"<{self.__class__.__name__}>"
 
     def __getitem__(self, key: str) -> Service:
         parameters = {
