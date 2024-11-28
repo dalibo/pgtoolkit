@@ -75,8 +75,9 @@ import sys
 import warnings
 from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import IO
+from typing import IO, Literal
 
 from ._helpers import open_or_stdin
 from .errors import ParseError
@@ -158,6 +159,7 @@ class PassComment(str):
             return False
 
 
+@dataclass
 class PassEntry:
     """Holds a .pgpass entry.
 
@@ -190,6 +192,12 @@ class PassEntry:
 
     """
 
+    hostname: str
+    port: int | Literal["*"] = 5432
+    database: str = "postgres"
+    username: str = "postgres"
+    password: str = ""
+
     @classmethod
     def parse(cls, line: str) -> PassEntry:
         """Parse a single line.
@@ -203,22 +211,8 @@ class PassEntry:
             raise ValueError("Invalid line.")
         hostname, port, database, username, password = fields
         return cls(
-            hostname, int(port) if port != "*" else port, database, username, password
+            hostname, int(port) if port != "*" else "*", database, username, password
         )
-
-    def __init__(
-        self,
-        hostname: str,
-        port: int | str,
-        database: str,
-        username: str,
-        password: str,
-    ) -> None:
-        self.hostname = hostname
-        self.port = port
-        self.database = database
-        self.username = username
-        self.password = password
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, PassComment):
@@ -292,6 +286,7 @@ class PassEntry:
         return True
 
 
+@dataclass
 class PassFile:
     """Holds .pgpass file entries and comments.
 
@@ -314,7 +309,7 @@ class PassFile:
 
     """
 
-    lines: list[PassComment | PassEntry]
+    lines: list[PassComment | PassEntry] = field(default_factory=list, init=False)
     path: str | None = None
 
     def __init__(
