@@ -36,11 +36,11 @@ def test_comment():
 def test_parse_host_line():
     from pgtoolkit.hba import HBARecord
 
-    record = HBARecord.parse("host    replication   all   ::1/128       trust")
+    record = HBARecord.parse("host    replication,mydb   all   ::1/128       trust")
     assert "host" in repr(record)
     assert "host" == record.conntype
-    assert "replication" == record.database
-    assert ["replication"] == record.databases
+    assert "replication,mydb" == record.database
+    assert ["replication", "mydb"] == record.databases
     assert "all" == record.user
     assert ["all"] == record.users
     assert "::1/128" == record.address
@@ -57,6 +57,8 @@ def test_parse_local_line():
     record = HBARecord.parse("local    all     all     trust")
     assert "local" == record.conntype
     assert "all" == record.database
+    assert ["all"] == record.databases
+    assert "all" == record.user
     assert ["all"] == record.users
     assert "trust" == record.method
 
@@ -77,7 +79,7 @@ def test_parse_auth_option():
     )
     assert "local" == record.conntype
     assert "veryverylongdatabasenamethatdonotfit" == record.database
-    assert ["all"] == record.users
+    assert "all" == record.user
     assert "ident" == record.method
     assert "omicron" == record.map
 
@@ -97,7 +99,7 @@ def test_parse_record_with_comment():
     record = HBARecord.parse("local    all     all     trust  # My  comment")
     assert "local" == record.conntype
     assert "all" == record.database
-    assert ["all"] == record.users
+    assert "all" == record.user
     assert "trust" == record.method
     assert "My comment" == record.comment
 
@@ -186,7 +188,7 @@ def test_hba_create():
     assert 2 == len(hba.lines)
 
     r = hba.lines[1]
-    assert ["all"] == r.databases
+    assert "all" == r.database
 
 
 def test_parse_file(mocker, tmp_path):
@@ -345,8 +347,8 @@ def test_merge():
     other_hba = HBA()
     record = HBARecord(
         conntype="host",
-        databases=["replication"],
-        users=["all"],
+        database="replication",
+        user="all",
         address="1.2.3.4",
         method="trust",
     )
@@ -366,12 +368,6 @@ def test_as_dict():
     )
     assert r.as_dict() == {
         "conntype": "local",
-        "databases": ["all"],
-        "users": ["all"],
-        "method": "trust",
-    }
-    assert r.as_dict(serialized=True) == {
-        "conntype": "local",
         "database": "all",
         "user": "all",
         "method": "trust",
@@ -379,21 +375,13 @@ def test_as_dict():
 
     r = HBARecord(
         conntype="local",
-        databases=["mydb", "mydb2"],
-        users=["bob", "alice"],
+        database="mydb,mydb2",
+        user="bob,alice",
         address="127.0.0.1",
         netmask="255.255.255.255",
         method="trust",
     )
     assert r.as_dict() == {
-        "address": "127.0.0.1",
-        "conntype": "local",
-        "databases": ["mydb", "mydb2"],
-        "users": ["bob", "alice"],
-        "method": "trust",
-        "netmask": "255.255.255.255",
-    }
-    assert r.as_dict(serialized=True) == {
         "address": "127.0.0.1",
         "conntype": "local",
         "database": "mydb,mydb2",
@@ -417,8 +405,8 @@ def test_hbarecord_equality():
 
     r = HBARecord(
         conntype="host",
-        databases=["all"],
-        users=["u0", "u1"],
+        database="all",
+        user="u0,u1",
         address="127.0.0.1/32",
         method="trust",
     )
