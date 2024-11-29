@@ -73,7 +73,7 @@ import os
 import re
 import sys
 import warnings
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import IO, Any
@@ -165,27 +165,20 @@ class HBARecord:
         # Remove extra outer double quotes for auth options values if any
         auth_options = [(o[0], re.sub(r"^\"|\"$", "", o[1])) for o in auth_options]
         options = base_options + auth_options
-        return cls(options, comment=comment)
+        return cls(**{k: v for k, v in options}, comment=comment)
 
     conntype: str | None
     database: str
     user: str
 
-    def __init__(
-        self,
-        values: Iterable[tuple[str, str]] | dict[str, Any] | None = None,
-        comment: str | None = None,
-        **kw_values: str | Sequence[str],
-    ) -> None:
+    def __init__(self, *, comment: str | None = None, **values: Any) -> None:
         """
-        :param values: A dict of fields.
-        :param kw_values: Fields passed as keyword.
-        :param comment:  Comment at the end of the line.
+        :param comment: Optional comment.
+        :param values: Fields passed as keyword.
         """
-        dict_values: dict[str, Any] = dict(values or {}, **kw_values)
-        self.__dict__.update(dict_values)
-        self.fields = [k for k, _ in dict_values.items()]
+        self.__dict__.update(values)
         self.comment = comment
+        self.fields = list(values)
 
     def __repr__(self) -> str:
         return "<{} {}{}>".format(
