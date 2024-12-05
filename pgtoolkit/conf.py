@@ -257,10 +257,10 @@ def parse_value(raw: str) -> Value:
         kwargs = {arg: int(m.group("number"))}
         return timedelta(**kwargs)
 
-    if raw in ("true", "yes", "on"):
+    if raw.lower() in ("true", "yes", "on"):
         return True
 
-    if raw in ("false", "no", "off"):
+    if raw.lower() in ("false", "no", "off"):
         return False
 
     if not quoted:
