@@ -16,6 +16,9 @@ def test_parse_value():
     assert parse_value("false") is False
     assert parse_value("yes") is True
     assert parse_value("'no'") is False
+    assert parse_value("On") is True
+    assert parse_value("TRUE") is True
+    assert parse_value("fAlSe") is False
 
     # Numbers
     assert 10 == parse_value("10")
