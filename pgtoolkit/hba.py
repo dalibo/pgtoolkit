@@ -73,7 +73,7 @@ import os
 import re
 import sys
 import warnings
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
 from typing import IO, Any
 
@@ -90,16 +90,12 @@ class HBARecord:
     """Holds a HBA record composed of fields and a comment.
 
     Common fields are accessible through attribute : ``conntype``,
-    ``databases``, ``users``, ``address``, ``netmask``, ``method``.
+    ``database``, ``user``, ``address``, ``netmask``, ``method``.
     Auth-options fields are also accessible through attribute like ``map``,
     ``ldapserver``, etc.
 
     ``address`` and ``netmask`` fields are not always defined. If not,
     accessing undefined attributes trigger an :exc:`AttributeError`.
-
-    ``databases`` and ``users`` have a single value variant respectively
-    :attr:`database` and :attr:`user`, computed after the list representation
-    of the field.
 
     .. automethod:: parse
     .. automethod:: __init__
@@ -112,8 +108,8 @@ class HBARecord:
 
     COMMON_FIELDS = [
         "conntype",
-        "databases",
-        "users",
+        "database",
+        "user",
         "address",
         "netmask",
         "method",
@@ -137,7 +133,7 @@ class HBARecord:
 
         """
         line = line.strip()
-        record_fields = ["conntype", "databases", "users"]
+        record_fields = ["conntype", "database", "user"]
 
         # What the regexp below does is finding all elements separated by spaces
         # unless they are enclosed in double-quotes
@@ -146,9 +142,7 @@ class HBARecord:
         #             double-quotes (alternative 1)
         # \S = any non-whitespace character (alternative 2)
         values = [p for p in re.findall(r"(?:\"+.*?\"+|\S)+", line) if p.strip()]
-        # Split databases and users lists.
-        values[1] = values[1].split(",")
-        values[2] = values[2].split(",")
+        assert len(values) > 2
         try:
             hash_pos = values.index("#")
         except ValueError:
@@ -170,31 +164,19 @@ class HBARecord:
         # Remove extra outer double quotes for auth options values if any
         auth_options = [(o[0], re.sub(r"^\"|\"$", "", o[1])) for o in auth_options]
         options = base_options + auth_options
-        return cls(options, comment=comment)
+        return cls(**{k: v for k, v in options}, comment=comment)
 
     conntype: str | None
-    databases: list[str]
-    users: list[str]
+    database: str
+    user: str
 
-    def __init__(
-        self,
-        values: Iterable[tuple[str, str]] | dict[str, Any] | None = None,
-        comment: str | None = None,
-        **kw_values: str | Sequence[str],
-    ) -> None:
+    def __init__(self, *, comment: str | None = None, **values: Any) -> None:
         """
-        :param values: A dict of fields.
-        :param kw_values: Fields passed as keyword.
-        :param comment:  Comment at the end of the line.
+        :param values: Fields passed as keyword.
         """
-        dict_values: dict[str, Any] = dict(values or {}, **kw_values)
-        if "database" in dict_values:
-            dict_values["databases"] = [dict_values.pop("database")]
-        if "user" in dict_values:
-            dict_values["users"] = [dict_values.pop("user")]
-        self.__dict__.update(dict_values)
-        self.fields = [k for k, _ in dict_values.items()]
         self.comment = comment
+        self.__dict__.update(values)
+        self.fields = list(values)
 
     def __repr__(self) -> str:
         return "<{} {}{}>".format(
@@ -223,9 +205,7 @@ class HBARecord:
                 fmt += "%%(%s)-%ds " % (field, width - 1)
             else:
                 fmt += f"%({field})s "
-        # Serialize database and user list using property.
-        values = dict(self.__dict__, databases=self.database, users=self.user)
-        line = fmt.rstrip() % values
+        line = fmt.rstrip() % self.__dict__
 
         auth_options = ['%s="%s"' % i for i in self.auth_options]
         if auth_options:
@@ -241,17 +221,13 @@ class HBARecord:
     def __eq__(self, other: object) -> bool:
         return str(self) == str(other)
 
-    def as_dict(self, serialized: bool = False) -> dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         str_fields = self.COMMON_FIELDS[:]
-        if serialized:
-            str_fields[1:3] = ["database", "user"]
         return {f: getattr(self, f) for f in str_fields if hasattr(self, f)}
 
     @property
     def common_values(self) -> list[str]:
         str_fields = self.COMMON_FIELDS[:]
-        # Use serialized variant.
-        str_fields[1:3] = ["database", "user"]
         return [getattr(self, f) for f in str_fields if f in self.fields]
 
     @property
@@ -261,24 +237,12 @@ class HBARecord:
         ]
 
     @property
-    def database(self) -> str:
-        """Hold database column as a single value.
-
-        Use `databases` attribute to get parsed database list. `database` is
-        guaranteed to be a string.
-
-        """
-        return ",".join(self.databases)
+    def databases(self) -> list[str]:
+        return self.database.split(",")
 
     @property
-    def user(self) -> str:
-        """Hold user column as a single value.
-
-        Use ``users`` property to get parsed user list. ``user`` is guaranteed
-        to be a string.
-
-        """
-        return ",".join(self.users)
+    def users(self) -> list[str]:
+        return self.user.split(",")
 
     def matches(self, **attrs: str) -> bool:
         """Tells if the current record is matching provided attributes.
