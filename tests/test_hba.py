@@ -197,24 +197,24 @@ def test_parse_file(mocker, tmp_path):
         mocker.patch("builtins.open", m)
     except Exception:
         mocker.patch("__builtin__.open", m)
-    pgpass = parse("filename")
-    pgpass.lines.append(HBAComment("# Something"))
+    hba = parse("filename")
+    hba.lines.append(HBAComment("# Something"))
 
     assert m.called
-    pgpass.save()
+    hba.save()
     handle = m()
     handle.write.assert_called_with("# Something\n")
 
     # Also works for other string types
     m.reset_mock()
-    pgpass = parse("filename")
-    pgpass.lines.append(HBAComment("# Something"))
+    hba = parse("filename")
+    hba.lines.append(HBAComment("# Something"))
     assert m.called
 
     # Also works with path
     m.reset_mock()
-    pgpass = parse(tmp_path / "filename")
-    pgpass.lines.append(HBAComment("# Something"))
+    hba = parse(tmp_path / "filename")
+    hba.lines.append(HBAComment("# Something"))
 
     assert m.called
 
