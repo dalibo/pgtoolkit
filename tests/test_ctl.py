@@ -66,10 +66,6 @@ def pgctl(bindir: Path) -> ctl.PGCtl:
     return c
 
 
-def test_version(pgctl: ctl.AsyncPGCtl) -> None:
-    assert pgctl.version == 110010
-
-
 def test_init_cmd(pgctl: ctl.PGCtl) -> None:
     assert pgctl.init_cmd(
         "data",
@@ -168,11 +164,6 @@ async def apgctl(bindir: Path) -> ctl.AsyncPGCtl:
     c = await ctl.AsyncPGCtl.get(bindir, run_command=run_command)
     c.pg_ctl = Path("pg_ctl")
     return c
-
-
-@pytest.mark.asyncio
-async def test_version_async(apgctl: ctl.AsyncPGCtl) -> None:
-    assert apgctl.version == 110010
 
 
 @pytest.mark.parametrize(

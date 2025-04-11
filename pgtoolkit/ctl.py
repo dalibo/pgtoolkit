@@ -151,7 +151,6 @@ class Status(enum.IntEnum):
 
 class AbstractPGCtl(abc.ABC):
     bindir: Path
-    version: int
 
     @cached_property
     def pg_ctl(self) -> Path:
@@ -160,9 +159,6 @@ class AbstractPGCtl(abc.ABC):
         if not value.exists():
             raise OSError("pg_ctl executable not found")
         return value
-
-    def version_cmd(self) -> list[str]:
-        return [str(self.pg_ctl), "--version"]
 
     def init_cmd(self, datadir: Path | str, **opts: str | Literal[True]) -> list[str]:
         cmd = [str(self.pg_ctl), "init"] + ["-D", str(datadir)]
@@ -270,10 +266,6 @@ class PGCtl(AbstractPGCtl):
             ).stdout.strip()
         self.bindir = Path(bindir)
         self.run_command = run_command
-        version = run_command(
-            self.version_cmd(), check=True, capture_output=True
-        ).stdout.strip()
-        self.version = num_version(version)
 
     def init(
         self, datadir: Path | str, **opts: str | Literal[True]
@@ -434,10 +426,6 @@ class AsyncPGCtl(AbstractPGCtl):
             ).stdout.strip()
         bindir = Path(bindir)
         self = cls(bindir, run_command)
-        version = (
-            await run_command(self.version_cmd(), check=True, capture_output=True)
-        ).stdout.strip()
-        self.version = num_version(version)
         return self
 
     async def init(
@@ -513,67 +501,3 @@ def parse_control_data(lines: Sequence[str]) -> dict[str, str]:
         if m:
             controldata[m.group(1).strip()] = m.group(2).strip()
     return controldata
-
-
-def num_version(text_version: str) -> int:
-    """Return PostgreSQL numeric version as defined by LibPQ PQserverVersion
-
-    >>> num_version('pg_ctl (PostgreSQL) 9.6.3')
-    90603
-    >>> num_version('pg_ctl (PostgreSQL) 9.2.0')
-    90200
-    >>> num_version('pg_ctl (PostgreSQL) 11.10')
-    110010
-    >>> num_version('pg_ctl (PostgreSQL) 11.1')
-    110001
-    >>> num_version("pg_ctl (PostgreSQL) 14devel")
-    140000
-    >>> num_version("pg_ctl (PostgreSQL) 9.6devel")
-    90600
-    >>> num_version("pg_ctl (PostgreSQL) 9.6rc1")
-    90600
-    """
-    res = re.match(
-        r"pg_ctl \(\w+\) ([0-9]+)\.([0-9]+)(?:\.([0-9]+))?",
-        text_version,
-    )
-    if res is not None:
-        rmatch = res.group(1)
-        if int(res.group(1)) < 10:
-            rmatch += res.group(2).rjust(2, "0")
-            if res.group(3) is not None:
-                rmatch += res.group(3).rjust(2, "0")
-            else:
-                return num_dev_version(text_version)
-        else:
-            rmatch += res.group(2).rjust(4, "0")
-        pg_num_version = int(rmatch)
-        return pg_num_version
-    return num_dev_version(text_version)
-
-
-def num_dev_version(text_version: str) -> int:
-    """Return PostgreSQL numeric version as defined by LibPQ PQserverVersion
-
-    >>> num_dev_version("pg_ctl (PostgreSQL) 14devel")
-    140000
-    >>> num_dev_version("pg_ctl (PostgreSQL) 13beta1")
-    130000
-    >>> num_dev_version("pg_ctl (PostgreSQL) 13rc1")
-    130000
-    >>> num_dev_version("pg_ctl (PostgreSQL) 9.6devel")
-    90600
-    """
-    res = re.match(
-        r"pg_ctl \(\w+\) ([0-9]+)(?:\.([0-9]+))?(devel|beta[0-9]+|rc[0-9]+)",
-        text_version,
-    )
-    if not res:
-        raise Exception(f"Undefined PostgreSQL version: {text_version}")
-    rmatch = res.group(1)
-    if res.group(2) is not None:
-        rmatch += res.group(2).rjust(2, "0") + "00"
-    else:
-        rmatch += "0000"
-    pg_num_version = int(rmatch)
-    return pg_num_version
