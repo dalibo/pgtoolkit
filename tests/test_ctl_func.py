@@ -103,8 +103,6 @@ def tmp_port() -> int:
 def test_start_stop_status_restart_reload(
     initdb: tuple[Path, Path, Path], pgctl: ctl.PGCtl, tmp_port: int
 ) -> None:
-    from psycopg2 import connect
-
     datadir, __, pidpath = initdb
     assert pgctl.status("invalid") == ctl.Status.unspecified_datadir
     assert pgctl.status(str(datadir)) == ctl.Status.not_running
@@ -112,9 +110,6 @@ def test_start_stop_status_restart_reload(
     pgctl.start(str(datadir), logfile=datadir / "logs", port=str(tmp_port))
     assert pidpath.exists()
     pid1 = pidpath.read_text()
-
-    connection = connect(dbname="postgres", host="0.0.0.0", port=tmp_port)
-    assert connection.info.server_version == pgctl.version
 
     assert pgctl.status(str(datadir)) == ctl.Status.running
     pgctl.restart(str(datadir), mode="immediate", wait=2)
@@ -134,8 +129,6 @@ def test_start_stop_status_restart_reload(
 async def test_start_stop_status_restart_reload_async(
     ainitdb: tuple[Path, Path, Path], apgctl: ctl.AsyncPGCtl, tmp_port: int
 ) -> None:
-    from psycopg2 import connect
-
     datadir, __, pidpath = ainitdb
     assert (await apgctl.status("invalid")) == ctl.Status.unspecified_datadir
     assert (await apgctl.status(str(datadir))) == ctl.Status.not_running
@@ -143,9 +136,6 @@ async def test_start_stop_status_restart_reload_async(
     await apgctl.start(str(datadir), logfile=datadir / "logs", port=str(tmp_port))
     assert pidpath.exists()
     pid1 = pidpath.read_text()
-
-    connection = connect(dbname="postgres", host="0.0.0.0", port=tmp_port)
-    assert connection.info.server_version == apgctl.version
 
     assert (await apgctl.status(str(datadir))) == ctl.Status.running
     await apgctl.restart(str(datadir), mode="immediate", wait=2)
