@@ -15,7 +15,6 @@ https://github.com/dalibo/pgtoolkit
 
 Then, follow the next steps:
 
-- Update version in `rpm/python-pgtoolkit.spec` file, commit the changes
 - Create an annotated (and optionally signed) tag
   `git tag -a [-s] -m "pgtoolkit <version>" <version>`
 - Push the new tag
